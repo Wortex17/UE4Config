@@ -1,0 +1,47 @@
+image: Visual Studio 2017
+configuration: Release
+
+init:
+- cmd: "set ProductBaseVersion=0.1.2"
+- cmd: "echo ProductBaseVersion=%ProductBaseVersion%"
+- cmd: "set ProductVersion=%ProductBaseVersion%.%APPVEYOR_BUILD_NUMBER%"
+- cmd: "echo ProductVersion=%ProductVersion%"
+- cmd: "set ProductLongVersion=%ProductVersion%-%APPVEYOR_REPO_BRANCH%"
+- cmd: "echo ProductLongVersion=%ProductLongVersion%"
+- cmd: appveyor UpdateBuild -Version "%ProductVersion%"
+
+dotnet_csproj:
+  patch: true
+  file: '**\UE4Config*\Properties\AssemblyInfo.cs'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '$(ProductLongVersion)'
+  
+before_build:
+- nuget restore
+- choco install opencover.portable
+- choco install codecov
+
+test_script:
+- OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:".\UE4Config.Tests\bin\Debug\UE4Config.Tests.dll .\UE4Config.Tests\bin\Release\UE4Config.Tests.dll --result=myresults.xml;format=AppVeyor" -filter:"+[UE4Config*]* -[UE4Config.Tests*]*" -output:".\UE4Config_coverage.xml"
+- codecov -f "UE4Config_coverage.xml"
+
+build:
+  publish_nuget: true
+
+artifacts:
+  - path: 'UE4Config\bin\Release'
+    name: UE4Config
+
+deploy:
+  tag: $(APPVEYOR_REPO_TAG_NAME)  # update the tag triggering this release deployment
+  release: 'UE4Config $(ProductVersion)'
+  description: 'Release for version $(ProductLongVersion)'
+  draft: true
+  provider: GitHub
+  auth_token: $(GITHUB_RELEASE_TOKEN_ENCRYPTED) # your encrypted token from GitHub
+  artifact: /.*\.nupkg/            # upload all NuGet packages to release assets
+  on:
+    APPVEYOR_REPO_TAG: true        # deploy on tag push only
