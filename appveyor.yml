@@ -12,7 +12,7 @@ init:
 
 dotnet_csproj:
   patch: true
-  file: '**\UE4Config*\*.csproj.cs'
+  file: '**\UE4Config*\*.csproj'
   version: '{version}'
   package_version: '{version}'
   assembly_version: '{version}'
