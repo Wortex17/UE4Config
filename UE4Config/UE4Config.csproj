@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Patrick Michael Hopf</Authors>
+    <Company>Infrablack</Company>
+    <Description>A straightlaced C# libary to edit Unreal Engine 4 config files, for UE4 projects and built games.</Description>
+    <Copyright>Patrick Michael Hopf (C) 2020</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Wortex17/UE4Config</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Wortex17/UE4Config</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
 </Project>
