@@ -25,7 +25,7 @@ before_build:
 - choco install codecov
 
 test_script:
-- OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:".\UE4Config.Tests\bin\Release\UE4Config.Tests.dll --result=myresults.xml;format=AppVeyor" -filter:"+[UE4Config*]* -[UE4Config.Tests*]*" -output:".\UE4Config_coverage.xml"
+- OpenCover.Console.exe -register:administrator -target:"nunit3-console.exe" -targetargs:".\UE4Config.Tests\bin\Release\UE4Config.Tests.dll --result=myresults.xml;format=AppVeyor" -filter:"+[UE4Config*]* -[UE4Config.Tests*]*" -output:".\UE4Config_coverage.xml"
 - codecov -f "UE4Config_coverage.xml"
 
 build:
