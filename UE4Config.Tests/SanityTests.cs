@@ -7,6 +7,7 @@ namespace UE4Config.Tests
     [TestFixture]
     class SanityTests
     {
+        [Test]
         public void When_CheckingTestSanity()
         {
             Assert.That("Sanity", Is.EqualTo("Sanity"));
