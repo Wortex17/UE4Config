@@ -259,6 +259,31 @@ namespace UE4Config.Tests.Parser
                 Assert.That(tokenT.Lines, Has.Count.EqualTo(lines.Length));
                 Assert.That(tokenT.Lines, Is.EquivalentTo(lines));
             }
+
+            [TestCase("[NewSection]", "NewSection")]
+            [TestCase("[Player.Values]", "Player.Values")]
+            [TestCase("[Engine_Settings]", "Engine_Settings")]
+            [TestCase("[/Script/Settings]", "/Script/Settings")]
+            [TestCase("[ NewSection]", " NewSection")]
+            [TestCase("[ NewSection ]", " NewSection ")]
+            [TestCase("[ New Section ]", " New Section ")]
+            [TestCase(" [NewSection] ", "NewSection")]
+            public void When_LineIsSectionHeader(string line, string expectedName)
+            {
+                var configIni = new ConfigIni();
+                var initialSection = new ConfigIniSection();
+                configIni.Sections.Add(initialSection);
+                var currentSection = initialSection;
+
+                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+
+                Assert.That(initialSection, Is.Not.SameAs(currentSection));
+                Assert.That(currentSection, Is.Not.Null);
+                Assert.That(configIni.Sections, Has.Count.EqualTo(2));
+                Assert.That(configIni.Sections[0], Is.SameAs(initialSection));
+                Assert.That(configIni.Sections[1], Is.SameAs(currentSection));
+                Assert.That(currentSection.Name, Is.EqualTo(expectedName));
+            }
         }
     }
 }
