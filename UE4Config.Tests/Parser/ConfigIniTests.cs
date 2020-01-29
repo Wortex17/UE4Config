@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using NUnit.Framework;
 using UE4Config.Parser;
 
@@ -285,6 +286,69 @@ namespace UE4Config.Tests.Parser
                 Assert.That(currentSection.Name, Is.EqualTo(expectedName));
                 Assert.That(currentSection.LineWastePrefix, Is.EqualTo(expectedWastePrefix));
                 Assert.That(currentSection.LineWasteSuffix, Is.EqualTo(expectedWasteSuffix));
+            }
+        }
+
+
+        [TestFixture]
+        class Read
+        {
+            [Test]
+            public void When_ReaderHasMultipleValidLines()
+            {
+                var configIni = new ConfigIni();
+                string textString = String.Join("\n", new[] {
+                    ";Comment",
+                    "",
+                    "[Header]",
+                    "Key=Value"
+                });
+                var textStringReader = new StringReader(textString);
+
+                Assert.That(() => configIni.Read(textStringReader), Throws.Nothing);
+                
+                Assert.That(configIni.Sections, Has.Count.EqualTo(2));
+                Assert.That(configIni.Sections[0].Name, Is.Null);
+                Assert.That(configIni.Sections[0].Tokens, Has.Count.EqualTo(2));
+                Assert.That(configIni.Sections[0].Tokens[0], Is.TypeOf<CommentToken>());
+                Assert.That(configIni.Sections[0].Tokens[1], Is.TypeOf<WhitespaceToken>());
+                Assert.That(configIni.Sections[1].Tokens, Has.Count.EqualTo(1));
+                Assert.That(configIni.Sections[1].Tokens[0], Is.TypeOf<InstructionToken>());
+            }
+
+            [Test]
+            public void When_ReaderHasMultipleEmptyLines()
+            {
+                var configIni = new ConfigIni();
+                var textStringReader = new StringReader("\n\n\n\n");
+
+                Assert.That(() => configIni.Read(textStringReader), Throws.Nothing);
+
+                Assert.That(configIni.Sections, Has.Count.EqualTo(1));
+                Assert.That(configIni.Sections[0].Name, Is.Null);
+                Assert.That(configIni.Sections[0].Tokens, Has.Count.EqualTo(1));
+                Assert.That(configIni.Sections[0].Tokens[0], Is.TypeOf<WhitespaceToken>());
+                var whitespaceToken = configIni.Sections[0].Tokens[0] as WhitespaceToken;
+                Assert.That(whitespaceToken.Lines, Has.Count.EqualTo(4));
+            }
+
+            [Test]
+            public void When_ReadingRepeatedly()
+            {
+                var configIni = new ConfigIni();
+
+                var textStringReaderA = new StringReader(";CommentA\n;CommentB");
+                var textStringReaderB = new StringReader(";CommentC\n;CommentD");
+
+                Assert.That(() => configIni.Read(textStringReaderA), Throws.Nothing);
+                Assert.That(() => configIni.Read(textStringReaderB), Throws.Nothing);
+
+                Assert.That(configIni.Sections, Has.Count.EqualTo(1));
+                Assert.That(configIni.Sections[0].Name, Is.Null);
+                Assert.That(configIni.Sections[0].Tokens, Has.Count.EqualTo(1));
+                Assert.That(configIni.Sections[0].Tokens[0], Is.TypeOf<CommentToken>());
+                var commentToken = configIni.Sections[0].Tokens[0] as CommentToken;
+                Assert.That(commentToken.Lines, Has.Count.EqualTo(4));
             }
         }
     }

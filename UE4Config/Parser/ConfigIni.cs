@@ -24,6 +24,7 @@ namespace UE4Config.Parser
             {
                 // Default section without a Name
                 currentSection = new ConfigIniSection();
+                Sections.Add(currentSection);
             }
 
             string line = null;
