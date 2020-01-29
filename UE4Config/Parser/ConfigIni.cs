@@ -12,6 +12,17 @@ namespace UE4Config.Parser
     {
         public List<ConfigIniSection> Sections = new List<ConfigIniSection>();
 
+        public void FindPropertyInstructions(string sectionName, string propertyKey, List<InstructionToken> instructions)
+        {
+            foreach (var iniSection in Sections)
+            {
+                if (iniSection.Name == sectionName)
+                {
+                    iniSection.FindPropertyInstructions(propertyKey, instructions);
+                }
+            }
+        }
+
         public void Read(TextReader reader)
         {
             ConfigIniSection currentSection = null;

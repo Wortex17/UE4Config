@@ -23,6 +23,23 @@ namespace UE4Config.Parser
             Name = name;
         }
 
+        /// <summary>
+        /// Adds all instructions that could be found for the given key to the list, in order of declaration
+        /// </summary>
+        public void FindPropertyInstructions(string propertyKey, List<InstructionToken> instructions)
+        {
+            foreach (var iniToken in Tokens)
+            {
+                if (iniToken is InstructionToken instruction)
+                {
+                    if (instruction.Key == propertyKey)
+                    {
+                        instructions.Add(instruction);
+                    }
+                }
+            }
+        }
+
         public IniToken GetLastToken()
         {
             if (Tokens.Count > 0)
