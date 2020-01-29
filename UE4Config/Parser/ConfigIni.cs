@@ -53,7 +53,7 @@ namespace UE4Config.Parser
                 return;
             }
 
-            if (line.StartsWith(";"))
+            if (line.TrimStart().StartsWith(";"))
             {
                 var lastToken = currentSection.GetLastToken();
                 var comment = lastToken as CommentToken;
