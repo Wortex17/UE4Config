@@ -210,6 +210,55 @@ namespace UE4Config.Tests.Parser
                 Assert.That(tokenT.Key, Is.EqualTo(expectedKey));
                 Assert.That(tokenT.Value, Is.Null);
             }
+
+            [TestCase(";")]
+            [TestCase("; ")]
+            [TestCase(" ;")]
+            [TestCase("; Comment")]
+            [TestCase(";; Comment")]
+            [TestCase("; ;")]
+            [TestCase(" ; ; ")]
+            public void When_LineIsComment(string line)
+            {
+                var configIni = new ConfigIni();
+                var currentSection = new ConfigIniSection();
+                configIni.Sections.Add(currentSection);
+
+                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+
+                var tokenT = AssertSingleAddedTokenToSection<CommentToken>(configIni, currentSection);
+                Assert.That(tokenT.Lines, Has.Count.EqualTo(1));
+                Assert.That(tokenT.Lines[0], Is.EqualTo(line));
+            }
+
+            public static IEnumerable RepeatedCommentsTestCases
+            {
+                get
+                {
+                    yield return new TestCaseData(new[] { new[] { ";", ";" } });
+                    yield return new TestCaseData(new[] { new[] { "; ", "; Comment" } });
+                    yield return new TestCaseData(new[] { new[] { "; Comment", "; Details" } });
+                    yield return new TestCaseData(new[] { new[] { "; Comment", "; Details", "; MoreDetails" } });
+                    yield return new TestCaseData(new[] { new[] { "; Comment", ";", "; MoreDetails" } });
+                }
+            }
+
+            [TestCaseSource(nameof(RepeatedCommentsTestCases))]
+            public void When_LineIsRepeatedComment(string[] lines)
+            {
+                var configIni = new ConfigIni();
+                var currentSection = new ConfigIniSection();
+                configIni.Sections.Add(currentSection);
+
+                foreach (var line in lines)
+                {
+                    Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                }
+
+                var tokenT = AssertSingleAddedTokenToSection<CommentToken>(configIni, currentSection);
+                Assert.That(tokenT.Lines, Has.Count.EqualTo(lines.Length));
+                Assert.That(tokenT.Lines, Is.EquivalentTo(lines));
+            }
         }
     }
 }
