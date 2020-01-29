@@ -53,7 +53,12 @@ namespace UE4Config.Parser
                 return;
             }
 
-            if (line.TrimStart().StartsWith(";"))
+            string endTrimmedLine = line.TrimEnd();
+            string lineWasteSuffix = line.Substring(endTrimmedLine.Length);
+            string trimmedLine = endTrimmedLine.TrimStart();
+            string lineWastePrefix = line.Substring(0, endTrimmedLine.Length - trimmedLine.Length);
+
+            if (trimmedLine.StartsWith(";"))
             {
                 var lastToken = currentSection.GetLastToken();
                 var comment = lastToken as CommentToken;
@@ -66,10 +71,12 @@ namespace UE4Config.Parser
                 return;
             }
 
-            if (line.StartsWith("[") && line.EndsWith("]"))
+            if (trimmedLine.StartsWith("[") && trimmedLine.EndsWith("]"))
             {
-                string sectionName = line.Substring(1, line.Length - 2);
+                string sectionName = trimmedLine.Substring(1, trimmedLine.Length - 2);
                 currentSection = new ConfigIniSection(sectionName);
+                currentSection.LineWastePrefix = String.IsNullOrEmpty(lineWastePrefix) ? null : lineWastePrefix;
+                currentSection.LineWasteSuffix = String.IsNullOrEmpty(lineWasteSuffix) ? null : lineWasteSuffix;
                 Sections.Add(currentSection);
                 return;
             }

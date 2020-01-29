@@ -7,6 +7,15 @@ namespace UE4Config.Parser
         public string Name = null;
         public List<IniToken> Tokens = new List<IniToken>();
 
+        /// <summary>
+        /// Trimmed whitespace characters prefixing this sections header line
+        /// </summary>
+        public string LineWastePrefix = null;
+        /// <summary>
+        /// Trimmed whitespace characters suffixing this sections header line
+        /// </summary>
+        public string LineWasteSuffix = null;
+
         public ConfigIniSection() { }
 
         public ConfigIniSection(string name)

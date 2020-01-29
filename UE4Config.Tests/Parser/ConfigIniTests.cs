@@ -267,8 +267,8 @@ namespace UE4Config.Tests.Parser
             [TestCase("[ NewSection]", " NewSection")]
             [TestCase("[ NewSection ]", " NewSection ")]
             [TestCase("[ New Section ]", " New Section ")]
-            [TestCase(" [NewSection] ", "NewSection")]
-            public void When_LineIsSectionHeader(string line, string expectedName)
+            [TestCase(" [NewSection]  ", "NewSection", " ", "  ")]
+            public void When_LineIsSectionHeader(string line, string expectedName, string expectedWastePrefix = null, string expectedWasteSuffix = null)
             {
                 var configIni = new ConfigIni();
                 var initialSection = new ConfigIniSection();
@@ -283,6 +283,8 @@ namespace UE4Config.Tests.Parser
                 Assert.That(configIni.Sections[0], Is.SameAs(initialSection));
                 Assert.That(configIni.Sections[1], Is.SameAs(currentSection));
                 Assert.That(currentSection.Name, Is.EqualTo(expectedName));
+                Assert.That(currentSection.LineWastePrefix, Is.EqualTo(expectedWastePrefix));
+                Assert.That(currentSection.LineWasteSuffix, Is.EqualTo(expectedWasteSuffix));
             }
         }
     }
