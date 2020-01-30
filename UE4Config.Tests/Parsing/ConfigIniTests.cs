@@ -351,5 +351,216 @@ namespace UE4Config.Tests.Parsing
                 Assert.That(commentToken.Lines, Has.Count.EqualTo(4));
             }
         }
+
+
+        [TestFixture]
+        class MergeDuplicateSections
+        {
+
+            [Test]
+            public void When_HasSingleSection()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2 = new TextToken();
+                var tokenA1_3 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2);
+                sectionA1.Tokens.Add(tokenA1_3);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+
+                config.MergeDuplicateSections();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new[] { tokenA1_1, tokenA1_2, tokenA1_3 }));
+            }
+
+            [Test]
+            public void When_Has2DuplicateSections()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2 = new TextToken();
+                var tokenA1_3 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2);
+                sectionA1.Tokens.Add(tokenA1_3);
+
+                var sectionA2 = new ConfigIniSection("A");
+                var tokenA2_1 = new TextToken();
+                var tokenA2_2 = new TextToken();
+                var tokenA2_3 = new TextToken();
+                sectionA2.Tokens.Add(tokenA2_1);
+                sectionA2.Tokens.Add(tokenA2_2);
+                sectionA2.Tokens.Add(tokenA2_3);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+                config.Sections.Add(sectionA2);
+
+                config.MergeDuplicateSections();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new[] { tokenA1_1, tokenA1_2, tokenA1_3, tokenA2_1, tokenA2_2, tokenA2_3 }));
+            }
+
+            [Test]
+            public void When_Has3DuplicateSections()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2 = new TextToken();
+                var tokenA1_3 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2);
+                sectionA1.Tokens.Add(tokenA1_3);
+
+                var sectionA2 = new ConfigIniSection("A");
+                var tokenA2_1 = new TextToken();
+                var tokenA2_2 = new TextToken();
+                var tokenA2_3 = new TextToken();
+                sectionA2.Tokens.Add(tokenA2_1);
+                sectionA2.Tokens.Add(tokenA2_2);
+                sectionA2.Tokens.Add(tokenA2_3);
+
+                var sectionA3 = new ConfigIniSection("A");
+                var tokenA3_1 = new TextToken();
+                var tokenA3_2 = new TextToken();
+                var tokenA3_3 = new TextToken();
+                sectionA3.Tokens.Add(tokenA3_1);
+                sectionA3.Tokens.Add(tokenA3_2);
+                sectionA3.Tokens.Add(tokenA3_3);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+                config.Sections.Add(sectionA2);
+                config.Sections.Add(sectionA3);
+
+                config.MergeDuplicateSections();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new[] { tokenA1_1, tokenA1_2, tokenA1_3, tokenA2_1, tokenA2_2, tokenA2_3, tokenA3_1, tokenA3_2, tokenA3_3 }));
+            }
+
+            [Test]
+            public void When_Has2DistinctSections()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2 = new TextToken();
+                var tokenA1_3 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2);
+                sectionA1.Tokens.Add(tokenA1_3);
+
+                var sectionB1 = new ConfigIniSection("B");
+                var tokenB1_1 = new TextToken();
+                var tokenB1_2 = new TextToken();
+                var tokenB1_3 = new TextToken();
+                sectionB1.Tokens.Add(tokenB1_1);
+                sectionB1.Tokens.Add(tokenB1_2);
+                sectionB1.Tokens.Add(tokenB1_3);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+                config.Sections.Add(sectionB1);
+
+                config.MergeDuplicateSections();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1, sectionB1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new[] { tokenA1_1, tokenA1_2, tokenA1_3 }));
+                Assert.That(sectionB1.Tokens, Is.EquivalentTo(new[] { tokenB1_1, tokenB1_2, tokenB1_3 }));
+            }
+
+            [Test]
+            public void When_HasDistinctWithin2DuplicateSections()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2 = new TextToken();
+                var tokenA1_3 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2);
+                sectionA1.Tokens.Add(tokenA1_3);
+
+                var sectionB1 = new ConfigIniSection("B");
+                var tokenB1_1 = new TextToken();
+                var tokenB1_2 = new TextToken();
+                var tokenB1_3 = new TextToken();
+                sectionB1.Tokens.Add(tokenB1_1);
+                sectionB1.Tokens.Add(tokenB1_2);
+                sectionB1.Tokens.Add(tokenB1_3);
+
+                var sectionA2 = new ConfigIniSection("A");
+                var tokenA2_1 = new TextToken();
+                var tokenA2_2 = new TextToken();
+                var tokenA2_3 = new TextToken();
+                sectionA2.Tokens.Add(tokenA2_1);
+                sectionA2.Tokens.Add(tokenA2_2);
+                sectionA2.Tokens.Add(tokenA2_3);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+                config.Sections.Add(sectionB1);
+                config.Sections.Add(sectionA2);
+
+                config.MergeDuplicateSections();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1, sectionB1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new[] { tokenA1_1, tokenA1_2, tokenA1_3, tokenA2_1, tokenA2_2, tokenA2_3 }));
+                Assert.That(sectionB1.Tokens, Is.EquivalentTo(new[] { tokenB1_1, tokenB1_2, tokenB1_3 }));
+            }
+
+            [Test]
+            public void When_Has2DuplicateWithin2DistinctSections()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2 = new TextToken();
+                var tokenA1_3 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2);
+                sectionA1.Tokens.Add(tokenA1_3);
+
+                var sectionB1 = new ConfigIniSection("B");
+                var tokenB1_1 = new TextToken();
+                var tokenB1_2 = new TextToken();
+                var tokenB1_3 = new TextToken();
+                sectionB1.Tokens.Add(tokenB1_1);
+                sectionB1.Tokens.Add(tokenB1_2);
+                sectionB1.Tokens.Add(tokenB1_3);
+
+                var sectionB2 = new ConfigIniSection("B");
+                var tokenB2_1 = new TextToken();
+                var tokenB2_2 = new TextToken();
+                var tokenB2_3 = new TextToken();
+                sectionB2.Tokens.Add(tokenB2_1);
+                sectionB2.Tokens.Add(tokenB2_2);
+                sectionB2.Tokens.Add(tokenB2_3);
+
+                var sectionC1 = new ConfigIniSection("C");
+                var tokenC1_1 = new TextToken();
+                var tokenC1_2 = new TextToken();
+                var tokenC1_3 = new TextToken();
+                sectionC1.Tokens.Add(tokenC1_1);
+                sectionC1.Tokens.Add(tokenC1_2);
+                sectionC1.Tokens.Add(tokenC1_3);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+                config.Sections.Add(sectionB1);
+                config.Sections.Add(sectionB2);
+                config.Sections.Add(sectionC1);
+
+                config.MergeDuplicateSections();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1, sectionB1, sectionC1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new[] { tokenA1_1, tokenA1_2, tokenA1_3 }));
+                Assert.That(sectionB1.Tokens, Is.EquivalentTo(new[] { tokenB1_1, tokenB1_2, tokenB1_3, tokenB2_1, tokenB2_2, tokenB2_3 }));
+                Assert.That(sectionC1.Tokens, Is.EquivalentTo(new[] { tokenC1_1, tokenC1_2, tokenC1_3 }));
+            }
+        }
     }
 }

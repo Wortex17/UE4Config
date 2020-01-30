@@ -144,5 +144,27 @@ namespace UE4Config.Parsing
             currentSection.Tokens.Add(text);
             return;
         }
+
+        /// <summary>
+        /// Merges together <see cref="Sections"/> that share a <see cref="ConfigIniSection.Name"/>.
+        /// <see cref="ConfigIniSection.Tokens"/> will be merge din order of the sections
+        /// </summary>
+        public void MergeDuplicateSections()
+        {
+            for (int i = 0; i < Sections.Count; i++)
+            {
+                var pivotSection = Sections[i];
+                for (int j = i+1; j < Sections.Count; j++)
+                {
+                    var otherSection = Sections[j];
+                    if (otherSection.Name == pivotSection.Name)
+                    {
+                        pivotSection.Tokens.AddRange(otherSection.Tokens);
+                        Sections.RemoveAt(j);
+                        j--;
+                    }
+                }
+            }
+        }
     }
 }
