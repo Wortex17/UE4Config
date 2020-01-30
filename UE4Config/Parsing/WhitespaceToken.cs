@@ -6,9 +6,11 @@ namespace UE4Config.Parsing
     /// <summary>
     /// Describes whitespace characters found within the INI file that are neither part of an instruction nor comment
     /// </summary>
-    public class WhitespaceToken : IniToken
+    public class WhitespaceToken : MultilineToken
     {
-        public List<string> Lines = new List<string>();
+        public WhitespaceToken() : base() { }
+
+        public WhitespaceToken(IEnumerable<string> lines) : base(lines) { }
 
         /// <summary>
         /// Condenses the whitespace to a single newline

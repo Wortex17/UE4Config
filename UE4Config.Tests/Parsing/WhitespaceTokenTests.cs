@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.IO;
 using NUnit.Framework;
 using UE4Config.Parsing;
 

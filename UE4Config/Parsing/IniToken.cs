@@ -1,6 +1,6 @@
 ﻿namespace UE4Config.Parsing
 {
-    public class IniToken
+    public abstract class IniToken
     {
     }
 }

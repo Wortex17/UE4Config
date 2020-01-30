@@ -49,5 +49,34 @@ namespace UE4Config.Parsing
 
             return null;
         }
+
+        /// <summary>
+        /// Merges together supported consecutive tokens of the same type.
+        /// This includes <see cref="WhitespaceToken"/> and <see cref="CommentToken"/>
+        /// </summary>
+        public void MergeConsecutiveTokens()
+        {
+            for (int i = Tokens.Count - 1; i > 0; i--)
+            {
+                var token = Tokens[i];
+                var precedingToken = Tokens[i - 1];
+
+                if (token is WhitespaceToken whitespace)
+                {
+                    if (precedingToken is WhitespaceToken precedingWhitespace)
+                    {
+                        precedingWhitespace.Lines.AddRange(whitespace.Lines);
+                        Tokens.RemoveAt(i);
+                    }
+                } else if (token is CommentToken comment)
+                {
+                    if (precedingToken is CommentToken precedingComment)
+                    {
+                        precedingComment.Lines.AddRange(comment.Lines);
+                        Tokens.RemoveAt(i);
+                    }
+                }
+            }
+        }
     }
 }

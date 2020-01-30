@@ -2,8 +2,10 @@
 
 namespace UE4Config.Parsing
 {
-    public class CommentToken : IniToken
+    public class CommentToken : MultilineToken
     {
-        public List<string> Lines = new List<string>();
+        public CommentToken() : base() { }
+
+        public CommentToken(IEnumerable<string> lines) : base(lines) {}
     }
 }
