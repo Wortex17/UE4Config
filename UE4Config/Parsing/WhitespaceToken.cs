@@ -11,12 +11,20 @@ namespace UE4Config.Parsing
         public List<string> Lines = new List<string>();
 
         /// <summary>
-        /// Condenses the whietspace to a single newline
+        /// Condenses the whitespace to a single newline
         /// </summary>
         public void Condense()
         {
-            Lines.Clear();
-            Lines.Add(Environment.NewLine);
+            Condense(Environment.NewLine);
+        }
+
+        public void Condense(string newline)
+        {
+            if (Lines.Count > 0)
+            {
+                Lines.Clear();
+                Lines.Add(newline);
+            }
         }
     }
 }
