@@ -391,11 +391,11 @@ namespace UE4Config.Tests.Evaluation
                 var latestConfigId = configIds[configIds.Length - 1];
 
                 var propertyValues = new List<string>();
-                evaluator.EvaluatePropertyValues(configs, "MySection", "MyProperty", new List<InstructionToken>(), propertyValues);
+                evaluator.EvaluatePropertyValues(configs, "MySection", "MyProperty", propertyValues);
                 Assert.That(propertyValues, Is.EquivalentTo(new[] {$"Value{latestConfigId}"}));
 
                 propertyValues.Clear();
-                evaluator.EvaluatePropertyValues(configs, null, "MyProperty", new List<InstructionToken>(), propertyValues);
+                evaluator.EvaluatePropertyValues(configs, null, "MyProperty", propertyValues);
                 Assert.That(propertyValues, Is.EquivalentTo(new[] { $"SectionlessValue{latestConfigId}" }));
             }
 
@@ -406,7 +406,7 @@ namespace UE4Config.Tests.Evaluation
 
                 var propertyValues = new List<string>();
                 var expectedValues = new List<string>();
-                evaluator.EvaluatePropertyValues(configs, "MySection", "MyAddProperty", new List<InstructionToken>(), propertyValues);
+                evaluator.EvaluatePropertyValues(configs, "MySection", "MyAddProperty", propertyValues);
                 foreach (var configId in configIds)
                 {
                     expectedValues.Add($"Value{configId}");
@@ -415,7 +415,7 @@ namespace UE4Config.Tests.Evaluation
 
                 propertyValues.Clear();
                 expectedValues.Clear();
-                evaluator.EvaluatePropertyValues(configs, null, "MyAddProperty", new List<InstructionToken>(), propertyValues);
+                evaluator.EvaluatePropertyValues(configs, null, "MyAddProperty", propertyValues);
                 foreach (var configId in configIds)
                 {
                     expectedValues.Add($"SectionlessValue{configId}");
@@ -431,7 +431,7 @@ namespace UE4Config.Tests.Evaluation
 
                 var propertyValues = new List<string>();
                 var expectedValues = new List<string>();
-                evaluator.EvaluatePropertyValues(configs, null, "ListProperty", new List<InstructionToken>(), propertyValues);
+                evaluator.EvaluatePropertyValues(configs, null, "ListProperty", propertyValues);
                 foreach (var configId in configIds)
                 {
                     if (expectedValues.Count == 0)
@@ -451,11 +451,11 @@ namespace UE4Config.Tests.Evaluation
                 var latestConfigId = configIds[configIds.Length - 1];
 
                 var propertyValues = new List<string>();
-                evaluator.EvaluatePropertyValues(configs, "MySection", "UnknownProperty", new List<InstructionToken>(), propertyValues);
+                evaluator.EvaluatePropertyValues(configs, "MySection", "UnknownProperty", propertyValues);
                 Assert.That(propertyValues, Is.EquivalentTo(new string[] { }));
 
                 propertyValues.Clear();
-                evaluator.EvaluatePropertyValues(configs, null, "MyProperty", new List<InstructionToken>(), propertyValues);
+                evaluator.EvaluatePropertyValues(configs, null, "MyProperty", propertyValues);
                 Assert.That(propertyValues, Is.EquivalentTo(new[] { $"SectionlessValue{latestConfigId}" }));
             }
         }
