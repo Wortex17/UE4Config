@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace UE4Config.Parser
+namespace UE4Config.Parsing
 {
     public class CommentToken : IniToken
     {

@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Evaluation\PropertyEvaluatorTests.cs" />
-    <Compile Include="Parser\ConfigIniTests.cs" />
+    <Compile Include="Parsing\ConfigIniTests.cs" />
     <Compile Include="SanityTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

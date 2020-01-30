@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using UE4Config.Parser;
+using UE4Config.Parsing;
 
 namespace UE4Config.Evaluation
 {

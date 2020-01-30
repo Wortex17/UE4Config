@@ -1,4 +1,4 @@
-﻿namespace UE4Config.Parser
+﻿namespace UE4Config.Parsing
 {
     public class InstructionToken : IniToken
     {

@@ -2,9 +2,9 @@
 using System.Collections;
 using System.IO;
 using NUnit.Framework;
-using UE4Config.Parser;
+using UE4Config.Parsing;
 
-namespace UE4Config.Tests.Parser
+namespace UE4Config.Tests.Parsing
 {
     [TestFixture]
     class ConfigIniTests

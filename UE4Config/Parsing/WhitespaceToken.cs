@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace UE4Config.Parser
+namespace UE4Config.Parsing
 {
     /// <summary>
     /// Describes whitespace characters found within the INI file that are neither part of an instruction nor comment

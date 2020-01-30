@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using NUnit.Framework;
 using UE4Config.Evaluation;
-using UE4Config.Parser;
+using UE4Config.Parsing;
 
 namespace UE4Config.Tests.Evaluation
 {

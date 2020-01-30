@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace UE4Config.Parser
+namespace UE4Config.Parsing
 {
     /// <remarks>
     /// Special parser for a "command"-like INI.
