@@ -9,6 +9,15 @@ namespace UE4Config.Tests.Parsing
     [TestFixture]
     class ConfigIniTests
     {
+        [Test]
+        public void When_ConstructedWithName()
+        {
+            string name = "Engine/Config/Base.ini";
+            ConfigIni config = null;
+            Assert.That(() => { config = new ConfigIni(name); }, Throws.Nothing);
+            Assert.That(config.Name, Is.EqualTo(name));
+        }
+
         [TestFixture]
         class ReadLine
         {

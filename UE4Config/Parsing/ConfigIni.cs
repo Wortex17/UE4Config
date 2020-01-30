@@ -10,7 +10,15 @@ namespace UE4Config.Parsing
     /// </remarks>
     public class ConfigIni
     {
+        public string Name = null;
         public List<ConfigIniSection> Sections = new List<ConfigIniSection>();
+
+        public ConfigIni() { }
+
+        public ConfigIni(string name)
+        {
+            Name = name;
+        }
 
         public void FindPropertyInstructions(string sectionName, string propertyKey, IList<InstructionToken> instructions)
         {
