@@ -134,11 +134,8 @@ namespace UE4Config.Parser
                     }
                 }
 
-                var instruction = new InstructionToken();
+                var instruction = new InstructionToken(type, key, value);
                 currentSection.Tokens.Add(instruction);
-                instruction.Key = key;
-                instruction.Value = value;
-                instruction.InstructionType = type;
                 return;
             }
 
