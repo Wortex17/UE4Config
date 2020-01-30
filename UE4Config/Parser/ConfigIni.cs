@@ -12,7 +12,7 @@ namespace UE4Config.Parser
     {
         public List<ConfigIniSection> Sections = new List<ConfigIniSection>();
 
-        public void FindPropertyInstructions(string sectionName, string propertyKey, List<InstructionToken> instructions)
+        public void FindPropertyInstructions(string sectionName, string propertyKey, IList<InstructionToken> instructions)
         {
             foreach (var iniSection in Sections)
             {
