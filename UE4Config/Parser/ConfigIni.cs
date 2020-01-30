@@ -122,7 +122,7 @@ namespace UE4Config.Parser
                             key = key.Substring(1);
                             break;
                         case '.':
-                            type = InstructionType.AddOverride;
+                            type = InstructionType.AddForce;
                             key = key.Substring(1);
                             break;
                         case '-':

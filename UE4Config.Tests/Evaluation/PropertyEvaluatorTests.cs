@@ -20,11 +20,6 @@ namespace UE4Config.Tests.Evaluation
                 return new InstructionToken(type, "TESTKEY", value);
             }
 
-            static InstructionToken NewInstructionKey(InstructionType type, string key)
-            {
-                return new InstructionToken(type, key);
-            }
-
             static InstructionToken NewInstruction(InstructionType type)
             {
                 return new InstructionToken(type, "TESTKEY");
@@ -58,11 +53,11 @@ namespace UE4Config.Tests.Evaluation
                         {
                             new InstructionToken[]
                             {
-                                NewInstructionValue(InstructionType.AddOverride, "A")
+                                NewInstructionValue(InstructionType.AddForce, "A")
                             },
                             new string[] {"A"}
                         })
-                        { TestName = "AddOverrideInitial" };
+                        { TestName = "AddForceInitial" };
 
                     yield return new TestCaseData(new object[]
                         {
@@ -175,11 +170,11 @@ namespace UE4Config.Tests.Evaluation
                             new InstructionToken[]
                             {
                                 NewInstructionValue(InstructionType.Set, "A"),
-                                NewInstructionValue(InstructionType.AddOverride, "B")
+                                NewInstructionValue(InstructionType.AddForce, "B")
                             },
                             new string[] {"A", "B"}
                         })
-                        { TestName = "SetOne, AddOverrideOne" };
+                        { TestName = "SetOne, AddForceOne" };
 
                     yield return new TestCaseData(new object[]
                         {
@@ -199,11 +194,11 @@ namespace UE4Config.Tests.Evaluation
                             {
                                 NewInstructionValue(InstructionType.Set, "A"),
                                 NewInstructionValue(InstructionType.Add, "B"),
-                                NewInstructionValue(InstructionType.AddOverride, "C")
+                                NewInstructionValue(InstructionType.AddForce, "C")
                             },
                             new string[] {"A", "B", "C"}
                         })
-                        { TestName = "SetOne, AddOne, AddOverrideOne" };
+                        { TestName = "SetOne, AddOne, AddForceOne" };
 
                     yield return new TestCaseData(new object[]
                         {
@@ -336,12 +331,92 @@ namespace UE4Config.Tests.Evaluation
                             new InstructionToken[]
                             {
                                 NewInstructionValue(InstructionType.Add, "A"),
+                                NewInstructionValue(InstructionType.Add, "A")
+                            },
+                            new string[] {"A"}
+                        })
+                        { TestName = "AddTwoDuplicates" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.Add, "A"),
                                 NewInstructionValue(InstructionType.Add, "A"),
                                 NewInstructionValue(InstructionType.Remove, "A")
                             },
                             new string[] {}
                         })
-                        { TestName = "AddTwoDuplicates, Remove" };
+                        { TestName = "AddTwoDuplicates, RemoveInitial" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.Add, "A"),
+                                NewInstructionValue(InstructionType.AddForce, "A")
+                            },
+                            new string[] {"A", "A"}
+                        })
+                        { TestName = "AddOne, AddForceOneDuplicate" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.Add, "A"),
+                                NewInstructionValue(InstructionType.AddForce, "A"),
+                                NewInstructionValue(InstructionType.Remove, "A")
+                            },
+                            new string[] {}
+                        })
+                        { TestName = "AddOne, AddForceOneDuplicate, RemoveInitial" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.AddForce, "A"),
+                                NewInstructionValue(InstructionType.AddForce, "A")
+                            },
+                            new string[] {"A", "A"}
+                        })
+                        { TestName = "AddForceTwoDuplicates" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.AddForce, "A"),
+                                NewInstructionValue(InstructionType.AddForce, "A"),
+                                NewInstructionValue(InstructionType.Remove, "A")
+                            },
+                            new string[] {}
+                        })
+                        { TestName = "AddForceTwoDuplicates, RemoveInitial" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.AddForce, "A"),
+                                NewInstructionValue(InstructionType.Add, "A")
+                            },
+                            new string[] {"A"}
+                        })
+                        { TestName = "AddForceOne, AddOneDuplicate" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.AddForce, "A"),
+                                NewInstructionValue(InstructionType.Add, "A"),
+                                NewInstructionValue(InstructionType.AddForce, "A")
+                            },
+                            new string[] {"A", "A"}
+                        })
+                        { TestName = "AddForceOne, AddOneDuplicate, AddForceOneDuplicate" };
                 }
             }
 

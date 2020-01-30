@@ -163,7 +163,7 @@ namespace UE4Config.Tests.Parser
             [TestCase(".Key=Value", "Key", "Value")]
             [TestCase(".=Value", "", "Value")]
             [TestCase(@".Key=('a=A', 'c=2')", "Key", "('a=A', 'c=2')")]
-            public void When_LineIsAddOverride(string line, string expectedKey, string expectedValue)
+            public void When_LineIsAddForce(string line, string expectedKey, string expectedValue)
             {
                 var configIni = new ConfigIni();
                 var currentSection = new ConfigIniSection();
@@ -172,7 +172,7 @@ namespace UE4Config.Tests.Parser
                 Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<InstructionToken>(configIni, currentSection);
-                Assert.That(tokenT.InstructionType, Is.EqualTo(InstructionType.AddOverride));
+                Assert.That(tokenT.InstructionType, Is.EqualTo(InstructionType.AddForce));
                 Assert.That(tokenT.Key, Is.EqualTo(expectedKey));
                 Assert.That(tokenT.Value, Is.EqualTo(expectedValue));
             }

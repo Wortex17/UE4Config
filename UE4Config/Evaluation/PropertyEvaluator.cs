@@ -31,7 +31,12 @@ namespace UE4Config.Evaluation
             switch (instruction.InstructionType)
             {
                 case InstructionType.Add:
-                case InstructionType.AddOverride:
+                    if (!values.Contains(instruction.Value))
+                    {
+                        values.Add(instruction.Value);
+                    }
+                    break;
+                case InstructionType.AddForce:
                     values.Add(instruction.Value);
                     break;
                 case InstructionType.Remove:
