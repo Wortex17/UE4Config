@@ -35,8 +35,14 @@ namespace UE4Config.Evaluation
                     values.Add(instruction.Value);
                     break;
                 case InstructionType.Remove:
+                    bool wasRemoved = false;
+                    do
+                    {
+                        wasRemoved = values.Remove(instruction.Value);
+                    } while (wasRemoved);
                     break;
                 case InstructionType.RemoveAll:
+                    values.Clear();
                     break;
                 case InstructionType.Set:
                     values.Clear();
