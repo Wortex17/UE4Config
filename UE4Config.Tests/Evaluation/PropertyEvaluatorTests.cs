@@ -129,6 +129,40 @@ namespace UE4Config.Tests.Evaluation
                         {
                             new InstructionToken[]
                             {
+                                NewInstructionValue(InstructionType.Add, "A"),
+                                NewInstructionValue(InstructionType.Add, "B"),
+                                NewInstructionValue(InstructionType.Add, "C")
+                            },
+                            new string[] {"A", "B", "C"}
+                        })
+                        { TestName = "AddThree" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                null,
+                            },
+                            new string[] {}
+                        })
+                        { TestName = "Null" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.Add, "A"),
+                                null,
+                                NewInstructionValue(InstructionType.Add, "C")
+                            },
+                            new string[] {"A", "C"}
+                        })
+                        { TestName = "AddOne, Null, AddOne" };
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
                                 NewInstructionValue(InstructionType.Set, "A"),
                                 NewInstructionValue(InstructionType.Add, "B")
                             },
