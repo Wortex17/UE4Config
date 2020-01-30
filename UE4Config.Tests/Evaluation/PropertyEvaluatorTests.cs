@@ -23,7 +23,10 @@ namespace UE4Config.Tests.Evaluation
                         ";MyProperty=CommentedValueA",
                         "MyProperty=SectionlessValueA",
                         "+MyAddProperty=SectionlessValueA",
-                        "MyPropertyOnlyInA=SectionlessValueB",
+                        "MyPropertyOnlyInA=SectionlessValueA",
+                        "ListProperty=ValueA0",
+                        "+ListProperty=ValueA1",
+                        "+ListProperty=ValueA2",
                         "[MySection]",
                         "MyProperty=ValueA",
                         "+MyAddProperty=ValueA",
@@ -35,6 +38,8 @@ namespace UE4Config.Tests.Evaluation
                         "MyProperty=SectionlessValueB",
                         "+MyAddProperty=SectionlessValueB",
                         "MyPropertyOnlyInB=SectionlessValueB",
+                        "+ListProperty=ValueB1",
+                        "+ListProperty=ValueB2",
                         "[MySection]",
                         "MyProperty=ValueB",
                         "+MyAddProperty=ValueB",
@@ -46,6 +51,8 @@ namespace UE4Config.Tests.Evaluation
                         "MyProperty=SectionlessValueC",
                         "+MyAddProperty=SectionlessValueC",
                         "MyPropertyOnlyInC=SectionlessValueC",
+                        "+ListProperty=ValueC1",
+                        "+ListProperty=ValueC2",
                         "[MySection]",
                         "MyProperty=ValueC",
                         "+MyAddProperty=ValueC",
@@ -76,7 +83,6 @@ namespace UE4Config.Tests.Evaluation
             public void When_AddProperty(ConfigIni[] configs, string[] configIds)
             {
                 var evaluator = new PropertyEvaluator();
-                var latestConfigId = configIds[configIds.Length - 1];
 
                 var propertyValues = new List<string>();
                 var expectedValues = new List<string>();
@@ -93,6 +99,27 @@ namespace UE4Config.Tests.Evaluation
                 foreach (var configId in configIds)
                 {
                     expectedValues.Add($"SectionlessValue{configId}");
+                }
+                Assert.That(propertyValues, Is.EquivalentTo(expectedValues));
+            }
+
+            [TestCaseSource(nameof(ConfigChains))]
+            public void When_ListProperty(ConfigIni[] configs, string[] configIds)
+            {
+                var evaluator = new PropertyEvaluator();
+                var latestConfigId = configIds[configIds.Length - 1];
+
+                var propertyValues = new List<string>();
+                var expectedValues = new List<string>();
+                evaluator.EvaluatePropertyValues(configs, null, "ListProperty", new List<InstructionToken>(), propertyValues);
+                foreach (var configId in configIds)
+                {
+                    if (expectedValues.Count == 0)
+                    {
+                        expectedValues.Add($"Value{configId}0");
+                    }
+                    expectedValues.Add($"Value{configId}1");
+                    expectedValues.Add($"Value{configId}2");
                 }
                 Assert.That(propertyValues, Is.EquivalentTo(expectedValues));
             }
