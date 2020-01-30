@@ -417,6 +417,19 @@ namespace UE4Config.Tests.Evaluation
                             new string[] {"A", "A"}
                         })
                         { TestName = "AddForceOne, AddOneDuplicate, AddForceOneDuplicate" };
+
+
+                    yield return new TestCaseData(new object[]
+                        {
+                            new InstructionToken[]
+                            {
+                                NewInstructionValue(InstructionType.AddForce, "A"),
+                                NewInstructionValue(InstructionType.Remove, "A"),
+                                NewInstructionValue(InstructionType.AddForce, "A")
+                            },
+                            new string[] {"A"}
+                        })
+                        { TestName = "AddForceOne, Remove, AddForceOldOne" };
                 }
             }
 
