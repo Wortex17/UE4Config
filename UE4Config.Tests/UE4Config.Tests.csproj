@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Evaluation\PropertyEvaluatorTests.cs" />
     <Compile Include="Parsing\ConfigIniSectionTests.cs" />
+    <Compile Include="Parsing\MultilineTokenTests.cs" />
     <Compile Include="Parsing\WhitespaceTokenTests.cs" />
     <Compile Include="Parsing\ConfigIniTests.cs" />
     <Compile Include="SanityTests.cs" />
