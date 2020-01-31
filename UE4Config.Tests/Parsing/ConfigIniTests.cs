@@ -785,6 +785,19 @@ namespace UE4Config.Tests.Parsing
                     {
                         String.Join(Environment.NewLine, new[]
                         {
+                            "MyKey=MyValue",
+                            "+MyKey=MyValue",
+                            ".MyKey=MyValue",
+                            "-MyKey=MyValue",
+                            "!MyKey",
+                            "!MyKey=SuperfluousValueForRemoveAll"
+                        })
+                    }).SetName("All Instructions, System Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        String.Join(Environment.NewLine, new[]
+                        {
                             ";MyComment",
                             "MyKey=MyValue",
                             "Blurb",
