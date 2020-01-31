@@ -8,6 +8,7 @@ namespace UE4Config.Parsing
     {
         public string Name = null;
         public List<IniToken> Tokens = new List<IniToken>();
+        public LineEnding LineEnding;
 
         /// <summary>
         /// Trimmed whitespace characters prefixing this sections header line
@@ -112,19 +113,21 @@ namespace UE4Config.Parsing
         /// </summary>
         public void WriteHeader(TextWriter writer)
         {
+            if (!String.IsNullOrEmpty(LineWastePrefix))
+            {
+                writer.Write(LineWastePrefix);
+            }
+
             if (Name != null)
             {
-                if (!String.IsNullOrEmpty(LineWastePrefix))
-                {
-                    writer.Write(LineWastePrefix);
-                }
                 writer.Write($"[{Name}]");
-                if (!String.IsNullOrEmpty(LineWasteSuffix))
-                {
-                    writer.Write(LineWasteSuffix);
-                }
-                writer.WriteLine(); //Finish the line
             }
+
+            if (!String.IsNullOrEmpty(LineWasteSuffix))
+            {
+                writer.Write(LineWasteSuffix);
+            }
+            LineEnding.WriteTo(writer); //Finish the line
         }
 
         /// <summary>

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
 using UE4Config.Parsing;
 
@@ -68,6 +71,79 @@ namespace UE4Config.Tests.Parsing
             Assert.That(section.Name, Is.EqualTo(name));
             Assert.That(section.Tokens, Is.Empty);
         }
+
+        [TestFixture]
+        class Write
+        {
+            public static IEnumerable Cases_WriteHeader
+            {
+                get
+                {
+                    var expectedLineEnding = Environment.NewLine;
+
+                    yield return new TestCaseData(new object[] { new ConfigIniSection() { }, $"{expectedLineEnding}" }).SetName($"Unnamed Section, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWastePrefix = " " }, $" {expectedLineEnding}" }).SetName($"Unnamed Section with LineWastePrefix, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWasteSuffix = " " }, $" {expectedLineEnding}" }).SetName($"Unnamed Section with LineWasteSuffix, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWastePrefix = " ", LineWasteSuffix = " " }, $"  {expectedLineEnding}" }).SetName($"Unnamed Section with LineWaste, Unspecified LineEnding");
+
+                    string sectionName = "/Script/Engine.PlayerInput";
+
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { }, $"[{sectionName}]{expectedLineEnding}" }).SetName($"Section, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineWastePrefix = " " }, $" [{sectionName}]{expectedLineEnding}" }).SetName($"Section with LineWastePrefix, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineWasteSuffix = " " }, $"[{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWasteSuffix, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineWastePrefix = " ", LineWasteSuffix = " " }, $" [{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWaste, Unspecified LineEnding");
+
+                    var lineEnding = LineEnding.Unknown;
+
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding }, $"[{sectionName}]{expectedLineEnding}" }).SetName($"Section, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " " }, $" [{sectionName}]{expectedLineEnding}" }).SetName($"Section with LineWastePrefix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWasteSuffix = " " }, $"[{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWasteSuffix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " ", LineWasteSuffix = " " }, $" [{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWaste, {lineEnding} LineEnding");
+
+                    lineEnding = LineEnding.None;
+                    expectedLineEnding = "";
+
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding }, $"[{sectionName}]{expectedLineEnding}" }).SetName($"Section, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " " }, $" [{sectionName}]{expectedLineEnding}" }).SetName($"Section with LineWastePrefix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWasteSuffix = " " }, $"[{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWasteSuffix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " ", LineWasteSuffix = " " }, $" [{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWaste, {lineEnding} LineEnding");
+
+                    lineEnding = LineEnding.Unix;
+                    expectedLineEnding = "\n";
+
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding }, $"[{sectionName}]{expectedLineEnding}" }).SetName($"Section, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " " }, $" [{sectionName}]{expectedLineEnding}" }).SetName($"Section with LineWastePrefix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWasteSuffix = " " }, $"[{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWasteSuffix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " ", LineWasteSuffix = " " }, $" [{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWaste, {lineEnding} LineEnding");
+
+                    lineEnding = LineEnding.Windows;
+                    expectedLineEnding = "\r\n";
+
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding }, $"[{sectionName}]{expectedLineEnding}" }).SetName($"Section, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " " }, $" [{sectionName}]{expectedLineEnding}" }).SetName($"Section with LineWastePrefix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWasteSuffix = " " }, $"[{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWasteSuffix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " ", LineWasteSuffix = " " }, $" [{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWaste, {lineEnding} LineEnding");
+
+                    lineEnding = LineEnding.Mac;
+                    expectedLineEnding = "\r";
+
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding }, $"[{sectionName}]{expectedLineEnding}" }).SetName($"Section, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " " }, $" [{sectionName}]{expectedLineEnding}" }).SetName($"Section with LineWastePrefix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWasteSuffix = " " }, $"[{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWasteSuffix, {lineEnding} LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineEnding = lineEnding, LineWastePrefix = " ", LineWasteSuffix = " " }, $" [{sectionName}] {expectedLineEnding}" }).SetName($"Section with LineWaste, {lineEnding} LineEnding");
+
+                }
+            }
+
+            [TestCaseSource(nameof(Cases_WriteHeader))]
+            public void WriteHeader(ConfigIniSection section, string expectedText)
+            {
+                var writer = new StringWriter();
+                section.WriteHeader(writer);
+                Assert.That(writer.ToString(), Is.EqualTo(expectedText));
+            }
+        }
+
 
         [TestFixture]
         class MergeConsecutiveTokens
