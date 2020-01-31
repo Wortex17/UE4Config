@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace UE4Config.Parsing
 {
@@ -63,14 +64,82 @@ namespace UE4Config.Parsing
                 Sections.Add(currentSection);
             }
 
-            string line = null;
-            while ((line = reader.ReadLine()) != null)
+            char[] readBuffer = new char[1];
+            char currentChar = '\0';
+            StringBuilder stringBuilder = new StringBuilder();
+            bool hasLine = false;
+
+            while (reader.Read(readBuffer, 0, 1) != 0)
             {
-                ReadLine(line, ref currentSection);
+                if (!hasLine)
+                {
+                    //Start a line
+                    stringBuilder.Clear();
+                    hasLine = true;
+                }
+
+                var previousChar = currentChar;
+                currentChar = readBuffer[0];
+
+                if (currentChar == '\n')
+                {
+                    if (previousChar == '\r')
+                    {
+                        ReadLine(stringBuilder.ToString(), LineEnding.Windows, ref currentSection);
+                        //Consume the line
+                        stringBuilder.Clear();
+                        hasLine = false;
+                    }
+                    else
+                    {
+                        ReadLine(stringBuilder.ToString(), LineEnding.Unix, ref currentSection);
+                        //Consume the line
+                        stringBuilder.Clear();
+                        hasLine = false;
+                    }
+                }
+                else if (currentChar == '\r')
+                {
+                    if (previousChar == '\r')
+                    {
+                        //We received an \r earlier, but this character is not an \n, so treat the previous one as line break Mac-style
+                        ReadLine(stringBuilder.ToString(), LineEnding.Mac, ref currentSection);//Consume the line, but reset it to a new one for the current character
+                        stringBuilder.Clear();
+                    }
+                    //Wait and see if there's a '\n' upcoming to make a LineEnding.Windows
+                    continue;
+                }
+                else if (previousChar == '\r')
+                {
+                    //We received an \r earlier, but this character is not an \n, so treat the previous one as line break Mac-style
+                    ReadLine(stringBuilder.ToString(), LineEnding.Mac, ref currentSection);
+                    //Consume the line, but reset it to a new one to capture the current character
+                    stringBuilder.Clear();
+                    hasLine = true;
+                }
+
+                if (hasLine)
+                {
+                    stringBuilder.Append(currentChar);
+                }
+            }
+
+            if (hasLine)
+            {
+                //Finish a possible open Mac-line break
+                if (currentChar == '\r')
+                {
+                    ReadLine(stringBuilder.ToString(), LineEnding.Mac, ref currentSection);
+                }
+                else
+                {
+                    //Otherwise, treat the final line as one without ending
+                    ReadLine(stringBuilder.ToString(), LineEnding.None, ref currentSection);
+                }
             }
         }
 
-        public void ReadLine(string line, ref ConfigIniSection currentSection)
+        public void ReadLine(string line, LineEnding lineEnding, ref ConfigIniSection currentSection)
         {
             if (line == null)
             {
@@ -86,7 +155,7 @@ namespace UE4Config.Parsing
                     whitespace = new WhitespaceToken();
                     currentSection.Tokens.Add(whitespace);
                 }
-                whitespace.Lines.Add(line);
+                whitespace.AddLine(line, lineEnding);
                 return;
             }
 
@@ -104,7 +173,7 @@ namespace UE4Config.Parsing
                     comment = new CommentToken();
                     currentSection.Tokens.Add(comment);
                 }
-                comment.Lines.Add(line);
+                comment.AddLine(line, lineEnding);
                 return;
             }
 
@@ -114,6 +183,7 @@ namespace UE4Config.Parsing
                 currentSection = new ConfigIniSection(sectionName);
                 currentSection.LineWastePrefix = String.IsNullOrEmpty(lineWastePrefix) ? null : lineWastePrefix;
                 currentSection.LineWasteSuffix = String.IsNullOrEmpty(lineWasteSuffix) ? null : lineWasteSuffix;
+                currentSection.LineEnding = lineEnding;
                 Sections.Add(currentSection);
                 return;
             }
@@ -123,10 +193,8 @@ namespace UE4Config.Parsing
                 var key = line.Substring(1);
                 if (!String.IsNullOrWhiteSpace(key))
                 {
-                    var instruction = new InstructionToken();
+                    var instruction = new InstructionToken(InstructionType.RemoveAll, key, lineEnding);
                     currentSection.Tokens.Add(instruction);
-                    instruction.Key = key;
-                    instruction.InstructionType = InstructionType.RemoveAll;
                     return;
                 }
             }
@@ -159,15 +227,21 @@ namespace UE4Config.Parsing
                     }
                 }
 
-                var instruction = new InstructionToken(type, key, value);
+                var instruction = new InstructionToken(type, key, value, lineEnding);
                 currentSection.Tokens.Add(instruction);
                 return;
             }
 
             var text = new TextToken();
             text.Text = line;
+            text.LineEnding = lineEnding;
             currentSection.Tokens.Add(text);
             return;
+        }
+
+        public void ReadLine(string line, ref ConfigIniSection currentSection)
+        {
+            ReadLine(line, LineEnding.Unknown, ref currentSection);
         }
 
         /// <summary>

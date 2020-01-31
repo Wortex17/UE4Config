@@ -673,5 +673,178 @@ namespace UE4Config.Tests.Parsing
                 Assert.That(callLog, Is.EquivalentTo(new[] { spySectionA, spySectionB }));
             }
         }
+
+        [TestFixture]
+        public class ReadWriteSmoke
+        {
+            public static IEnumerable Cases_When_Unmodified
+            {
+                get
+                {
+                    yield return new TestCaseData(new[]
+                    {
+                        ""
+                    }).SetName("Empty String");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        Environment.NewLine
+                    }).SetName("Pure System Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "\n"
+                    }).SetName("Pure Unix Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "\r\n"
+                    }).SetName("Pure Windows Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "\r"
+                    }).SetName("Pure Mac Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "Text"
+                    }).SetName("Text, No Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "Text"+Environment.NewLine
+                    }).SetName("Text, System Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "Text\n"
+                    }).SetName("Text, Unix Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "Text\r\n"
+                    }).SetName("Text, Windows Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "Text\r"
+                    }).SetName("Text, Mac Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "MyKey=MyValue"+Environment.NewLine
+                    }).SetName("Single Instruction, System Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "MyKey=MyValue"
+                    }).SetName("Single Instruction, No Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "MyKey=MyValue\n"
+                    }).SetName("Single Instruction, Unix Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "MyKey=MyValue\r\n"
+                    }).SetName("Single Instruction, Windows Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "MyKey=MyValue\r"
+                    }).SetName("Single Instruction, Mac Line Endings");
+                    
+                    yield return new TestCaseData(new[]
+                    {
+                        "[MySection]"+Environment.NewLine
+                    }).SetName("Single Section, System Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "[MySection]"
+                    }).SetName("Single Section, No Line Ending");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "[MySection]\n"
+                    }).SetName("Single Section, Unix Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "[MySection]\r\n"
+                    }).SetName("Single Section, Windows Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        "[MySection]\r"
+                    }).SetName("Single Section, Mac Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        String.Join(Environment.NewLine, new[]
+                        {
+                            ";MyComment",
+                            "MyKey=MyValue",
+                            "",
+                            "[MySection]",
+                            "MySpecialKey=MySpecialValue",
+                            ""
+                        })
+                    }).SetName("Simple ConfigIni, System Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        String.Join("\n", new[]
+                        {
+                            ";MyComment",
+                            "MyKey=MyValue",
+                            "",
+                            "[MySection]",
+                            "MySpecialKey=MySpecialValue",
+                            ""
+                        })
+                    }).SetName("Simple ConfigIni, Unix Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        String.Join("\r\n", new[]
+                        {
+                            ";MyComment",
+                            "MyKey=MyValue",
+                            "",
+                            "[MySection]",
+                            "MySpecialKey=MySpecialValue",
+                            ""
+                        })
+                    }).SetName("Simple ConfigIni, Windows Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        String.Join("\r", new[]
+                        {
+                            ";MyComment",
+                            "MyKey=MyValue",
+                            "",
+                            "[MySection]",
+                            "MySpecialKey=MySpecialValue",
+                            ""
+                        })
+                    }).SetName("Simple ConfigIni, Mac Line Endings");
+                }
+            }
+
+            [TestCaseSource(nameof(Cases_When_Unmodified))]
+            public void When_Unmodified_DoesRetainEverything(string original)
+            {
+                var config = new ConfigIni();
+                config.Read(new StringReader(original));
+                var writer = new StringWriter();
+                config.Write(writer);
+
+                Assert.That(writer.ToString(), Is.EqualTo(original));
+            }
+        }
     }
 }
