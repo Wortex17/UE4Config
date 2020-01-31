@@ -144,14 +144,14 @@ namespace UE4Config.Tests.Parsing
             {
                 get
                 {
-                    var expectedLineEnding = Environment.NewLine;
 
-                    yield return new TestCaseData(new object[] { new ConfigIniSection() { }, $"{expectedLineEnding}" }).SetName($"Unnamed Section, Unspecified LineEnding");
-                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWastePrefix = " " }, $" {expectedLineEnding}" }).SetName($"Unnamed Section with LineWastePrefix, Unspecified LineEnding");
-                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWasteSuffix = " " }, $" {expectedLineEnding}" }).SetName($"Unnamed Section with LineWasteSuffix, Unspecified LineEnding");
-                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWastePrefix = " ", LineWasteSuffix = " " }, $"  {expectedLineEnding}" }).SetName($"Unnamed Section with LineWaste, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection() { }, $"" }).SetName($"Unnamed Section, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWastePrefix = " " }, $"" }).SetName($"Unnamed Section with LineWastePrefix, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWasteSuffix = " " }, $"" }).SetName($"Unnamed Section with LineWasteSuffix, Unspecified LineEnding");
+                    yield return new TestCaseData(new object[] { new ConfigIniSection() { LineWastePrefix = " ", LineWasteSuffix = " " }, $"" }).SetName($"Unnamed Section with LineWaste, Unspecified LineEnding");
 
                     string sectionName = "/Script/Engine.PlayerInput";
+                    var expectedLineEnding = Environment.NewLine;
 
                     yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { }, $"[{sectionName}]{expectedLineEnding}" }).SetName($"Section, Unspecified LineEnding");
                     yield return new TestCaseData(new object[] { new ConfigIniSection(sectionName) { LineWastePrefix = " " }, $" [{sectionName}]{expectedLineEnding}" }).SetName($"Section with LineWastePrefix, Unspecified LineEnding");

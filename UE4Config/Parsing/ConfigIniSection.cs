@@ -113,21 +113,22 @@ namespace UE4Config.Parsing
         /// </summary>
         public void WriteHeader(TextWriter writer)
         {
-            if (!String.IsNullOrEmpty(LineWastePrefix))
-            {
-                writer.Write(LineWastePrefix);
-            }
-
             if (Name != null)
             {
-                writer.Write($"[{Name}]");
-            }
+                if (!String.IsNullOrEmpty(LineWastePrefix))
+                {
+                    writer.Write(LineWastePrefix);
+                }
 
-            if (!String.IsNullOrEmpty(LineWasteSuffix))
-            {
-                writer.Write(LineWasteSuffix);
+                writer.Write($"[{Name}]");
+
+                if (!String.IsNullOrEmpty(LineWasteSuffix))
+                {
+                    writer.Write(LineWasteSuffix);
+                }
+                LineEnding.WriteTo(writer); //Finish the line
             }
-            LineEnding.WriteTo(writer); //Finish the line
+            //If there is no Name but there is line-waste, we consider this a parsing error.
         }
 
         /// <summary>
