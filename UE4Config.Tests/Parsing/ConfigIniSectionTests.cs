@@ -7,6 +7,47 @@ namespace UE4Config.Tests.Parsing
     [TestFixture]
     class ConfigIniSectionTests
     {
+
+        [Test]
+        public void When_ConstructedDefault()
+        {
+            ConfigIniSection section = null;
+            Assert.That(() => { section = new ConfigIniSection(); }, Throws.Nothing);
+            Assert.That(section.Name, Is.Null);
+        }
+
+        [Test]
+        public void When_ConstructedWithName()
+        {
+            string name = "/Script/Engine.PlayerInput";
+            ConfigIniSection section = null;
+            Assert.That(() => { section = new ConfigIniSection(name); }, Throws.Nothing);
+            Assert.That(section.Name, Is.EqualTo(name));
+        }
+
+        [Test]
+        public void When_ConstructedWithTokens()
+        {
+            ConfigIniSection section = null;
+            var token1 = new TextToken();
+            var token2 = new TextToken();
+            Assert.That(() => { section = new ConfigIniSection(new[] { token1, token2 }); }, Throws.Nothing);
+            Assert.That(section.Name, Is.Null);
+            Assert.That(section.Tokens, Is.EquivalentTo(new[] { token1, token2 }));
+        }
+
+        [Test]
+        public void When_ConstructedWithNameAndTokens()
+        {
+            string name = "/Script/Engine.PlayerInput";
+            ConfigIniSection section = null;
+            var token1 = new TextToken();
+            var token2 = new TextToken();
+            Assert.That(() => { section = new ConfigIniSection(name, new[] { token1, token2 }); }, Throws.Nothing);
+            Assert.That(section.Name, Is.EqualTo(name));
+            Assert.That(section.Tokens, Is.EquivalentTo(new[] { token1, token2 }));
+        }
+
         [TestFixture]
         class MergeConsecutiveTokens
         {

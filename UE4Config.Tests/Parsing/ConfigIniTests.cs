@@ -10,12 +10,43 @@ namespace UE4Config.Tests.Parsing
     class ConfigIniTests
     {
         [Test]
+        public void When_ConstructedDefault()
+        {
+            ConfigIni config = null;
+            Assert.That(() => { config = new ConfigIni(); }, Throws.Nothing);
+            Assert.That(config.Name, Is.Null);
+        }
+
+        [Test]
         public void When_ConstructedWithName()
         {
             string name = "Engine/Config/Base.ini";
             ConfigIni config = null;
             Assert.That(() => { config = new ConfigIni(name); }, Throws.Nothing);
             Assert.That(config.Name, Is.EqualTo(name));
+        }
+
+        [Test]
+        public void When_ConstructedWithSections()
+        {
+            ConfigIni config = null;
+            var sectionA = new ConfigIniSection("A");
+            var sectionB = new ConfigIniSection("A");
+            Assert.That(() => { config = new ConfigIni(new[] { sectionA, sectionB }); }, Throws.Nothing);
+            Assert.That(config.Name, Is.Null);
+            Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA, sectionB }));
+        }
+
+        [Test]
+        public void When_ConstructedWithNameAndSections()
+        {
+            string name = "Engine/Config/Base.ini";
+            ConfigIni config = null;
+            var sectionA = new ConfigIniSection("A");
+            var sectionB = new ConfigIniSection("B");
+            Assert.That(() => { config = new ConfigIni(name, new[] {sectionA , sectionB}); }, Throws.Nothing);
+            Assert.That(config.Name, Is.EqualTo(name));
+            Assert.That(config.Sections, Is.EquivalentTo(new[] {sectionA, sectionB}));
         }
 
         [TestFixture]

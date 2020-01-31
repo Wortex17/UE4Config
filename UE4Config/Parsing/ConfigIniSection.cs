@@ -23,6 +23,17 @@ namespace UE4Config.Parsing
             Name = name;
         }
 
+        public ConfigIniSection(IEnumerable<IniToken> tokens)
+        {
+            Tokens.AddRange(tokens);
+        }
+
+        public ConfigIniSection(string name, IEnumerable<IniToken> tokens)
+        {
+            Name = name;
+            Tokens.AddRange(tokens);
+        }
+
         /// <summary>
         /// Adds all instructions that could be found for the given key to the list, in order of declaration
         /// </summary>

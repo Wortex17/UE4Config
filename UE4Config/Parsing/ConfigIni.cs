@@ -20,6 +20,23 @@ namespace UE4Config.Parsing
             Name = name;
         }
 
+        public ConfigIni(IEnumerable<ConfigIniSection> sections)
+        {
+            if (sections != null)
+            {
+                Sections.AddRange(sections);
+            }
+        }
+
+        public ConfigIni(string name, IEnumerable<ConfigIniSection> sections)
+        {
+            Name = name;
+            if (sections != null)
+            {
+                Sections.AddRange(sections);
+            }
+        }
+
         public void FindPropertyInstructions(string sectionName, string propertyKey, IList<InstructionToken> instructions)
         {
             foreach (var iniSection in Sections)
