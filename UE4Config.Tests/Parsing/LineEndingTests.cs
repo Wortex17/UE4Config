@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using NUnit.Framework;
 using UE4Config.Parsing;
@@ -8,6 +9,31 @@ namespace UE4Config.Tests.Parsing
     [TestFixture]
     class LineEndingTests
     {
+        [TestFixture]
+        class AsString
+        {
+            [TestCase(LineEnding.None, "")]
+            [TestCase(LineEnding.Unix, "\n")]
+            [TestCase(LineEnding.Windows, "\r\n")]
+            [TestCase(LineEnding.Mac, "\r")]
+            public void When_ValidEnum(LineEnding lineEnding, string expectedOutput)
+            {
+                Assert.That(lineEnding.AsString(), Is.EqualTo(expectedOutput));
+            }
+
+            [Test]
+            public void When_Unknown_ResolvesToSystemDefault()
+            {
+                Assert.That(LineEnding.Unknown.AsString(), Is.EqualTo(Environment.NewLine));
+            }
+
+            [Test]
+            public void When_InvalidEnum()
+            {
+                Assert.That(() => { ((LineEnding)999).AsString(); }, Throws.TypeOf<InvalidEnumArgumentException>());
+            }
+        }
+
         [TestFixture]
         class Write
         {

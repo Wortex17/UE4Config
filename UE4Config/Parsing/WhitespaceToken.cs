@@ -10,7 +10,7 @@ namespace UE4Config.Parsing
     {
         public WhitespaceToken() : base() { }
 
-        public WhitespaceToken(IEnumerable<string> lines) : base(lines) { }
+        public WhitespaceToken(IEnumerable<string> lines, LineEnding lineEnding) : base(lines, lineEnding) { }
 
         /// <summary>
         /// Condenses the whitespace to a single newline

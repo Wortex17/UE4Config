@@ -111,7 +111,7 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 Assert.That(configIni.Sections, Has.Count.EqualTo(1));
                 Assert.That(configIni.Sections[0], Is.SameAs(currentSection));
@@ -134,7 +134,7 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<TextToken>(configIni, currentSection);
                 Assert.That(tokenT.Text, Is.EqualTo(line));
@@ -150,11 +150,11 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<WhitespaceToken>(configIni, currentSection);
                 Assert.That(tokenT.Lines, Has.Count.EqualTo(1));
-                Assert.That(tokenT.Lines[0], Is.EqualTo(line));
+                Assert.That(tokenT.Lines[0].ToString(), Is.EqualTo(line));
             }
 
             public static IEnumerable RepeatedWhitespaceTestCases
@@ -180,12 +180,12 @@ namespace UE4Config.Tests.Parsing
 
                 foreach (var line in lines)
                 {
-                    Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                    Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
                 }
 
                 var tokenT = AssertSingleAddedTokenToSection<WhitespaceToken>(configIni, currentSection);
                 Assert.That(tokenT.Lines, Has.Count.EqualTo(lines.Length));
-                Assert.That(tokenT.Lines, Is.EquivalentTo(lines));
+                Assert.That(tokenT.GetStringLines(), Is.EquivalentTo(lines));
             }
 
             [TestCase("Key=Value", "Key", "Value")]
@@ -197,7 +197,7 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<InstructionToken>(configIni, currentSection);
                 Assert.That(tokenT.InstructionType, Is.EqualTo(InstructionType.Set));
@@ -214,7 +214,7 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<InstructionToken>(configIni, currentSection);
                 Assert.That(tokenT.InstructionType, Is.EqualTo(InstructionType.Add));
@@ -231,7 +231,7 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<InstructionToken>(configIni, currentSection);
                 Assert.That(tokenT.InstructionType, Is.EqualTo(InstructionType.AddForce));
@@ -248,7 +248,7 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<InstructionToken>(configIni, currentSection);
                 Assert.That(tokenT.InstructionType, Is.EqualTo(InstructionType.Remove));
@@ -266,7 +266,7 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<InstructionToken>(configIni, currentSection);
                 Assert.That(tokenT.InstructionType, Is.EqualTo(InstructionType.RemoveAll));
@@ -287,11 +287,11 @@ namespace UE4Config.Tests.Parsing
                 var currentSection = new ConfigIniSection();
                 configIni.Sections.Add(currentSection);
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 var tokenT = AssertSingleAddedTokenToSection<CommentToken>(configIni, currentSection);
                 Assert.That(tokenT.Lines, Has.Count.EqualTo(1));
-                Assert.That(tokenT.Lines[0], Is.EqualTo(line));
+                Assert.That(tokenT.Lines[0].ToString(), Is.EqualTo(line));
             }
 
             public static IEnumerable RepeatedCommentsTestCases
@@ -315,12 +315,12 @@ namespace UE4Config.Tests.Parsing
 
                 foreach (var line in lines)
                 {
-                    Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                    Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
                 }
 
                 var tokenT = AssertSingleAddedTokenToSection<CommentToken>(configIni, currentSection);
                 Assert.That(tokenT.Lines, Has.Count.EqualTo(lines.Length));
-                Assert.That(tokenT.Lines, Is.EquivalentTo(lines));
+                Assert.That(tokenT.GetStringLines(), Is.EquivalentTo(lines));
             }
 
             [TestCase("[NewSection]", "NewSection")]
@@ -338,7 +338,7 @@ namespace UE4Config.Tests.Parsing
                 configIni.Sections.Add(initialSection);
                 var currentSection = initialSection;
 
-                Assert.That(() => configIni.ReadLine(line, ref currentSection), Throws.Nothing);
+                Assert.That(() => configIni.ReadLineWithoutLineEnding(line, ref currentSection), Throws.Nothing);
 
                 Assert.That(initialSection, Is.Not.SameAs(currentSection));
                 Assert.That(currentSection, Is.Not.Null);
@@ -787,6 +787,7 @@ namespace UE4Config.Tests.Parsing
                         {
                             ";MyComment",
                             "MyKey=MyValue",
+                            "Blurb",
                             "",
                             "[MySection]",
                             "MySpecialKey=MySpecialValue",
@@ -800,6 +801,7 @@ namespace UE4Config.Tests.Parsing
                         {
                             ";MyComment",
                             "MyKey=MyValue",
+                            "Blurb",
                             "",
                             "[MySection]",
                             "MySpecialKey=MySpecialValue",
@@ -813,6 +815,7 @@ namespace UE4Config.Tests.Parsing
                         {
                             ";MyComment",
                             "MyKey=MyValue",
+                            "Blurb",
                             "",
                             "[MySection]",
                             "MySpecialKey=MySpecialValue",
@@ -826,12 +829,61 @@ namespace UE4Config.Tests.Parsing
                         {
                             ";MyComment",
                             "MyKey=MyValue",
+                            "Blurb",
                             "",
                             "[MySection]",
                             "MySpecialKey=MySpecialValue",
                             ""
                         })
                     }).SetName("Simple ConfigIni, Mac Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        String.Concat(new[]
+                        {
+                            ";MyComment\n",
+                            "MyKey=MyValue\n",
+                            "Blurb\n",
+                            "\n",
+                            "[MySection]\n",
+                            "MySpecialKey=MySpecialValue\n",
+                            "\n",
+                            ";MyComment\r\n",
+                            "MyKey=MyValue\r\n",
+                            "Blurb\r\n",
+                            "\r\n",
+                            "[MySection]\r\n",
+                            "MySpecialKey=MySpecialValue\r\n",
+                            "\r\n",
+                            ";MyComment\r",
+                            "MyKey=MyValue\r",
+                            "Blurb\r",
+                            "\r",
+                            "[MySection]\r",
+                            "MySpecialKey=MySpecialValue\r",
+                            "\r"
+                        })
+                    }).SetName("Simple ConfigIni, Mixed Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        String.Concat(new[]
+                        {
+                            "\t \n",
+                            "\t  \r\n",
+                            "\t   \r"
+                        })
+                    }).SetName("Whitespace, Mixed Line Endings");
+
+                    yield return new TestCaseData(new[]
+                    {
+                        String.Concat(new[]
+                        {
+                            ";Comment \n",
+                            " ; Comment  \r\n",
+                            "  ;  Comment   \r"
+                        })
+                    }).SetName("Comments, Mixed Line Endings");
                 }
             }
 

@@ -6,6 +6,6 @@ namespace UE4Config.Parsing
     {
         public CommentToken() : base() { }
 
-        public CommentToken(IEnumerable<string> lines) : base(lines) {}
+        public CommentToken(IEnumerable<string> lines, LineEnding lineEnding) : base(lines, lineEnding) {}
     }
 }

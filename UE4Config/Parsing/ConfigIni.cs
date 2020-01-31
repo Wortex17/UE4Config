@@ -239,9 +239,9 @@ namespace UE4Config.Parsing
             return;
         }
 
-        public void ReadLine(string line, ref ConfigIniSection currentSection)
+        public void ReadLineWithoutLineEnding(string line, ref ConfigIniSection currentSection)
         {
-            ReadLine(line, LineEnding.Unknown, ref currentSection);
+            ReadLine(line, LineEnding.None, ref currentSection);
         }
 
         /// <summary>

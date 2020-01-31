@@ -5,13 +5,11 @@ namespace UE4Config.Parsing
 {
     public abstract class MultilineToken : IniToken
     {
-        public List<string> Lines = new List<string>();
-        public LineEnding SharedLineEnding;
+        public List<TextLine> Lines = new List<TextLine>();
 
         public void AddLine(string content, LineEnding lineEnding = LineEnding.Unknown)
         {
-            Lines.Add(content);
-            SharedLineEnding = lineEnding;
+            Lines.Add(new TextLine(content, lineEnding));
         }
 
         public void AddLines(IEnumerable<string> contents, LineEnding lineEnding = LineEnding.Unknown)
@@ -22,21 +20,35 @@ namespace UE4Config.Parsing
             }
         }
 
+        /// <summary>
+        /// Returns all lines converted into an array of strings.
+        /// </summary>
+        public string[] GetStringLines()
+        {
+            string[] strings = new string[Lines.Count];
+            for(int i = 0; i < Lines.Count; i++)
+            {
+                strings[i] = Lines[i].ToString();
+            }
+            return strings;
+        }
+
+
         protected MultilineToken() { }
 
-        protected MultilineToken(IEnumerable<string> lines)
+        protected MultilineToken(IEnumerable<string> lines, LineEnding lineEnding)
         {
-            AddLines(lines);
+            AddLines(lines, lineEnding);
         }
 
         public override void Write(TextWriter writer)
         {
             foreach (var line in Lines)
             {
-                if (line != null)
+                if (!line.IsNull)
                 {
-                    writer.Write(line);
-                    SharedLineEnding.WriteTo(writer);
+                    writer.Write(line.Content);
+                    line.LineEnding.WriteTo(writer);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 
 namespace UE4Config.Parsing
@@ -32,26 +33,37 @@ namespace UE4Config.Parsing
 
     public static class LineEndingExtensions
     {
+        public static string AsString(this LineEnding lineEnding)
+        {
+            switch (lineEnding)
+            {
+                case LineEnding.None:
+                    return "";
+                case LineEnding.Unix:
+                    return "\n";
+                case LineEnding.Windows:
+                    return "\r\n";
+                case LineEnding.Mac:
+                    return "\r";
+                case LineEnding.Unknown:
+                    return Environment.NewLine;
+                default:
+                    throw new InvalidEnumArgumentException(nameof(lineEnding), (int)lineEnding, typeof(LineEnding));
+            }
+        }
+
         public static void WriteTo(this LineEnding lineEnding, TextWriter writer)
         {
             switch (lineEnding)
             {
                 case LineEnding.None:
                     break;
-                case LineEnding.Unix:
-                    writer.Write("\n");
-                    break;
-                case LineEnding.Windows:
-                    writer.Write("\r\n");
-                    break;
-                case LineEnding.Mac:
-                    writer.Write("\r");
-                    break;
                 case LineEnding.Unknown:
                     writer.WriteLine();
                     break;
                 default:
-                    throw new InvalidEnumArgumentException(nameof(lineEnding), (int)lineEnding, typeof(LineEnding));
+                    writer.Write(lineEnding.AsString());
+                    break;
             }
         }
     }
