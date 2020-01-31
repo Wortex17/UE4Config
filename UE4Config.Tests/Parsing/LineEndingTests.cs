@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using NUnit.Framework;
 using UE4Config.Parsing;
 
@@ -36,6 +37,13 @@ namespace UE4Config.Tests.Parsing
                 var writer = new StringWriter();
                 lineEnding.WriteTo(writer);
                 Assert.That(writer.ToString(), Is.EqualTo(expectedOutput));
+            }
+
+            [Test]
+            public void When_InvalidEnum()
+            {
+                var writer = new StringWriter();
+                Assert.That(() => { ((LineEnding)999).WriteTo(writer); }, Throws.TypeOf<InvalidEnumArgumentException>());
             }
         }
     }
