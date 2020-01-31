@@ -171,6 +171,21 @@ namespace UE4Config.Parsing
         }
 
         /// <summary>
+        /// Writes the who9le config to a text blob
+        /// </summary>
+        /// <param name="writer"></param>
+        public void Write(TextWriter writer)
+        {
+            foreach (var section in Sections)
+            {
+                if (section == null)
+                    return;
+
+                section.Write(writer);
+            }
+        }
+
+        /// <summary>
         /// Merges together <see cref="Sections"/> that share a <see cref="ConfigIniSection.Name"/>.
         /// <see cref="ConfigIniSection.Tokens"/> will be merge din order of the sections
         /// </summary>

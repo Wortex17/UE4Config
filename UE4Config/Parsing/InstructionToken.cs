@@ -1,4 +1,6 @@
-﻿namespace UE4Config.Parsing
+﻿using System.IO;
+
+namespace UE4Config.Parsing
 {
     public class InstructionToken : IniToken
     {
@@ -13,6 +15,18 @@
             InstructionType = type;
             Key = key;
             Value = value;
+        }
+
+        public override void Write(TextWriter writer)
+        {
+            writer.Write(InstructionType.AsPrefixString());
+            writer.Write(Key);
+            if (Value != null)
+            {
+                writer.Write("=");
+                writer.Write(Value);
+            }
+            writer.WriteLine();
         }
     }
 }

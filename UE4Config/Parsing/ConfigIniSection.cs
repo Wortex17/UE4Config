@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace UE4Config.Parsing
 {
@@ -93,6 +95,47 @@ namespace UE4Config.Parsing
                         Tokens.RemoveAt(i);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Writes this sections to a string
+        /// </summary>
+        public void Write(TextWriter writer)
+        {
+            WriteHeader(writer);
+            WriteTokens(writer);
+        }
+
+        /// <summary>
+        /// Writes this sections header to a text blob
+        /// </summary>
+        public void WriteHeader(TextWriter writer)
+        {
+            if (Name != null)
+            {
+                if (!String.IsNullOrEmpty(LineWastePrefix))
+                {
+                    writer.Write(LineWastePrefix);
+                }
+                writer.Write($"[{Name}]");
+                if (!String.IsNullOrEmpty(LineWasteSuffix))
+                {
+                    writer.Write(LineWasteSuffix);
+                }
+                writer.WriteLine(); //Finish the line
+            }
+        }
+
+        /// <summary>
+        /// Writes this sections <see cref="Tokens"/> to a text blob
+        /// </summary>
+        /// <param name="writer"></param>
+        public void WriteTokens(TextWriter writer)
+        {
+            foreach (var token in Tokens)
+            {
+                //Write(writer, token);
             }
         }
     }
