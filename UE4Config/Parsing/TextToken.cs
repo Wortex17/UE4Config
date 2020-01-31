@@ -12,7 +12,7 @@ namespace UE4Config.Parsing
         public override void Write(TextWriter writer)
         {
             writer.Write(Text);
-            LineEnding.Write(writer);
+            LineEnding.WriteTo(writer);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace UE4Config.Tests.Parsing
             public void When_Unknown_WritesWritersNewLine()
             {
                 var writer = new StringWriter();
-                LineEnding.Unknown.Write(writer);
+                LineEnding.Unknown.WriteTo(writer);
                 Assert.That(writer.ToString(), Is.EqualTo(writer.NewLine));
             }
 
@@ -25,7 +25,7 @@ namespace UE4Config.Tests.Parsing
             {
                 var writer = new StringWriter();
                 writer.NewLine = "CustomNewLine\t";
-                LineEnding.Unknown.Write(writer);
+                LineEnding.Unknown.WriteTo(writer);
                 Assert.That(writer.ToString(), Is.EqualTo(writer.NewLine));
             }
 
@@ -36,7 +36,7 @@ namespace UE4Config.Tests.Parsing
             public void When_SpecificLineEnding(LineEnding lineEnding, string expectedOutput)
             {
                 var writer = new StringWriter();
-                lineEnding.Write(writer);
+                lineEnding.WriteTo(writer);
                 Assert.That(writer.ToString(), Is.EqualTo(expectedOutput));
             }
         }

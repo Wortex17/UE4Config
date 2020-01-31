@@ -32,7 +32,7 @@ namespace UE4Config.Parsing
 
     public static class LineEndingExtensions
     {
-        public static void Write(this LineEnding lineEnding, TextWriter writer)
+        public static void WriteTo(this LineEnding lineEnding, TextWriter writer)
         {
             switch (lineEnding)
             {
