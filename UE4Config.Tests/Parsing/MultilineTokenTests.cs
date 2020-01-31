@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using UE4Config.Parsing;
@@ -43,6 +44,22 @@ namespace UE4Config.Tests.Parsing
                 var writer = new StringWriter();
                 token.Write(writer);
                 var expectedLines = String.Join(writer.NewLine, lines);
+                expectedLines += writer.NewLine; //Expecting final newline
+
+                Assert.That(writer.ToString(), Is.EqualTo(expectedLines));
+            }
+
+            [TestCase(typeof(WhitespaceToken), new[] { " ", null, "\t" })]
+            [TestCase(typeof(CommentToken), new[] { ";Comment", null, "; WithNull" })]
+            public void When_HasNullLines_DoesSkipNulls(Type tokenType, string[] lines)
+            {
+                var token = System.Activator.CreateInstance(tokenType, new object[] { lines }) as MultilineToken;
+                var writer = new StringWriter();
+                token.Write(writer);
+
+                var linesWithoutNull = new List<string>(lines);
+                linesWithoutNull.RemoveAll((line) => line == null);
+                var expectedLines = String.Join(writer.NewLine, linesWithoutNull);
                 expectedLines += writer.NewLine; //Expecting final newline
 
                 Assert.That(writer.ToString(), Is.EqualTo(expectedLines));
