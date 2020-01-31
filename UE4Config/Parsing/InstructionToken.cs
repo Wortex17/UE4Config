@@ -2,7 +2,7 @@
 
 namespace UE4Config.Parsing
 {
-    public class InstructionToken : IniToken
+    public class InstructionToken : LineToken
     {
         public InstructionType InstructionType;
         public string Key;
@@ -11,6 +11,19 @@ namespace UE4Config.Parsing
         public InstructionToken() { }
 
         public InstructionToken(InstructionType type, string key, string value = null)
+        {
+            InstructionType = type;
+            Key = key;
+            Value = value;
+        }
+
+        public InstructionToken(InstructionType type, string key, LineEnding lineEnding) : base(lineEnding)
+        {
+            InstructionType = type;
+            Key = key;
+        }
+
+        public InstructionToken(InstructionType type, string key, string value, LineEnding lineEnding) : base(lineEnding)
         {
             InstructionType = type;
             Key = key;
@@ -26,7 +39,7 @@ namespace UE4Config.Parsing
                 writer.Write("=");
                 writer.Write(Value);
             }
-            writer.WriteLine();
+            LineEnding.WriteTo(writer);
         }
     }
 }
