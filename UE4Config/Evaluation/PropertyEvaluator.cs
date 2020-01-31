@@ -6,51 +6,54 @@ namespace UE4Config.Evaluation
 {
     public class PropertyEvaluator
     {
-        /// <remarks>
-        /// STUB
-        /// </remarks>
         /// <summary>
-        /// Evaluates an ordered list of instructions 
+        /// Executes ordered list of instructions, assuming they are for the same property, modifying its <see cref="propertyValues"/> in the progress.
+        /// <seealso cref="ExecutePropertyInstruction"/>
         /// </summary>
-        /// <param name="instructions">Ordered list of instructions, with the latest declaration being last</param>
-        /// <param name="values">Resulting list of values, possibly empty if the property was deleted</param>
-        public void EvaluateInstructions(IEnumerable<InstructionToken> instructions, IList<string> values)
+        /// <param name="instructions">Queue of instructions to be executed</param>
+        /// <param name="propertyValues">The values of the property the instructions will be executed for. Will be modified by execution.</param>
+        public void ExecutePropertyInstructions(IList<InstructionToken> instructions, IList<string> propertyValues)
         {
             foreach (var instruction in instructions)
             {
                 if (instruction != null)
                 {
-                    EvaluateSingleInstruction(instruction, values);
+                    ExecutePropertyInstruction(instruction, propertyValues);
                 }
             }
         }
 
-        public void EvaluateSingleInstruction(InstructionToken instruction, IList<string> values)
+        /// <summary>
+        /// Executes a single instruction, modifying the <see cref="values"/> of a property.
+        /// </summary>
+        /// <param name="instruction">The instruction to be executed</param>
+        /// <param name="propertyValues">The values of the property the instruction will be executed for. Will be modified by execution.</param>
+        public void ExecutePropertyInstruction(InstructionToken instruction, IList<string> propertyValues)
         {
             switch (instruction.InstructionType)
             {
                 case InstructionType.Add:
-                    if (!values.Contains(instruction.Value))
+                    if (!propertyValues.Contains(instruction.Value))
                     {
-                        values.Add(instruction.Value);
+                        propertyValues.Add(instruction.Value);
                     }
                     break;
                 case InstructionType.AddForce:
-                    values.Add(instruction.Value);
+                    propertyValues.Add(instruction.Value);
                     break;
                 case InstructionType.Remove:
                     bool wasRemoved = false;
                     do
                     {
-                        wasRemoved = values.Remove(instruction.Value);
+                        wasRemoved = propertyValues.Remove(instruction.Value);
                     } while (wasRemoved);
                     break;
                 case InstructionType.RemoveAll:
-                    values.Clear();
+                    propertyValues.Clear();
                     break;
                 case InstructionType.Set:
-                    values.Clear();
-                    values.Add(instruction.Value);
+                    propertyValues.Clear();
+                    propertyValues.Add(instruction.Value);
                     break;
                 default:
                     throw new InvalidEnumArgumentException(nameof(instruction.InstructionType), (int)instruction.InstructionType, typeof(InstructionType));
@@ -75,7 +78,7 @@ namespace UE4Config.Evaluation
             {
                 configIni.FindPropertyInstructions(sectionName, propertyKey, instructions);
             }
-            EvaluateInstructions(instructions, values);
+            ExecutePropertyInstructions(instructions, values);
         }
 
         public void EvaluatePropertyValues(IEnumerable<ConfigIni> configs, string sectionName, string propertyKey, IList<string> values)

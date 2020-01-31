@@ -438,7 +438,7 @@ namespace UE4Config.Tests.Evaluation
             {
                 var evaluator = new PropertyEvaluator();
                 var values = new List<string>();
-                Assert.That(() => { evaluator.EvaluateInstructions(instructions, values); }, Throws.Nothing);
+                Assert.That(() => { evaluator.ExecutePropertyInstructions(instructions, values); }, Throws.Nothing);
                 Assert.That(values, Is.EquivalentTo(expectedValues));
             }
 
@@ -449,7 +449,7 @@ namespace UE4Config.Tests.Evaluation
                 var instructions = new List<InstructionToken>();
                 instructions.Add(NewInstruction((InstructionType)999));
                 var values = new List<string>();
-                Assert.That(() => { evaluator.EvaluateInstructions(instructions, values); }, Throws.TypeOf<InvalidEnumArgumentException>());
+                Assert.That(() => { evaluator.ExecutePropertyInstructions(instructions, values); }, Throws.TypeOf<InvalidEnumArgumentException>());
             }
         }
 
