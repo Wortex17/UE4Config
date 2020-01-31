@@ -624,5 +624,54 @@ namespace UE4Config.Tests.Parsing
                 Assert.That(sectionC1.Tokens, Is.EquivalentTo(new[] { tokenC1_1, tokenC1_2, tokenC1_3 }));
             }
         }
+
+        [TestFixture]
+        public class Write
+        {
+            class SpyConfigIniSection : ConfigIniSection
+            {
+                public SpyConfigIniSection(string name) : base(name) { }
+
+                public List<ConfigIniSection> Write_CallLog;
+
+                public override void Write(TextWriter writer)
+                {
+                    Write_CallLog?.Add(this);
+                    base.Write(writer);
+                }
+            }
+
+            [Test]
+            public void When_HasSections_RelaysCallsToSections()
+            {
+                var callLog = new List<ConfigIniSection>();
+                var config = new ConfigIni();
+                var spySectionA = new SpyConfigIniSection("A") { Write_CallLog = callLog };
+                var spySectionB = new SpyConfigIniSection("B") { Write_CallLog = callLog };
+                config.Sections.Add(spySectionA);
+                config.Sections.Add(spySectionB);
+
+                var writer = new StringWriter();
+                config.Write(writer);
+                Assert.That(callLog, Is.EquivalentTo(new[] { spySectionA, spySectionB }));
+            }
+
+            [Test]
+            public void When_HasNullSections_DoesSkipNull()
+            {
+                var callLog = new List<ConfigIniSection>();
+                var config = new ConfigIni();
+                var spySectionA = new SpyConfigIniSection("A") { Write_CallLog = callLog };
+                var spySectionB = new SpyConfigIniSection("B") { Write_CallLog = callLog };
+                config.Sections.Add(spySectionA);
+                config.Sections.Add(null);
+                config.Sections.Add(spySectionB);
+
+                var writer = new StringWriter();
+                config.Write(writer);
+                Assert.That(config.Sections, Has.Count.EqualTo(3));
+                Assert.That(callLog, Is.EquivalentTo(new[] { spySectionA, spySectionB }));
+            }
+        }
     }
 }

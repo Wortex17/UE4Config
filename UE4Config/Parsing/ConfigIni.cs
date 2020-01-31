@@ -171,7 +171,7 @@ namespace UE4Config.Parsing
         }
 
         /// <summary>
-        /// Writes the who9le config to a text blob
+        /// Writes the whole config to a text blob
         /// </summary>
         /// <param name="writer"></param>
         public void Write(TextWriter writer)
@@ -179,7 +179,7 @@ namespace UE4Config.Parsing
             foreach (var section in Sections)
             {
                 if (section == null)
-                    return;
+                    continue;
 
                 section.Write(writer);
             }

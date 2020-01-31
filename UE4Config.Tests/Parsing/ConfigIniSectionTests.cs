@@ -73,8 +73,73 @@ namespace UE4Config.Tests.Parsing
         }
 
         [TestFixture]
+        class WriteTokens
+        {
+
+            class SpyIniToken : IniToken
+            {
+                public List<IniToken> Write_CallLog;
+
+                public override void Write(TextWriter writer)
+                {
+                    Write_CallLog?.Add(this);
+                }
+            }
+
+            [Test]
+            public void When_HasTokens()
+            {
+                List<IniToken> callLog = new List<IniToken>();
+                var spySection = new ConfigIniSection();
+                var spyToken1 = new SpyIniToken() { Write_CallLog = callLog };
+                var spyToken2 = new SpyIniToken() { Write_CallLog = callLog };
+                spySection.Tokens.Add(spyToken1);
+                spySection.Tokens.Add(spyToken2);
+                var writer = new StringWriter();
+                spySection.WriteTokens(writer);
+                Assert.That(callLog, Is.EquivalentTo(new[] { spyToken1 , spyToken2}));
+            }
+
+            [Test]
+            public void When_HasNullTokens_DoesSkipNull()
+            {
+                List<IniToken> callLog = new List<IniToken>();
+                var spySection = new ConfigIniSection();
+                var spyToken1 = new SpyIniToken() { Write_CallLog = callLog };
+                var spyToken2 = new SpyIniToken() { Write_CallLog = callLog };
+                spySection.Tokens.Add(spyToken1);
+                spySection.Tokens.Add(null);
+                spySection.Tokens.Add(spyToken2);
+                var writer = new StringWriter();
+                spySection.WriteTokens(writer);
+                Assert.That(spySection.Tokens, Has.Count.EqualTo(3));
+                Assert.That(callLog, Is.EquivalentTo(new[] { spyToken1, spyToken2 }));
+            }
+        }
+
+        [TestFixture]
         class Write
         {
+            class SpyConfigIniSection : ConfigIniSection
+            {
+                public int WriteTokens_CallCount;
+
+                public override void WriteTokens(TextWriter writer)
+                {
+                    WriteTokens_CallCount++;
+                    base.WriteTokens(writer);
+                }
+            }
+
+            [Test]
+            public void Does_RelayCalls()
+            {
+                var spySection = new SpyConfigIniSection();
+                var writer = new StringWriter();
+                spySection.Write(writer);
+                Assert.That(spySection.WriteTokens_CallCount, Is.EqualTo(1));
+            }
+
             public static IEnumerable Cases_WriteHeader
             {
                 get
