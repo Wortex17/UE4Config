@@ -25,13 +25,19 @@ namespace UE4Config.Parsing
 
         public ConfigIniSection(IEnumerable<IniToken> tokens)
         {
-            Tokens.AddRange(tokens);
+            if (tokens != null)
+            {
+                Tokens.AddRange(tokens);
+            }
         }
 
         public ConfigIniSection(string name, IEnumerable<IniToken> tokens)
         {
             Name = name;
-            Tokens.AddRange(tokens);
+            if (tokens != null)
+            {
+                Tokens.AddRange(tokens);
+            }
         }
 
         /// <summary>

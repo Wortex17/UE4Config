@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using UE4Config.Parsing;
@@ -15,6 +16,7 @@ namespace UE4Config.Tests.Parsing
             ConfigIni config = null;
             Assert.That(() => { config = new ConfigIni(); }, Throws.Nothing);
             Assert.That(config.Name, Is.Null);
+            Assert.That(config.Sections, Is.Empty);
         }
 
         [Test]
@@ -24,6 +26,7 @@ namespace UE4Config.Tests.Parsing
             ConfigIni config = null;
             Assert.That(() => { config = new ConfigIni(name); }, Throws.Nothing);
             Assert.That(config.Name, Is.EqualTo(name));
+            Assert.That(config.Sections, Is.Empty);
         }
 
         [Test]
@@ -38,6 +41,15 @@ namespace UE4Config.Tests.Parsing
         }
 
         [Test]
+        public void When_ConstructedWithNullSections()
+        {
+            ConfigIni config = null;
+            Assert.That(() => { config = new ConfigIni((IEnumerable<ConfigIniSection>)null);}, Throws.Nothing);
+            Assert.That(config.Name, Is.Null);
+            Assert.That(config.Sections, Is.Empty);
+        }
+
+        [Test]
         public void When_ConstructedWithNameAndSections()
         {
             string name = "Engine/Config/Base.ini";
@@ -47,6 +59,16 @@ namespace UE4Config.Tests.Parsing
             Assert.That(() => { config = new ConfigIni(name, new[] {sectionA , sectionB}); }, Throws.Nothing);
             Assert.That(config.Name, Is.EqualTo(name));
             Assert.That(config.Sections, Is.EquivalentTo(new[] {sectionA, sectionB}));
+        }
+
+        [Test]
+        public void When_ConstructedWithNameAndNullSections()
+        {
+            string name = "Engine/Config/Base.ini";
+            ConfigIni config = null;
+            Assert.That(() => { config = new ConfigIni(name, null); }, Throws.Nothing);
+            Assert.That(config.Name, Is.EqualTo(name));
+            Assert.That(config.Sections, Is.Empty);
         }
 
         [TestFixture]
