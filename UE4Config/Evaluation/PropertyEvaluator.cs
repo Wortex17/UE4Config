@@ -7,6 +7,32 @@ namespace UE4Config.Evaluation
     public class PropertyEvaluator
     {
         /// <summary>
+        /// Returns a default already instanced PropertyEvaluater for easy use.
+        /// Instances a new default <see cref="PropertyEvaluator"/> if there was none set yet.
+        /// </summary>
+        public static PropertyEvaluator Default
+        {
+            get
+            {
+                if (m_Default == null)
+                {
+                    m_Default = new PropertyEvaluator();
+                }
+                return m_Default;
+            }
+        }
+
+        /// <summary>
+        /// Sets the <see cref="PropertyEvaluator" /> instance to eb returned by <see cref="Default"/>
+        /// </summary>
+        public static void SetDefaultEvaluator(PropertyEvaluator evaluator)
+        {
+            m_Default = evaluator;
+        }
+
+        private static PropertyEvaluator m_Default;
+
+        /// <summary>
         /// Executes ordered list of instructions, assuming they are for the same property, modifying its <see cref="propertyValues"/> in the progress.
         /// <seealso cref="ExecutePropertyInstruction"/>
         /// </summary>
@@ -82,6 +108,18 @@ namespace UE4Config.Evaluation
         }
 
         public void EvaluatePropertyValues(IEnumerable<ConfigIni> configs, string sectionName, string propertyKey, IList<string> values)
+        {
+            EvaluatePropertyValues(configs, sectionName, propertyKey, new List<InstructionToken>(), values);
+        }
+
+        public void EvaluatePropertyValues(ConfigIni config, string sectionName, string propertyKey,
+            IList<InstructionToken> instructions, IList<string> values)
+        {
+            config.FindPropertyInstructions(sectionName, propertyKey, instructions);
+            ExecutePropertyInstructions(instructions, values);
+        }
+
+        public void EvaluatePropertyValues(ConfigIni configs, string sectionName, string propertyKey, IList<string> values)
         {
             EvaluatePropertyValues(configs, sectionName, propertyKey, new List<InstructionToken>(), values);
         }

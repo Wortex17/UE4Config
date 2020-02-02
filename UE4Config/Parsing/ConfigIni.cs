@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UE4Config.Evaluation;
 
 namespace UE4Config.Parsing
 {
@@ -257,6 +258,15 @@ namespace UE4Config.Parsing
 
                 section.Write(writer);
             }
+        }
+
+        public void EvaluatePropertyValues(string sectionName, string propertyKey, IList<string> values, PropertyEvaluator evaluator = null)
+        {
+            if (evaluator == null)
+            {
+                evaluator = PropertyEvaluator.Default;
+            }
+            evaluator.EvaluatePropertyValues(this, sectionName, propertyKey, values);
         }
 
         /// <summary>
