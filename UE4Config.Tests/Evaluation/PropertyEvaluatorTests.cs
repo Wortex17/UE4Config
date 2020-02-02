@@ -13,6 +13,89 @@ namespace UE4Config.Tests.Evaluation
     public class PropertyEvaluatorTests
     {
         [TestFixture]
+        public class ResetDefaultEvaluator
+        {
+            [Test]
+            public void When_UsedAfterDefault_DefaultReturnsNewInstance()
+            {
+                PropertyEvaluator.ResetDefaultEvaluator();
+                var defaultEvaluatorA = PropertyEvaluator.Default;
+                var defaultEvaluatorB = PropertyEvaluator.Default;
+                Assert.That(defaultEvaluatorA, Is.SameAs(defaultEvaluatorB));
+                PropertyEvaluator.ResetDefaultEvaluator();
+            }
+
+            [Test]
+            public void When_NotUsed_DefaultReturnsSameInstance()
+            {
+                PropertyEvaluator.ResetDefaultEvaluator();
+                var defaultEvaluatorA = PropertyEvaluator.Default;
+                PropertyEvaluator.ResetDefaultEvaluator();
+                var defaultEvaluatorB = PropertyEvaluator.Default;
+                Assert.That(defaultEvaluatorA, Is.Not.SameAs(defaultEvaluatorB));
+                PropertyEvaluator.ResetDefaultEvaluator();
+            }
+        }
+
+        [TestFixture]
+        public class SetDefaultEvaluator
+        {
+            [Test]
+            public void When_NotUsed_DefaultReturnsValidInstance()
+            {
+                PropertyEvaluator.ResetDefaultEvaluator();
+                var defaultEvaluator = PropertyEvaluator.Default;
+                Assert.That(defaultEvaluator, Is.Not.Null);
+                PropertyEvaluator.ResetDefaultEvaluator();
+            }
+
+            [Test]
+            public void When_SetToCustomInstance_DefaultReturnsCustomInstance()
+            {
+                var customDefaultEvaluator = new PropertyEvaluator();
+                PropertyEvaluator.SetDefaultEvaluator(customDefaultEvaluator);
+                var defaultEvaluator = PropertyEvaluator.Default;
+                Assert.That(defaultEvaluator, Is.SameAs(customDefaultEvaluator));
+                PropertyEvaluator.ResetDefaultEvaluator();
+            }
+        }
+
+        [TestFixture]
+        public class CustomOrDefault
+        {
+            [Test]
+            public void When_NoArguments()
+            {
+                PropertyEvaluator.ResetDefaultEvaluator();
+                var evaluator = PropertyEvaluator.CustomOrDefault();
+                Assert.That(evaluator, Is.Not.Null);
+                Assert.That(evaluator, Is.SameAs(PropertyEvaluator.Default));
+                PropertyEvaluator.ResetDefaultEvaluator();
+            }
+
+            [Test]
+            public void When_GivenNull()
+            {
+                PropertyEvaluator.ResetDefaultEvaluator();
+                var evaluator = PropertyEvaluator.CustomOrDefault(null);
+                Assert.That(evaluator, Is.Not.Null);
+                Assert.That(evaluator, Is.SameAs(PropertyEvaluator.Default));
+                PropertyEvaluator.ResetDefaultEvaluator();
+            }
+
+            [Test]
+            public void When_GivenCustomEvaluator()
+            {
+                PropertyEvaluator.ResetDefaultEvaluator();
+                var customEvaluator = new PropertyEvaluator();
+                var evaluator = PropertyEvaluator.CustomOrDefault(customEvaluator);
+                Assert.That(evaluator, Is.Not.Null);
+                Assert.That(evaluator, Is.SameAs(customEvaluator));
+                PropertyEvaluator.ResetDefaultEvaluator();
+            }
+        }
+
+        [TestFixture]
         public class EvaluateInstructions
         {
             static InstructionToken NewInstructionValue(InstructionType type, string value)

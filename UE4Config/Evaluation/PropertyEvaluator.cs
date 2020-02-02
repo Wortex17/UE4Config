@@ -30,7 +30,17 @@ namespace UE4Config.Evaluation
             m_Default = evaluator;
         }
 
+        public static void ResetDefaultEvaluator()
+        {
+            m_Default = null;
+        }
+
         private static PropertyEvaluator m_Default;
+
+        public static PropertyEvaluator CustomOrDefault(PropertyEvaluator customPick = null)
+        {
+            return customPick != null ? customPick : Default;
+        }
 
         /// <summary>
         /// Executes ordered list of instructions, assuming they are for the same property, modifying its <see cref="propertyValues"/> in the progress.

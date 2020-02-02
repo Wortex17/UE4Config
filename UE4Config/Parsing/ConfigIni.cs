@@ -262,10 +262,7 @@ namespace UE4Config.Parsing
 
         public void EvaluatePropertyValues(string sectionName, string propertyKey, IList<string> values, PropertyEvaluator evaluator = null)
         {
-            if (evaluator == null)
-            {
-                evaluator = PropertyEvaluator.Default;
-            }
+            evaluator = PropertyEvaluator.CustomOrDefault(evaluator);
             evaluator.EvaluatePropertyValues(this, sectionName, propertyKey, values);
         }
 
