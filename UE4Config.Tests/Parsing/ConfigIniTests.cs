@@ -910,6 +910,27 @@ namespace UE4Config.Tests.Parsing
 
                 Assert.That(writer.ToString(), Is.EqualTo(original));
             }
+
+
+
+            [TestCase("MockProject/Config/DefaultEditor.ini")]
+            [TestCase("MockProject/Config/DefaultGame.ini")]
+            [TestCase("MockProject/Config/DefaultEngine.ini")]
+            public void When_UnmodifiedFile_IsUnchanged(string file)
+            {
+                var filePath = TestUtils.GetTestDataPath(file);
+                var reader = File.OpenText(filePath);
+                var config = new ConfigIni();
+                config.Read(reader);
+                reader.Close();
+
+                var fileContent = File.ReadAllText(filePath);
+                var writer = new StringWriter();
+                config.Write(writer);
+                var writerContent = writer.ToString();
+                Assert.That(writerContent, Is.EqualTo(fileContent));
+            }
+
         }
     }
 }
