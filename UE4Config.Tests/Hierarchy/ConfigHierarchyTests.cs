@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 using UE4Config.Evaluation;
 using UE4Config.Hierarchy;
