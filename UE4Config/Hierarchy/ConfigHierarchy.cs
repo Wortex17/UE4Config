@@ -52,13 +52,41 @@ namespace UE4Config.Hierarchy
         /// <summary>
         /// Evaluates a properties values over this hierarchy of configs.
         /// </summary>
-        public void EvaluatePropertyValues(string platform, string category, string sectionName, string propertyKey,
+        public virtual void EvaluatePropertyValues(string platform, string category, string sectionName, string propertyKey,
             PropertyEvaluator evaluator, IList<string> values)
         {
             List<ConfigIni> configs = new List<ConfigIni>();
             GetConfigs(platform, category, configs);
             evaluator = PropertyEvaluator.CustomOrDefault(evaluator);
             evaluator.EvaluatePropertyValues(configs, sectionName, propertyKey, values);
+        }
+
+        /// <inheritdoc cref="EvaluatePropertyValues(string,string,string,string,UE4Config.Evaluation.PropertyEvaluator,System.Collections.Generic.IList{string})"/>
+        /// <remarks>
+        /// Uses <see cref="PropertyEvaluator.Default"/> as evaluator
+        /// </remarks>
+        public void EvaluatePropertyValues(string platform, string category, string sectionName, string propertyKey, IList<string> values)
+        {
+            EvaluatePropertyValues(platform, category, sectionName, propertyKey, PropertyEvaluator.Default, values);
+        }
+
+        /// <inheritdoc cref="EvaluatePropertyValues(string,string,string,string,UE4Config.Evaluation.PropertyEvaluator,System.Collections.Generic.IList{string})"/>
+        /// <remarks>
+        /// Uses "Default" platform
+        /// Uses <see cref="PropertyEvaluator.Default"/> as evaluator
+        /// </remarks>
+        public void EvaluatePropertyValues(string category, string sectionName, string propertyKey, IList<string> values)
+        {
+            EvaluatePropertyValues("Default", category, sectionName, propertyKey, PropertyEvaluator.Default, values);
+        }
+
+        /// <inheritdoc cref="EvaluatePropertyValues(string,string,string,string,UE4Config.Evaluation.PropertyEvaluator,System.Collections.Generic.IList{string})"/>
+        /// <remarks>
+        /// Uses "Default" platform
+        /// </remarks>
+        public void EvaluatePropertyValues(string category, string sectionName, string propertyKey, PropertyEvaluator evaluator, IList<string> values)
+        {
+            EvaluatePropertyValues("Default", category, sectionName, propertyKey, evaluator, values);
         }
     }
 }
