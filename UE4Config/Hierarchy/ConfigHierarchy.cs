@@ -10,6 +10,11 @@ namespace UE4Config.Hierarchy
     public abstract class ConfigHierarchy
     {
         /// <summary>
+        /// The default platform identifier - used when no specific platform is targeted
+        /// </summary>
+        public const string DefaultPlatform = "Default";
+
+        /// <summary>
         /// Returns the platform config of the given <see cref="category"/> and the given <see cref="level"/>, if available.
         /// Returns null otherwise.
         /// </summary>
@@ -22,7 +27,7 @@ namespace UE4Config.Hierarchy
         /// </summary>
         public ConfigIni GetConfig(string category, ConfigHierarchyLevel level)
         {
-            return GetConfig("Default", category, level);
+            return GetConfig(DefaultPlatform, category, level);
         }
 
         /// <summary>
@@ -46,7 +51,7 @@ namespace UE4Config.Hierarchy
         /// </summary>
         public void GetConfigs(string category, IList<ConfigIni> configs)
         {
-            GetConfigs("Default", category, configs);
+            GetConfigs(DefaultPlatform, category, configs);
         }
 
         /// <summary>
@@ -77,7 +82,7 @@ namespace UE4Config.Hierarchy
         /// </remarks>
         public void EvaluatePropertyValues(string category, string sectionName, string propertyKey, IList<string> values)
         {
-            EvaluatePropertyValues("Default", category, sectionName, propertyKey, PropertyEvaluator.Default, values);
+            EvaluatePropertyValues(DefaultPlatform, category, sectionName, propertyKey, PropertyEvaluator.Default, values);
         }
 
         /// <inheritdoc cref="EvaluatePropertyValues(string,string,string,string,UE4Config.Evaluation.PropertyEvaluator,System.Collections.Generic.IList{string})"/>
@@ -86,7 +91,7 @@ namespace UE4Config.Hierarchy
         /// </remarks>
         public void EvaluatePropertyValues(string category, string sectionName, string propertyKey, PropertyEvaluator evaluator, IList<string> values)
         {
-            EvaluatePropertyValues("Default", category, sectionName, propertyKey, evaluator, values);
+            EvaluatePropertyValues(DefaultPlatform, category, sectionName, propertyKey, evaluator, values);
         }
     }
 }
