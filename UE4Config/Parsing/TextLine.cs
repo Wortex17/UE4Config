@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace UE4Config.Parsing
+﻿namespace UE4Config.Parsing
 {
     public struct TextLine
     {

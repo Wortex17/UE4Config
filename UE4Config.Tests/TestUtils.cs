@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Threading;
 using NUnit.Framework;
 
 namespace UE4Config.Tests
