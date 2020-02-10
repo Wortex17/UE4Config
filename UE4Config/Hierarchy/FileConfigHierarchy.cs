@@ -13,7 +13,7 @@ namespace UE4Config.Hierarchy
     public class FileConfigHierarchy : ConfigHierarchy
     {
         /// <summary>
-        /// The path to the engine directory (called 'Engine')
+        /// The path to the engine directory (called and including 'Engine')
         /// </summary>
         public string EnginePath
         {
