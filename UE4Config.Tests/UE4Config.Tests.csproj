@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestData\MockProject\Config\Windows\WindowsGame.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UE4Config\UE4Config.csproj">
@@ -73,6 +76,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="TestData\MockEngine\Config\BaseGame.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\MockEngine\Config\Base.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\MockEngine\Config\Windows\WindowsGame.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestData\MockProject\Config\DefaultGame.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Net.Mime;
-using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 using UE4Config.Hierarchy;
 using UE4Config.Parsing;
@@ -39,6 +37,11 @@ namespace UE4Config.Tests.Hierarchy
             public ConfigIni Exposed_GetCachedConfig(string platform, string category, ConfigHierarchyLevel level)
             {
                 return GetCachedConfig(platform, category, level);
+            }
+
+            public ConfigIni Exposed_LoadConfig(string platform, string category, ConfigHierarchyLevel level)
+            {
+                return LoadConfig(platform, category, level);
             }
         }
 
@@ -264,5 +267,52 @@ namespace UE4Config.Tests.Hierarchy
             }
         }
 
+        [TestFixture]
+        public class LoadConfig
+        {
+            [TestCase("Windows", "Game", ConfigHierarchyLevel.Base)]
+            [TestCase("Windows", "Game", ConfigHierarchyLevel.BaseCategory)]
+            [TestCase("Windows", "Game", ConfigHierarchyLevel.BasePlatformCategory)]
+            [TestCase("Windows", "Game", ConfigHierarchyLevel.ProjectCategory)]
+            [TestCase("Windows", "Game", ConfigHierarchyLevel.ProjectPlatformCategory)]
+            public void When_CalledOnValidConfigSpecifierWithExistingFile(string platform, string category, ConfigHierarchyLevel level)
+            {
+                var projectPath = TestUtils.GetTestDataPath(@".\MockProject");
+                var enginePath = TestUtils.GetTestDataPath(@".\MockEngine");
+                var hierarchy = new MockFileConfigHierarchy(projectPath, enginePath);
+
+                var config = hierarchy.Exposed_LoadConfig(platform, category, level);
+
+                Assert.That(config, Is.Not.Null);
+                Assert.That(config.Name, Is.Not.Null);
+                Assert.That(config.Name, Is.Not.EqualTo(""));
+            }
+
+            [TestCase("Windows", "Lightmass", ConfigHierarchyLevel.ProjectCategory)]
+            [TestCase("OtherPlatform", "Game", ConfigHierarchyLevel.ProjectPlatformCategory)]
+            public void When_CalledOnValidConfigSpecifierWithMissingFile(string platform, string category, ConfigHierarchyLevel level)
+            {
+                var projectPath = TestUtils.GetTestDataPath(@".\MockProject");
+                var enginePath = TestUtils.GetTestDataPath(@".\MockEngine");
+                var hierarchy = new MockFileConfigHierarchy(projectPath, enginePath);
+
+                var config = hierarchy.Exposed_LoadConfig(platform, category, level);
+
+                Assert.That(config, Is.Null);
+            }
+
+            [TestCase("Default", "Game", ConfigHierarchyLevel.BasePlatformCategory)]
+            [TestCase("Default", "Game", ConfigHierarchyLevel.ProjectPlatformCategory)]
+            public void When_CalledOnInvalidConfigSpecifier(string platform, string category, ConfigHierarchyLevel level)
+            {
+                var projectPath = TestUtils.GetTestDataPath(@".\MockProject");
+                var enginePath = TestUtils.GetTestDataPath(@".\MockEngine");
+                var hierarchy = new MockFileConfigHierarchy(projectPath, enginePath);
+
+                var config = hierarchy.Exposed_LoadConfig(platform, category, level);
+
+                Assert.That(config, Is.Null);
+            }
+        }
     }
 }

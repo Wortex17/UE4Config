@@ -93,7 +93,22 @@ namespace UE4Config.Hierarchy
         protected virtual ConfigIni LoadConfig(string platform, string category, ConfigHierarchyLevel level)
         {
             var filePath = GetConfigFilePath(platform, category, level);
-            var reader = File.OpenText(filePath);
+            if (filePath == null)
+                return null;
+
+            StreamReader reader;
+            try
+            {
+                reader = File.OpenText(filePath);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return null;
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
             var config = new ConfigIni(Path.GetFileName(filePath));
             config.Read(reader);
             reader.Close();
