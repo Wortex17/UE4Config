@@ -7,7 +7,8 @@ using UE4Config.Parsing;
 namespace UE4Config.Hierarchy
 {
     /// <remarks>
-    /// STUB
+    /// Helps load config files in hierarchical chains, emulating the Unreal Engine toolset.
+    /// Allows fetching specific configs as well as evaluating a propertys values at any level of the hierarchy.
     /// </remarks>
     public class FileConfigHierarchy : ConfigHierarchy
     {
