@@ -102,7 +102,8 @@ namespace UE4Config.Hierarchy
 
         protected virtual void CacheConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config)
         {
-            throw new System.NotImplementedException();
+            var key = new ConfigKey(platform, category, level);
+            m_ConfigCache[key] = config;
         }
 
         protected virtual ConfigIni GetCachedConfig(string platform, string category, ConfigHierarchyLevel level)
@@ -129,9 +130,9 @@ namespace UE4Config.Hierarchy
                 Level = level;
             }
 
-            public string Platform { get; }
-            public string Category { get; }
-            public ConfigHierarchyLevel Level { get; }
+            public string Platform;
+            public string Category;
+            public ConfigHierarchyLevel Level;
         }
 
         private Dictionary<ConfigKey,ConfigIni> m_ConfigCache = new Dictionary<ConfigKey, ConfigIni>();
