@@ -7,6 +7,17 @@ A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for U
 [![License](https://img.shields.io/github/license/Wortex17/UE4Config)](https://raw.githubusercontent.com/Wortex17/UE4Config/master/LICENSE)
 [![Nuget](https://img.shields.io/nuget/v/Infrablack.UE4Config)](https://www.nuget.org/packages/Infrablack.UE4Config)
 
+## Features
+
+* Read & parse single config files
+* Serialization pertains file structure and formatting of the original file by default
+* Evaluate the value(s) of any property across one, or multiple config files
+* ConfigFileHierarchy emulates UE4s hierarchical config layers
+
+## Next to come
+
+* Easier API to modify & add new properties and values
+* Sanitization utilities to declutter config files
 
 ## Examples
 
