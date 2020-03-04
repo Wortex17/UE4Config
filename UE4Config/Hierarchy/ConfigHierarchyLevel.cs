@@ -36,6 +36,42 @@ namespace UE4Config.Hierarchy
     public static class ConfigHierarchyLevelExtensions
     {
         /// <summary>
+        /// Returns a <see cref="ConfigHierarchyLevelRange"/> from this level to a specific other level
+        /// <see cref="ConfigHierarchyLevelRange.FromTo"/>
+        /// </summary>
+        public static ConfigHierarchyLevelRange To(this ConfigHierarchyLevel from, ConfigHierarchyLevel to)
+        {
+            return ConfigHierarchyLevelRange.FromTo(from, to);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="ConfigHierarchyLevelRange"/> from this level to any lower
+        /// <see cref="ConfigHierarchyLevelRange.AnyTo"/>
+        /// </summary>
+        public static ConfigHierarchyLevelRange AndLower(this ConfigHierarchyLevel level)
+        {
+            return ConfigHierarchyLevelRange.AnyTo(level);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="ConfigHierarchyLevelRange"/> from this level to any higher
+        /// <see cref="ConfigHierarchyLevelRange.AnyFrom"/>
+        /// </summary>
+        public static ConfigHierarchyLevelRange AndHigher(this ConfigHierarchyLevel level)
+        {
+            return ConfigHierarchyLevelRange.AnyFrom(level);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="ConfigHierarchyLevelRange"/> exactly representing this level.
+        /// <see cref="ConfigHierarchyLevelRange.Exact"/>
+        /// </summary>
+        public static ConfigHierarchyLevelRange Exact(this ConfigHierarchyLevel level)
+        {
+            return ConfigHierarchyLevelRange.Exact(level);
+        }
+
+        /// <summary>
         /// Returns the levels in ascending order (<see cref="ConfigHierarchyLevel.Base"/> being the first)
         /// </summary>
         public static ConfigHierarchyLevel[] GetLevelsAscending()
