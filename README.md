@@ -10,8 +10,8 @@ A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for U
 
 ## Examples
 
-### Evaluate a propertys values from a single config file
-
+### Evaluate a property from a single config file
+You can directly load and read from a single specific config \*.ini file by reading and parsing that file, before evaluating any property values.
 ```
 var config = new ConfigIni("DefaultGame");
 
@@ -24,4 +24,28 @@ var values = new List<string>();
 config.EvaluatePropertyValues("/Script/EngineSettings.GeneralProjectSettings", "ProjectID", values);
 
 Assert.That(values, Is.EquivalentTo(new[]{"3F9D696D4363312194B0ECB2671E899F"}));
+```
+
+### Evaluate a property from a config hierarchy
+You can also initialize a config hierarchy by providing a engine and/or a project path, and then evaluate any property values for a specific target level & platform.
+This emulates best what proeprty values would exist in which context in any Unreal Engine 4 project.
+
+```
+//Create a new config hierarchy, with paths to the engine as well as the project directory
+var configHierarchy = new FileConfigHierarchy("Mock/Project/Directory", "Mock/Engine/Directory");
+
+//Evaluate the values and put them into a list. Should the property only have a single value, the list will have a single element.
+//Should the property not exist or should all its values have been deleted via config, the list will be empty.
+var win64Values = new List<string>();
+
+//Evaluate the property "LocalizationPaths" in the section "Internationalization" in the category "Game" for the topmost "Windows"-platform config in the hierarchy.
+//This will take all lower hierarchy layers into account.
+configHierarchy.EvaluatePropertyValues("Windows", "Game", "Internationalization", "LocalizationPaths", win64Values);
+
+Assert.That(values, Is.EquivalentTo(new[]
+  {
+    "%GAMEDIR%Content/Localization/Game",
+    "%GAMEDIR%Content/Localization/Game/Default",
+    "%GAMEDIR%Content/Localization/Game/Win64"
+  }));
 ```
