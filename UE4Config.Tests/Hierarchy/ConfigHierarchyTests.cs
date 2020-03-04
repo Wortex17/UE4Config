@@ -15,18 +15,18 @@ namespace UE4Config.Tests.Hierarchy
             public delegate ConfigIni SpyGetConfig(string platform, string category, ConfigHierarchyLevel level);
             public SpyGetConfig OnSpyGetConfig;
 
-            public Action<string, string, string, string, PropertyEvaluator, IList<string>> OnEvaluatePropertyValues;
+            public Action<string, string, string, string, ConfigHierarchyLevelRange, PropertyEvaluator, IList<string>> OnEvaluatePropertyValues;
 
             public override ConfigIni GetConfig(string platform, string category, ConfigHierarchyLevel level)
             {
                 return OnSpyGetConfig?.Invoke(platform, category, level);
             }
 
-            public override void EvaluatePropertyValues(string platform, string category, string sectionName, string propertyKey,
+            public override void EvaluatePropertyValues(string platform, string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range,
                 PropertyEvaluator evaluator, IList<string> values)
             {
-                OnEvaluatePropertyValues?.Invoke(platform, category, sectionName, propertyKey, evaluator, values);
-                base.EvaluatePropertyValues(platform, category, sectionName, propertyKey, evaluator, values);
+                OnEvaluatePropertyValues?.Invoke(platform, category, sectionName, propertyKey, range, evaluator, values);
+                base.EvaluatePropertyValues(platform, category, sectionName, propertyKey, range, evaluator, values);
             }
         }
 
@@ -122,7 +122,7 @@ namespace UE4Config.Tests.Hierarchy
 
                 var hierarchy = new MockConfigHierarchy()
                 {
-                    OnEvaluatePropertyValues = (string platform, string category, string sectionName, string propertyKey,
+                    OnEvaluatePropertyValues = (string platform, string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range,
                         PropertyEvaluator evaluator, IList<string> values) =>
                     {
                         spyCount++;
@@ -151,7 +151,7 @@ namespace UE4Config.Tests.Hierarchy
 
                 var hierarchy = new MockConfigHierarchy()
                 {
-                    OnEvaluatePropertyValues = (string platform, string category, string sectionName, string propertyKey,
+                    OnEvaluatePropertyValues = (string platform, string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range,
                         PropertyEvaluator evaluator, IList<string> values) =>
                     {
                         spyCount++;
@@ -181,7 +181,7 @@ namespace UE4Config.Tests.Hierarchy
 
                 var hierarchy = new MockConfigHierarchy()
                 {
-                    OnEvaluatePropertyValues = (string platform, string category, string sectionName, string propertyKey,
+                    OnEvaluatePropertyValues = (string platform, string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range,
                         PropertyEvaluator evaluator, IList<string> values) =>
                     {
                         spyCount++;
