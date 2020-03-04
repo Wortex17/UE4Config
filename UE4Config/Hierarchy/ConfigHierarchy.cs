@@ -75,7 +75,7 @@ namespace UE4Config.Hierarchy
             PropertyEvaluator evaluator, IList<string> values)
         {
             List<ConfigIni> configs = new List<ConfigIni>();
-            GetConfigs(platform, category, configs);
+            GetConfigs(platform, category, range, configs);
             evaluator = PropertyEvaluator.CustomOrDefault(evaluator);
             evaluator.EvaluatePropertyValues(configs, sectionName, propertyKey, values);
         }
@@ -93,7 +93,7 @@ namespace UE4Config.Hierarchy
         /// </remarks>
         public void EvaluatePropertyValues(string platform, string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range, IList<string> values)
         {
-            EvaluatePropertyValues(platform, category, sectionName, propertyKey, PropertyEvaluator.Default, values);
+            EvaluatePropertyValues(platform, category, sectionName, propertyKey, range, PropertyEvaluator.Default, values);
         }
 
         /// <inheritdoc cref="EvaluatePropertyValues(string,string,string,string,UE4Config.Evaluation.PropertyEvaluator,System.Collections.Generic.IList{string})"/>
@@ -112,7 +112,7 @@ namespace UE4Config.Hierarchy
         /// </remarks>
         public void EvaluatePropertyValues(string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range, IList<string> values)
         {
-            EvaluatePropertyValues(DefaultPlatform, category, sectionName, propertyKey, PropertyEvaluator.Default, values);
+            EvaluatePropertyValues(DefaultPlatform, category, sectionName, propertyKey, range, PropertyEvaluator.Default, values);
         }
 
         /// <inheritdoc cref="EvaluatePropertyValues(string,string,string,string,UE4Config.Evaluation.PropertyEvaluator,System.Collections.Generic.IList{string})"/>
@@ -131,7 +131,7 @@ namespace UE4Config.Hierarchy
         /// </remarks>
         public void EvaluatePropertyValues(string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range, PropertyEvaluator evaluator, IList<string> values)
         {
-            EvaluatePropertyValues(DefaultPlatform, category, sectionName, propertyKey, evaluator, values);
+            EvaluatePropertyValues(DefaultPlatform, category, sectionName, propertyKey, range, evaluator, values);
         }
 
         /// <inheritdoc cref="EvaluatePropertyValues(string,string,string,string,UE4Config.Evaluation.PropertyEvaluator,System.Collections.Generic.IList{string})"/>
