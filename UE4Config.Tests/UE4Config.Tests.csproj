@@ -47,18 +47,55 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Parser\ConfigIniTests.cs" />
+    <Compile Include="Evaluation\PropertyEvaluatorTests.cs" />
+    <Compile Include="Hierarchy\ConfigHierarchyLevelTests.cs" />
+    <Compile Include="Hierarchy\ConfigHierarchyLevelRangeTests.cs" />
+    <Compile Include="Hierarchy\FileConfigHierarchyTests.cs" />
+    <Compile Include="Hierarchy\ConfigHierarchyTests.cs" />
+    <Compile Include="Parsing\ConfigIniSectionTests.cs" />
+    <Compile Include="Parsing\InstructionTokenTests.cs" />
+    <Compile Include="Parsing\InstructionTypeTests.cs" />
+    <Compile Include="Parsing\LineEndingTests.cs" />
+    <Compile Include="Parsing\LineTokenTests.cs" />
+    <Compile Include="Parsing\MultilineTokenTests.cs" />
+    <Compile Include="Parsing\WhitespaceTokenTests.cs" />
+    <Compile Include="Parsing\ConfigIniTests.cs" />
+    <Compile Include="SampleTests.cs" />
+    <Compile Include="TestUtils.cs" />
     <Compile Include="SanityTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestData\MockProject\Config\Windows\WindowsGame.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UE4Config\UE4Config.csproj">
       <Project>{b84d5893-3be7-4bab-a1f5-480806eb66f2}</Project>
       <Name>UE4Config</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData\MockEngine\Config\BaseGame.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\MockEngine\Config\Base.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\MockEngine\Config\Windows\WindowsGame.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\MockProject\Config\DefaultGame.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\MockProject\Config\DefaultEditor.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\MockProject\Config\DefaultEngine.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
