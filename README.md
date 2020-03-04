@@ -48,4 +48,15 @@ Assert.That(values, Is.EquivalentTo(new[]
     "%GAMEDIR%Content/Localization/Game/Default",
     "%GAMEDIR%Content/Localization/Game/Win64"
   }));
+
+
+//It is also possible to ask for a specific level range within the hierarchy
+var engineDefaultWin64Values = new List<string>();
+configHierarchy.EvaluatePropertyValues("Windows", "Game", "Internationalization", "LocalizationPaths",
+    ConfigHierarchyLevel.BasePlatformCategory.AndLower(), engineDefaultWin64Values);
+Assert.That(engineDefaultWin64Values, Is.EquivalentTo(new[]
+{
+    "%GAMEDIR%Content/Localization/Game"
+}));
+
 ```
