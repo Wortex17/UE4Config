@@ -1,6 +1,7 @@
 # UE4Config
 
 A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for UE4 projects and built games.
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f679eceb343c47d581494ad6b6b9f809)](https://app.codacy.com/manual/Wortex17/UE4Config?utm_source=github.com&utm_medium=referral&utm_content=Wortex17/UE4Config&utm_campaign=Badge_Grade_Dashboard)
 [![GitHub release](https://img.shields.io/github/release/Wortex17/UE4Config)](https://github.com/Wortex17/UE4Config/releases/latest)
 [![Build status](https://ci.appveyor.com/api/projects/status/f5tq5q3u4j87a0ux/branch/master?svg=true)](https://ci.appveyor.com/project/Wortex17/UE4Config/branch/master)
 [![codecov](https://codecov.io/gh/Wortex17/UE4Config/branch/master/graph/badge.svg)](https://codecov.io/gh/Wortex17/UE4Config)  
