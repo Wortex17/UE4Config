@@ -60,9 +60,9 @@ namespace UE4Config.Hierarchy
             switch (level)
             {
                 case ConfigHierarchyLevel.Base:
-                    return Path.Combine(Environment.CurrentDirectory, EnginePath, "Config/Base.ini");
+                    return Path.Combine(Environment.CurrentDirectory, EnginePath, ConfigDirName, $"{BaseConfigFilePrefix}.ini");
                 case ConfigHierarchyLevel.BaseCategory:
-                    return Path.Combine(Environment.CurrentDirectory, EnginePath, $"Config/Base{category}.ini");
+                    return Path.Combine(Environment.CurrentDirectory, EnginePath, ConfigDirName, $"{BaseConfigFilePrefix}{category}.ini");
                 case ConfigHierarchyLevel.BasePlatformCategory:
                     if (platform == DefaultPlatform)
                     {
@@ -70,10 +70,10 @@ namespace UE4Config.Hierarchy
                     }
                     else
                     {
-                        return Path.Combine(Environment.CurrentDirectory, EnginePath, $"Config/{platform}/{platform}{category}.ini");
+                        return Path.Combine(Environment.CurrentDirectory, EnginePath, ConfigDirName, platform, $"{platform}{category}.ini");
                     }
                 case ConfigHierarchyLevel.ProjectCategory:
-                    return Path.Combine(Environment.CurrentDirectory, ProjectPath, $"Config/Default{category}.ini");
+                    return Path.Combine(Environment.CurrentDirectory, ProjectPath, ConfigDirName, $"{DefaultConfigFilePrefix}{category}.ini");
                 case ConfigHierarchyLevel.ProjectPlatformCategory:
                     if (platform == DefaultPlatform)
                     {
@@ -81,7 +81,7 @@ namespace UE4Config.Hierarchy
                     }
                     else
                     {
-                        return Path.Combine(Environment.CurrentDirectory, ProjectPath, $"Config/{platform}/{platform}{category}.ini");
+                        return Path.Combine(Environment.CurrentDirectory, ProjectPath, ConfigDirName, platform, $"{platform}{category}.ini");
                     }
                 default:
                     throw new InvalidEnumArgumentException(nameof(level), (int)level, typeof(ConfigHierarchyLevel));
@@ -152,5 +152,9 @@ namespace UE4Config.Hierarchy
         }
 
         private Dictionary<ConfigKey,ConfigIni> m_ConfigCache = new Dictionary<ConfigKey, ConfigIni>();
+
+        private const string ConfigDirName = "Config";
+        private const string BaseConfigFilePrefix = "Base";
+        private const string DefaultConfigFilePrefix = "Default";
     }
 }
