@@ -100,6 +100,25 @@ namespace UE4Config.Parsing
         }
 
         /// <summary>
+        /// Condenses all whitespace to a maximum one newline.
+        /// <seealso cref="WhitespaceToken.Condense()"/>.
+        /// Note that consecutive whitespace tokens might still results in multiple newlines.
+        /// Use <seealso cref="MergeConsecutiveTokens"/> before to avoid that.
+        /// </summary>
+        public void CondenseWhitespace()
+        {
+            for (int i = Tokens.Count - 1; i > 0; i--)
+            {
+                var token = Tokens[i];
+
+                if (token is WhitespaceToken whitespace)
+                {
+                    whitespace.Condense();
+                }
+            }
+        }
+
+        /// <summary>
         /// Writes this sections to a string
         /// </summary>
         public virtual void Write(TextWriter writer)

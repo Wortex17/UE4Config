@@ -288,5 +288,20 @@ namespace UE4Config.Parsing
                 }
             }
         }
+
+        /// <summary>
+        /// Condenses all whitespace to a maximum one newline.
+        /// <seealso cref="WhitespaceToken.Condense()"/>.
+        /// Will delete whitespace tokens directly following other whitespace tokens.
+        /// </summary>
+        public void CondenseWhitespace()
+        {
+            for (int i = 0; i < Sections.Count; i++)
+            {
+                var pivotSection = Sections[i];
+                pivotSection.MergeConsecutiveTokens();
+                pivotSection.CondenseWhitespace();
+            }
+        }
     }
 }

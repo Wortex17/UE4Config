@@ -29,7 +29,7 @@ namespace UE4Config.Tests.Parsing
                 Assert.That(() => token.Condense(), Throws.Nothing);
 
                 Assert.That(token.Lines, Has.Count.EqualTo(1));
-                Assert.That(token.GetStringLines(), Is.EquivalentTo(new []{ Environment.NewLine }));
+                Assert.That(token.GetStringLines(), Is.EquivalentTo(new []{ string.Empty }));
             }
 
             [Test]
@@ -43,37 +43,7 @@ namespace UE4Config.Tests.Parsing
                 Assert.That(() => token.Condense(), Throws.Nothing);
 
                 Assert.That(token.Lines, Has.Count.EqualTo(1));
-                Assert.That(token.GetStringLines(), Is.EquivalentTo(new[] { Environment.NewLine }));
-            }
-
-            [TestCase("\n")] //Unix
-            [TestCase("\r\n")] //Windows
-            [TestCase("\r")] //Mac
-            public void When_HasOneLine_WithCustomNewline(string newline)
-            {
-                var token = new WhitespaceToken();
-                token.Lines.Add("  ");
-
-                Assert.That(() => token.Condense(newline), Throws.Nothing);
-
-                Assert.That(token.Lines, Has.Count.EqualTo(1));
-                Assert.That(token.GetStringLines(), Is.EquivalentTo(new[] { newline }));
-            }
-
-            [TestCase("\n")] //Unix
-            [TestCase("\r\n")] //Windows
-            [TestCase("\r")] //Mac
-            public void When_HasMultipleLines_WithCustomNewline(string newline)
-            {
-                var token = new WhitespaceToken();
-                token.Lines.Add("    ");
-                token.Lines.Add("       ");
-                token.Lines.Add("   \t ");
-
-                Assert.That(() => token.Condense(newline), Throws.Nothing);
-
-                Assert.That(token.Lines, Has.Count.EqualTo(1));
-                Assert.That(token.GetStringLines(), Is.EquivalentTo(new[] { newline }));
+                Assert.That(token.GetStringLines(), Is.EquivalentTo(new[] { string.Empty }));
             }
         }
     }

@@ -625,6 +625,104 @@ namespace UE4Config.Tests.Parsing
             }
         }
 
+
+        [TestFixture]
+        class CondenseWhitespace
+        {
+
+            [Test]
+            public void When_HasNothingToCondense()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2 = new TextToken();
+                var tokenA1_3 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2);
+                sectionA1.Tokens.Add(tokenA1_3);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+
+                config.CondenseWhitespace();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new[] { tokenA1_1, tokenA1_2, tokenA1_3 }));
+            }
+
+            [Test]
+            public void When_HasWhitespaceToCondense()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new []{"   "}), LineEnding.Unknown);
+                var tokenA1_3 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2_WS);
+                sectionA1.Tokens.Add(tokenA1_3);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+
+                config.CondenseWhitespace();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new IniToken[] { tokenA1_1, tokenA1_2_WS, tokenA1_3 }));
+                Assert.That(tokenA1_2_WS.Lines, Is.EquivalentTo(new TextLine[]{String.Empty}));
+            }
+
+            [Test]
+            public void When_HasConsecutiveWhitespaceToCondense()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
+                var tokenA1_3_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
+                var tokenA1_4_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
+                var tokenA1_5 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2_WS);
+                sectionA1.Tokens.Add(tokenA1_3_WS);
+                sectionA1.Tokens.Add(tokenA1_4_WS);
+                sectionA1.Tokens.Add(tokenA1_5);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+
+                config.CondenseWhitespace();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new IniToken[] { tokenA1_1, tokenA1_2_WS, tokenA1_5 }));
+                Assert.That(tokenA1_2_WS.Lines, Is.EquivalentTo(new TextLine[] { String.Empty }));
+            }
+
+            [Test]
+            public void When_HasMultipleWhitespaceToCondense()
+            {
+                var sectionA1 = new ConfigIniSection("A");
+                var tokenA1_1 = new TextToken();
+                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
+                var tokenA1_3 = new TextToken();
+                var tokenA1_4_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
+                var tokenA1_5 = new TextToken();
+                sectionA1.Tokens.Add(tokenA1_1);
+                sectionA1.Tokens.Add(tokenA1_2_WS);
+                sectionA1.Tokens.Add(tokenA1_3);
+                sectionA1.Tokens.Add(tokenA1_4_WS);
+                sectionA1.Tokens.Add(tokenA1_5);
+
+                var config = new ConfigIni();
+                config.Sections.Add(sectionA1);
+
+                config.CondenseWhitespace();
+
+                Assert.That(config.Sections, Is.EquivalentTo(new[] { sectionA1 }));
+                Assert.That(sectionA1.Tokens, Is.EquivalentTo(new IniToken[] { tokenA1_1, tokenA1_2_WS, tokenA1_3, tokenA1_4_WS, tokenA1_5 }));
+                Assert.That(tokenA1_2_WS.Lines, Is.EquivalentTo(new TextLine[] { String.Empty }));
+                Assert.That(tokenA1_4_WS.Lines, Is.EquivalentTo(new TextLine[] { String.Empty }));
+            }
+        }
+
         [TestFixture]
         public class Write
         {
