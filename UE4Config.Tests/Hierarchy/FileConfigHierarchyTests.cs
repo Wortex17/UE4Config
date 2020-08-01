@@ -1,10 +1,21 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using NUnit.Framework;
 using UE4Config.Hierarchy;
 using UE4Config.Parsing;
 
 namespace UE4Config.Tests.Hierarchy
 {
+    static class Constants
+    {
+        public static readonly string MockProjectDir = TestUtils.GetTestDataPath("MockProject");
+        public static readonly string MockEngineDir = TestUtils.GetTestDataPath("MockEngine");
+
+        public static readonly string NonExistingCategory = "OtherCategory";
+        public static readonly string NonExistingPlatform = "OtherPlatform";
+    }
+
     [TestFixture]
     public class FileConfigHierarchyTest
     {
@@ -312,6 +323,252 @@ namespace UE4Config.Tests.Hierarchy
                 var config = hierarchy.Exposed_LoadConfig(platform, category, level);
 
                 Assert.That(config, Is.Null);
+            }
+        }
+
+        [TestFixture]
+        public class CheckEngineHasPlatformExtension
+        {
+            [TestCase("Switch")]
+            [TestCase("XBoxOne")]
+            [TestCase("Linux")]
+            public void When_PlatformExtensionFolderExists(string platform)
+            {
+                var hierarchy = new MockFileConfigHierarchy(Constants.MockProjectDir, Constants.MockEngineDir) { };
+                Assert.That(hierarchy.CheckEngineHasPlatformExtension(platform), Is.True);
+            }
+
+            [TestCase("Windows")]
+            [TestCase("Mac")]
+            public void When_PlatformExtensionFolderIsMissing(string platform)
+            {
+                var hierarchy = new MockFileConfigHierarchy(Constants.MockProjectDir, Constants.MockEngineDir) { };
+                Assert.That(hierarchy.CheckEngineHasPlatformExtension(platform), Is.False);
+            }
+        }
+
+        [TestFixture]
+        public class CheckProjectHasPlatformExtension
+        {
+            [TestCase("Switch")]
+            [TestCase("XBoxOne")]
+            [TestCase("Mac")]
+            public void When_PlatformExtensionFolderExists(string platform)
+            {
+                var hierarchy = new MockFileConfigHierarchy(Constants.MockProjectDir, Constants.MockEngineDir) { };
+                Assert.That(hierarchy.CheckProjectHasPlatformExtension(platform), Is.True);
+            }
+
+            [TestCase("Windows")]
+            [TestCase("Linux")]
+            public void When_PlatformExtensionFolderIsMissing(string platform)
+            {
+                var hierarchy = new MockFileConfigHierarchy(Constants.MockProjectDir, Constants.MockEngineDir) { };
+                Assert.That(hierarchy.CheckProjectHasPlatformExtension(platform), Is.False);
+            }
+        }
+
+        [TestFixture]
+        public class IntegrationTests
+        {
+            [TestFixture]
+            public class GetConfigFilePath
+            {
+                public static IEnumerable<TestCaseData> ValidExistingConfigFilePaths
+                {
+                    get
+                    {
+                        string batchPlatform = "";
+                        string batchCategory = "";
+
+                        batchPlatform = "Windows";
+                        batchCategory = "Game";
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectPlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", batchPlatform, $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", $"Default{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BasePlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", batchPlatform, $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BaseCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", $"Base{batchCategory}.ini"))
+                        };
+                    }
+                }
+
+                public static IEnumerable<TestCaseData> ValidNonexistingConfigFilePaths
+                {
+                    get
+                    {
+                        string batchPlatform = "";
+                        string batchCategory = "";
+
+                        batchPlatform = "Windows";
+                        batchCategory = Constants.NonExistingCategory;
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectPlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", batchPlatform, $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", $"Default{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BasePlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", batchPlatform, $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BaseCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", $"Base{batchCategory}.ini"))
+                        };
+
+                        batchPlatform = Constants.NonExistingPlatform;
+                        batchCategory = "Game";
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectPlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", batchPlatform, $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", $"Default{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BasePlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", batchPlatform, $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BaseCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", $"Base{batchCategory}.ini"))
+                        };
+                    }
+                }
+
+                [TestCaseSource(nameof(ValidExistingConfigFilePaths))]
+                [TestCaseSource(nameof(ValidNonexistingConfigFilePaths))]
+                public string When_FileCouldExist(string projectPath, string enginePath, string platform, string category, ConfigHierarchyLevel level)
+                {
+                    var hierarchy = new MockFileConfigHierarchy(projectPath, enginePath) { };
+                    string path = hierarchy.GetConfigFilePath(platform, category, level);
+                    return path;
+                }
+
+                public static IEnumerable<TestCaseData> Cases_OnlyPlatformExtensionConfigFilesExist
+                {
+                    get
+                    {
+                        string batchPlatform = "";
+                        string batchCategory = "";
+
+                        batchPlatform = "XBoxOne";
+                        batchCategory = "Game";
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectPlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Platforms", batchPlatform, "Config", $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", $"Default{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BasePlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Platforms", batchPlatform, "Config", $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BaseCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", $"Base{batchCategory}.ini"))
+                        };
+
+                        batchPlatform = "Mac";
+                        batchCategory = "Game";
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectPlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Platforms", batchPlatform, "Config", $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", $"Default{batchCategory}.ini"))
+                        };
+                        //Only has Project PlatformExtension, so legacy paths in engine
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BasePlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", batchPlatform, $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BaseCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", $"Base{batchCategory}.ini"))
+                        };
+
+                        batchPlatform = "Linux";
+                        batchCategory = "Game";
+                        //Only has Project PlatformExtension, so legacy paths in project
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectPlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", batchPlatform, $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", $"Default{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BasePlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Platforms", batchPlatform, "Config", $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BaseCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", $"Base{batchCategory}.ini"))
+                        };
+                    }
+                }
+
+                [TestCaseSource(nameof(Cases_OnlyPlatformExtensionConfigFilesExist))]
+                public string When_OnlyPlatformExtensionConfigFilesExist(string projectPath, string enginePath, string platform, string category, ConfigHierarchyLevel level)
+                {
+                    var hierarchy = new MockFileConfigHierarchy(projectPath, enginePath) { };
+                    string path = hierarchy.GetConfigFilePath(platform, category, level);
+                    return path;
+                }
+
+                public static IEnumerable<TestCaseData> Cases_LegacyAndPlatformExtensionConfigFilesExist
+                {
+                    get
+                    {
+                        string batchPlatform = "";
+                        string batchCategory = "";
+
+                        batchPlatform = "Switch";
+                        batchCategory = "Game";
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectPlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Platforms", batchPlatform, "Config", $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.ProjectCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockProjectDir, "Config", $"Default{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BasePlatformCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Platforms", batchPlatform, "Config", $"{batchPlatform}{batchCategory}.ini"))
+                        };
+                        yield return new TestCaseData(Constants.MockProjectDir, Constants.MockEngineDir, batchPlatform, batchCategory, ConfigHierarchyLevel.BaseCategory)
+                        {
+                            ExpectedResult = Path.Combine(Directory.GetCurrentDirectory(), Path.Combine(Constants.MockEngineDir, "Config", $"Base{batchCategory}.ini"))
+                        };
+                    }
+                }
+
+                [TestCaseSource(nameof(Cases_LegacyAndPlatformExtensionConfigFilesExist))]
+                public string When_LegacyAndPlatformExtensionConfigFilesExist(string projectPath, string enginePath, string platform, string category, ConfigHierarchyLevel level)
+                {
+                    var hierarchy = new MockFileConfigHierarchy(projectPath, enginePath) { };
+                    string path = hierarchy.GetConfigFilePath(platform, category, level);
+                    return path;
+                }
             }
         }
     }

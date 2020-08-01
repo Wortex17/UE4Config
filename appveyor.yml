@@ -2,7 +2,7 @@ image: Visual Studio 2017
 configuration: Release
 
 init:
-- cmd: "set ProductBaseVersion=0.5.1"
+- cmd: "set ProductBaseVersion=0.6.2"
 - cmd: "echo ProductBaseVersion=%ProductBaseVersion%"
 - cmd: "set ProductVersion=%ProductBaseVersion%.%APPVEYOR_BUILD_NUMBER%"
 - cmd: "echo ProductVersion=%ProductVersion%"
