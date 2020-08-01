@@ -268,7 +268,8 @@ namespace UE4Config.Parsing
 
         /// <summary>
         /// Merges together <see cref="Sections"/> that share a <see cref="ConfigIniSection.Name"/>.
-        /// <see cref="ConfigIniSection.Tokens"/> will be merge din order of the sections
+        /// <see cref="Sections"/> will be order in order of appearance of the first section of their name.
+        /// <see cref="ConfigIniSection.Tokens"/> will be merged in by simply appending their appearances.
         /// </summary>
         public void MergeDuplicateSections()
         {
