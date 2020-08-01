@@ -15,10 +15,10 @@ A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for U
 * Serialization pertains file structure and formatting of the original file by default
 * Evaluate the value(s) of any property across one, or multiple config files
 * ConfigFileHierarchy emulates UE4s hierarchical config layers and loads config files automatically
+* Supports new "PlatformExtension" folder structure & configs of UE4.24+
 
 ## Next to come
 
-* Fresh In: 4.25+ Platforms revamp support
 * Easier API to modify & add new properties and values
 * Sanitization utilities to declutter config files
 
