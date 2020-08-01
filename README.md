@@ -26,7 +26,7 @@ A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for U
 
 ### Evaluate a property from a single config file
 You can directly load and read from a single specific config \*.ini file by reading and parsing that file, before evaluating any property values.
-```
+```C#
 var config = new ConfigIni("DefaultGame");
 
 //Load the configs contents from a file, via a read stream
@@ -44,7 +44,7 @@ Assert.That(values, Is.EquivalentTo(new[]{"3F9D696D4363312194B0ECB2671E899F"}));
 You can also initialize a config hierarchy by providing a engine and/or a project path, and then evaluate any property values for a specific target level & platform.
 This emulates best what proeprty values would exist in which context in any Unreal Engine 4 project.
 
-```
+```C#
 //Create a new config hierarchy, with paths to the engine as well as the project directory
 var configHierarchy = new FileConfigHierarchy("Mock/Project/Directory", "Mock/Engine/Directory");
 
