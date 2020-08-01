@@ -18,6 +18,7 @@ A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for U
 
 ## Next to come
 
+* Fresh In: 4.25+ Platforms revamp support
 * Easier API to modify & add new properties and values
 * Sanitization utilities to declutter config files
 
