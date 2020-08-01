@@ -15,6 +15,20 @@ namespace UE4Config.Hierarchy
         public const string DefaultPlatform = "Default";
 
         /// <summary>
+        /// Returns if there is a "platform extension" folder structure for the given platform in the engine directory.
+        /// This structure is being introduced since 4.24
+        /// If true, will use different paths for engine platform config files.
+        /// </summary>
+        public abstract bool CheckEngineHasPlatformExtension(string platform);
+
+        /// <summary>
+        /// Returns if there is a "platform extension" folder structure for the given platform in the engine directory.
+        /// This structure is being introduced since 4.24
+        /// If true, will use different paths for project platform config files.
+        /// </summary>
+        public abstract bool CheckProjectHasPlatformExtension(string platform);
+
+        /// <summary>
         /// Returns the platform config of the given <see cref="category"/> and the given <see cref="level"/>, if available.
         /// Returns null otherwise.
         /// </summary>

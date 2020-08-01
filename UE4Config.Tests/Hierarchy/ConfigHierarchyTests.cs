@@ -17,6 +17,16 @@ namespace UE4Config.Tests.Hierarchy
 
             public Action<string, string, string, string, ConfigHierarchyLevelRange, PropertyEvaluator, IList<string>> OnEvaluatePropertyValues;
 
+            public override bool CheckEngineHasPlatformExtension(string platform)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool CheckProjectHasPlatformExtension(string platform)
+            {
+                throw new NotImplementedException();
+            }
+
             public override ConfigIni GetConfig(string platform, string category, ConfigHierarchyLevel level)
             {
                 return OnSpyGetConfig?.Invoke(platform, category, level);

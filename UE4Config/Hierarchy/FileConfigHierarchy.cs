@@ -52,6 +52,18 @@ namespace UE4Config.Hierarchy
             return config;
         }
 
+        public override bool CheckEngineHasPlatformExtension(string platform)
+        {
+            string expectedPath = GenerateEnginePlatformExtensionConfigDirPath(platform);
+            return Directory.Exists(expectedPath);
+        }
+
+        public override bool CheckProjectHasPlatformExtension(string platform)
+        {
+            string expectedPath = GenerateProjectPlatformExtensionConfigDirPath(platform);
+            return Directory.Exists(expectedPath);
+        }
+
         /// <summary>
         /// Constructs the file path that would lead to the requested config file
         /// </summary>
@@ -70,7 +82,16 @@ namespace UE4Config.Hierarchy
                     }
                     else
                     {
-                        return Path.Combine(Environment.CurrentDirectory, EnginePath, ConfigDirName, platform, $"{platform}{category}.ini");
+                        if (CheckEngineHasPlatformExtension(platform))
+                        {
+                            //Return new config path
+                            return Path.Combine(GenerateEnginePlatformExtensionConfigDirPath(platform), $"{platform}{category}.ini");
+                        }
+                        else
+                        {
+                            //Return legacy config path
+                            return Path.Combine(Environment.CurrentDirectory, EnginePath, ConfigDirName, platform, $"{platform}{category}.ini");
+                        }
                     }
                 case ConfigHierarchyLevel.ProjectCategory:
                     return Path.Combine(Environment.CurrentDirectory, ProjectPath, ConfigDirName, $"{DefaultConfigFilePrefix}{category}.ini");
@@ -81,7 +102,16 @@ namespace UE4Config.Hierarchy
                     }
                     else
                     {
-                        return Path.Combine(Environment.CurrentDirectory, ProjectPath, ConfigDirName, platform, $"{platform}{category}.ini");
+                        if (CheckProjectHasPlatformExtension(platform))
+                        {
+                            //Return new config path
+                            return Path.Combine(GenerateProjectPlatformExtensionConfigDirPath(platform), $"{platform}{category}.ini");
+                        }
+                        else
+                        {
+                            //Return legacy config path
+                            return Path.Combine(Environment.CurrentDirectory, ProjectPath, ConfigDirName, platform, $"{platform}{category}.ini");
+                        }
                     }
                 default:
                     throw new InvalidEnumArgumentException(nameof(level), (int)level, typeof(ConfigHierarchyLevel));
@@ -137,6 +167,16 @@ namespace UE4Config.Hierarchy
             return m_ConfigCache.ContainsKey(new ConfigKey(platform, category, level));
         }
 
+        protected string GenerateEnginePlatformExtensionConfigDirPath(string platform)
+        {
+            return Path.Combine(Environment.CurrentDirectory, EnginePath, PlatformExtensionsBaseDirName, platform, ConfigDirName);
+        }
+
+        protected string GenerateProjectPlatformExtensionConfigDirPath(string platform)
+        {
+            return Path.Combine(Environment.CurrentDirectory, ProjectPath, PlatformExtensionsBaseDirName, platform, ConfigDirName);
+        }
+
         private struct ConfigKey
         {
             public ConfigKey(string platform, string category, ConfigHierarchyLevel level)
@@ -156,5 +196,6 @@ namespace UE4Config.Hierarchy
         private const string ConfigDirName = "Config";
         private const string BaseConfigFilePrefix = "Base";
         private const string DefaultConfigFilePrefix = "Default";
+        private const string PlatformExtensionsBaseDirName = "Platforms";
     }
 }
