@@ -347,5 +347,35 @@ namespace UE4Config.Tests.Parsing
                 Assert.That(token4.GetStringLines(), Is.EquivalentTo(new[] { ";Baz" }));
             }
         }
+
+        [TestFixture]
+        class NormalizeLineEndings
+        {
+            [TestCase(LineEnding.None)]
+            [TestCase(LineEnding.Unix)]
+            [TestCase(LineEnding.Mac)]
+            [TestCase(LineEnding.Windows)]
+            [TestCase(LineEnding.Unknown)]
+            public void When_ChangingToSpecificLineEnding(LineEnding targetLineEnding)
+            {
+                var section = new ConfigIniSection();
+                section.LineEnding = LineEnding.Mac;
+                var token1 = new InstructionToken(InstructionType.Add, "InstA", LineEnding.Windows);
+                var token2 = new WhitespaceToken(new[] { " \t\t", " " }, LineEnding.None);
+                var token3 = new CommentToken(new[] { ";Baz", "OO" }, LineEnding.Unix);
+                section.Tokens.Add(token1);
+                section.Tokens.Add(token2);
+                section.Tokens.Add(token3);
+
+                section.NormalizeLineEndings(targetLineEnding);
+
+                Assert.That(section.LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token1.LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token2.Lines[0].LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token2.Lines[1].LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token3.Lines[0].LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token3.Lines[1].LineEnding, Is.EqualTo(targetLineEnding));
+            }
+        }
     }
 }

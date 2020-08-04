@@ -119,6 +119,31 @@ namespace UE4Config.Parsing
         }
 
         /// <summary>
+        /// Applies the given lineEnding to the section header and all tokens
+        /// </summary>
+        public void NormalizeLineEndings(LineEnding lineEnding)
+        {
+            LineEnding = lineEnding;
+            foreach (var token in Tokens)
+            {
+
+                if (token is LineToken lineToken)
+                {
+                    lineToken.LineEnding = lineEnding;
+                }
+                else if (token is MultilineToken multilineToken)
+                {
+                    for (int t = 0; t < multilineToken.Lines.Count; t++)
+                    {
+                        var line = multilineToken.Lines[t];
+                        line.LineEnding = lineEnding;
+                        multilineToken.Lines[t] = line;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Writes this sections to a string
         /// </summary>
         public virtual void Write(TextWriter writer)

@@ -303,5 +303,58 @@ namespace UE4Config.Parsing
                 pivotSection.CondenseWhitespace();
             }
         }
+
+        /// <summary>
+        /// Automatically detects the line ending this config uses, based on the first encounter
+        /// of a specified line ending.
+        /// Used for <seealso cref="NormalizeLineEndings()"/>
+        /// </summary>
+        public LineEnding AutoDetectLineEnding()
+        {
+            foreach (var section in Sections)
+            {
+                if (section.LineEnding != LineEnding.Unknown)
+                    return section.LineEnding;
+
+                foreach (var token in section.Tokens)
+                {
+                    if (token is LineToken lineToken)
+                    {
+                        if (lineToken.LineEnding != LineEnding.Unknown)
+                            return lineToken.LineEnding;
+                    }
+
+                    if (token is MultilineToken multilineToken)
+                    {
+                        foreach (var line in multilineToken.Lines)
+                        {
+                            if (line.LineEnding != LineEnding.Unknown)
+                                return line.LineEnding;
+                        }
+                    }
+                }
+            }
+            return LineEnding.Unknown;
+        }
+
+        /// <summary>
+        /// Makes sure all lined use the same line ending, detected automatically via <seealso cref="AutoDetectLineEnding"/>
+        /// </summary>
+        public void NormalizeLineEndings()
+        {
+            NormalizeLineEndings(AutoDetectLineEnding());
+        }
+
+        /// <summary>
+        /// Makes sure all lined use the same, given line ending
+        /// </summary>
+        public void NormalizeLineEndings(LineEnding lineEnding)
+        {
+            for (int i = 0; i < Sections.Count; i++)
+            {
+                var pivotSection = Sections[i];
+                pivotSection.NormalizeLineEndings(lineEnding);
+            }
+        }
     }
 }
