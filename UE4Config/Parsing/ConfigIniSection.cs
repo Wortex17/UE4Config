@@ -43,6 +43,22 @@ namespace UE4Config.Parsing
             }
         }
 
+        public static ConfigIniSection Clone(ConfigIniSection template)
+        {
+            var cloned = new ConfigIniSection(template.Name)
+            {
+                LineEnding = template.LineEnding,
+                LineWastePrefix = template.LineWastePrefix,
+                LineWasteSuffix = template.LineWasteSuffix
+            };
+            foreach (var templateToken in template.Tokens)
+            {
+                var clonedToken = templateToken.CreateClone();
+                cloned.Tokens.Add(clonedToken);
+            }
+            return cloned;
+        }
+
         /// <summary>
         /// Adds all instructions that could be found for the given key to the list, in order of declaration
         /// </summary>

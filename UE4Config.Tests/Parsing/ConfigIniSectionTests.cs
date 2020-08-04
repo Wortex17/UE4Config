@@ -209,6 +209,51 @@ namespace UE4Config.Tests.Parsing
             }
         }
 
+        [TestFixture]
+        class Clone
+        {
+            [Test]
+            public void When_CloningIniSection()
+            {
+                var section = new ConfigIniSection();
+                section.LineWastePrefix = "AAA";
+                section.LineWasteSuffix = "BBB";
+                section.Name = "MySection";
+                section.LineEnding = LineEnding.Unix;
+                var token1 = new WhitespaceToken(new[] { "", "\t", "  " }, LineEnding.None);
+                var token2 = new InstructionToken(InstructionType.Add, "MyKey", "MyVal");
+                var token3 = new CommentToken();
+                token3.AddLine("What a nice", LineEnding.Mac);
+                token3.AddLine("Day", LineEnding.Unix);
+                var token4 = new TextToken {Text = "SomeGarbageText", LineEnding = LineEnding.Windows};
+                section.Tokens.Add(token1);
+                section.Tokens.Add(token2);
+                section.Tokens.Add(token3);
+                section.Tokens.Add(token4);
+
+                var clone = ConfigIniSection.Clone(section);
+
+                Assert.That(clone, Is.Not.SameAs(section));
+                Assert.That(clone.Tokens.Count, Is.EqualTo(section.Tokens.Count));
+                for(int t = 0; t < clone.Tokens.Count; t++)
+                {
+                    var originToken = section.Tokens[t];
+                    var cloneToken = clone.Tokens[t];
+
+                    Assert.That(cloneToken, Is.Not.SameAs(originToken));
+                    Assert.That(cloneToken.GetType(), Is.EqualTo(originToken.GetType()));
+                }
+
+                StringWriter originWriter = new StringWriter();
+                StringWriter cloneWriter = new StringWriter();
+
+                section.Write(originWriter);
+                clone.Write(cloneWriter);
+
+                Assert.That(cloneWriter.ToString(), Is.EqualTo(originWriter.ToString()));
+
+            }
+        }
 
         [TestFixture]
         class MergeConsecutiveTokens

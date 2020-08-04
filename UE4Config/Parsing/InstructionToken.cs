@@ -30,6 +30,15 @@ namespace UE4Config.Parsing
             Value = value;
         }
 
+        public override IniToken CreateClone()
+        {
+            var clone = base.CreateClone() as InstructionToken;
+            clone.InstructionType = InstructionType;
+            clone.Key = Key;
+            clone.Value = Value;
+            return clone;
+        }
+
         public override void Write(TextWriter writer)
         {
             writer.Write(InstructionType.AsPrefixString());

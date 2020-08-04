@@ -14,5 +14,12 @@ namespace UE4Config.Parsing
             writer.Write(Text);
             LineEnding.WriteTo(writer);
         }
+
+        public override IniToken CreateClone()
+        {
+            var clone = base.CreateClone() as TextToken;
+            clone.Text = Text;
+            return clone;
+        }
     }
 }

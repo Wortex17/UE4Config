@@ -41,6 +41,13 @@ namespace UE4Config.Parsing
             AddLines(lines, lineEnding);
         }
 
+        public override IniToken CreateClone()
+        {
+            var clone = base.CreateClone() as MultilineToken;
+            clone.Lines.AddRange(Lines);
+            return clone;
+        }
+
         public override void Write(TextWriter writer)
         {
             foreach (var line in Lines)
