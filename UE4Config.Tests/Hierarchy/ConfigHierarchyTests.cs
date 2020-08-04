@@ -115,6 +115,54 @@ namespace UE4Config.Tests.Hierarchy
                 Assert.That(latestRequestedCategory, Is.EqualTo("MyCategory"));
                 Assert.That(latestRequestedPlatform, Is.EqualTo("Default"));
             }
+
+
+            [Test]
+            public void When_CalledWithoutLevel_DefaultsToProjectPlatformCategory()
+            {
+                int spyCount = 0;
+                string latestRequestedPlatform = null;
+                string latestRequestedCategory = null;
+                ConfigHierarchyLevel latestRequestedLevel = (ConfigHierarchyLevel)(-1);
+
+                Dictionary<ConfigHierarchyLevel, ConfigIni> expectedConfigs = new Dictionary<ConfigHierarchyLevel, ConfigIni>();
+                expectedConfigs[ConfigHierarchyLevel.Base] = new ConfigIni("Base.ini");
+                expectedConfigs[ConfigHierarchyLevel.BaseCategory] = new ConfigIni("BaseMyCategory.ini");
+                expectedConfigs[ConfigHierarchyLevel.BasePlatformCategory] = new ConfigIni("PlatformMyCategory.ini");
+                expectedConfigs[ConfigHierarchyLevel.ProjectCategory] = new ConfigIni("DefaultMyCategory.ini");
+                expectedConfigs[ConfigHierarchyLevel.ProjectPlatformCategory] = new ConfigIni("PlatformMyCategory.ini");
+
+
+                var hierarchy = new MockConfigHierarchy()
+                {
+                    OnSpyGetConfig = (platform, category, level) =>
+                    {
+                        spyCount++;
+
+                        Assert.That(level, Is.GreaterThan(latestRequestedLevel));
+                        Assert.That(category, Is.EqualTo("MyCategory"));
+                        Assert.That(platform, Is.EqualTo("MyPlatform"));
+
+                        latestRequestedPlatform = platform;
+                        latestRequestedCategory = category;
+                        latestRequestedLevel = level;
+                        ConfigIni config;
+                        if (expectedConfigs.TryGetValue(level, out config))
+                        {
+                            return config;
+                        }
+                        return null;
+                    }
+                };
+
+                var configs = new List<ConfigIni>();
+                hierarchy.GetConfigs("MyPlatform", "MyCategory", configs);
+                Assert.That(spyCount, Is.GreaterThanOrEqualTo(1));
+                Assert.That(configs, Is.EquivalentTo(expectedConfigs.Values));
+                Assert.That(latestRequestedLevel, Is.EqualTo(ConfigHierarchyLevel.ProjectPlatformCategory));
+                Assert.That(latestRequestedCategory, Is.EqualTo("MyCategory"));
+                Assert.That(latestRequestedPlatform, Is.EqualTo("MyPlatform"));
+            }
         }
 
         [TestFixture]
@@ -206,6 +254,38 @@ namespace UE4Config.Tests.Hierarchy
                 };
 
                 hierarchy.EvaluatePropertyValues(inCategory, inSectionName, inPropertyKey, inEvaluator, inTargetValues);
+                Assert.That(spyCount, Is.EqualTo(1));
+            }
+
+            [Test]
+            public void When_CalledWithoutRange()
+            {
+                int spyCount = 0;
+                string inPlatform = "MyPlatform";
+                string inCategory = "MyCategory";
+                string inSectionName = "MySection";
+                string inPropertyKey = "MyProperty";
+                var inEvaluator = new PropertyEvaluator();
+                List<string> inTargetValues = new List<string>();
+
+                var hierarchy = new MockConfigHierarchy()
+                {
+                    OnEvaluatePropertyValues = (string platform, string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range,
+                        PropertyEvaluator evaluator, IList<string> values) =>
+                    {
+                        spyCount++;
+
+                        Assert.That(platform, Is.EqualTo(inPlatform));
+                        Assert.That(category, Is.EqualTo(inCategory));
+                        Assert.That(sectionName, Is.EqualTo(inSectionName));
+                        Assert.That(propertyKey, Is.EqualTo(inPropertyKey));
+                        Assert.That(range, Is.EqualTo(ConfigHierarchyLevelRange.All()));
+                        Assert.That(evaluator, Is.SameAs(inEvaluator));
+                        Assert.That(values, Is.SameAs(inTargetValues));
+                    }
+                };
+
+                hierarchy.EvaluatePropertyValues(inPlatform, inCategory, inSectionName, inPropertyKey, inEvaluator, inTargetValues);
                 Assert.That(spyCount, Is.EqualTo(1));
             }
         }
