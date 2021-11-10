@@ -81,6 +81,20 @@ namespace UE4Config.Hierarchy
         {
             GetConfigs(category, ConfigHierarchyLevelRange.All(), configs);
         }
+        
+        /// <summary>
+        /// Publishes a new config or replaces a previous one as the factual one
+        /// </summary>
+        public abstract void PublishConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config);
+
+        /// <summary>
+        /// Publishes a new config or replaces a previous one as the factual one for the default platform
+        /// <seealso cref="PublishConfig(string,string,UE4Config.Hierarchy.ConfigHierarchyLevel,UE4Config.Parsing.ConfigIni)"/>
+        /// </summary>
+        public void PublishConfig(string category, ConfigHierarchyLevel level, ConfigIni config)
+        {
+            PublishConfig(DefaultPlatform, category, level, config);
+        }
 
         /// <summary>
         /// Creates the platform config of the given <see cref="category"/> and the given <see cref="level"/>.
@@ -108,6 +122,7 @@ namespace UE4Config.Hierarchy
             }
             return config;
         }
+        
         /// <summary>
         /// Returns the default config of the given <see cref="category"/> and the given <see cref="level"/>, if available.
         /// Returns null otherwise.

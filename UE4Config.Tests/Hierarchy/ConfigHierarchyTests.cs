@@ -13,9 +13,11 @@ namespace UE4Config.Tests.Hierarchy
         private class MockConfigHierarchy : ConfigHierarchy
         {
             public delegate ConfigIni SpyGetConfig(string platform, string category, ConfigHierarchyLevel level);
-            public SpyGetConfig OnSpyGetConfig;
-            
+            public delegate void SpySetConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config);
             public delegate ConfigIni SpyCreateConfig(string platform, string category, ConfigHierarchyLevel level);
+            
+            public SpyGetConfig OnSpyGetConfig;
+            public SpySetConfig OnSpySetConfig;
             public SpyCreateConfig OnSpyCreateConfig;
 
             public Action<string, string, string, string, ConfigHierarchyLevelRange, PropertyEvaluator, IList<string>> OnEvaluatePropertyValues;
@@ -33,6 +35,11 @@ namespace UE4Config.Tests.Hierarchy
             public override ConfigIni GetConfig(string platform, string category, ConfigHierarchyLevel level)
             {
                 return OnSpyGetConfig?.Invoke(platform, category, level);
+            }
+
+            public override void PublishConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config)
+            {
+                OnSpySetConfig?.Invoke(platform, category, level, config);
             }
 
             public override ConfigIni CreateConfig(string platform, string category, ConfigHierarchyLevel level)
@@ -73,6 +80,35 @@ namespace UE4Config.Tests.Hierarchy
                 var config = hierarchy.GetConfig("MyCategory", ConfigHierarchyLevel.BaseCategory);
                 Assert.That(spyCount, Is.EqualTo(1));
                 Assert.That(config, Is.SameAs(expectedConfig));
+            }
+        }
+
+        [TestFixture]
+        public class SetConfig
+        {
+            [Test]
+            public void When_CalledWithoutPlatform_RelaysToDefaultPlatform()
+            {
+                int spyCount = 0;
+
+                var expectedConfig = new ConfigIni("MyConfig");
+                ConfigIni spiedConfig = null;
+
+                var hierarchy = new MockConfigHierarchy()
+                {
+                    OnSpySetConfig = (platform, category, level, config) =>
+                    {
+                        spyCount++;
+                        Assert.That(level, Is.EqualTo(ConfigHierarchyLevel.BaseCategory));
+                        Assert.That(category, Is.EqualTo("MyCategory"));
+                        Assert.That(platform, Is.EqualTo("Default"));
+                        spiedConfig = config;
+                    }
+                };
+
+                hierarchy.PublishConfig("MyCategory", ConfigHierarchyLevel.BaseCategory, expectedConfig);
+                Assert.That(spyCount, Is.EqualTo(1));
+                Assert.That(spiedConfig, Is.SameAs(expectedConfig));
             }
         }
 
@@ -173,7 +209,6 @@ namespace UE4Config.Tests.Hierarchy
             }
         }
     
-        
         [TestFixture]
         public class GetOrCreateConfig
         {
