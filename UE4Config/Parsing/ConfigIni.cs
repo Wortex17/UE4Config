@@ -319,6 +319,19 @@ namespace UE4Config.Parsing
                 }
             }
         }
+        
+        /// <summary>
+        /// Iterates through all <see cref="Sections"/> and Groups together instruction tokens,
+        /// keeping their order of declaration intact
+        /// </summary>
+        public void GroupPropertyInstructions()
+        {
+            for (int i = 0; i < Sections.Count; i++)
+            {
+                var pivotSection = Sections[i];
+                pivotSection.GroupPropertyInstructions();
+            }
+        }
 
         /// <summary>
         /// Condenses all whitespace to a maximum one newline.

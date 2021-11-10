@@ -87,6 +87,52 @@ namespace UE4Config.Parsing
         }
 
         /// <summary>
+        /// Groups together instruction tokens, keeping their order of declaration intact
+        /// </summary>
+        public void GroupPropertyInstructions()
+        {
+            for (int i = Tokens.Count - 1; i > 0; i--)
+            {
+                var token = Tokens[i];
+                if (token is InstructionToken instruction)
+                {
+                    FindPropertyInstructionGroup(instruction.Key, out _, out int lastIndex);
+                    if (lastIndex < i)
+                    {
+                        Tokens.RemoveAt(i);
+                        Tokens.Insert(lastIndex+1, token);
+                    }
+                }
+            }
+        }
+
+        protected void FindPropertyInstructionGroup(string key, out int indexOfFirstInstruction, out int indexOfLastInstruction)
+        {
+            indexOfFirstInstruction = -1;
+            indexOfLastInstruction = -1;
+            bool hasGroup = false;
+            for (int i = 0; i < Tokens.Count; i++)
+            {
+                var token = Tokens[i];
+                bool isPartOfGroup = false;
+                if (token is InstructionToken instruction)
+                {
+                    isPartOfGroup = instruction.Key == key;
+                }
+
+                if (isPartOfGroup && indexOfFirstInstruction < 0)
+                {
+                    indexOfFirstInstruction = i;
+                }
+                else if (!isPartOfGroup && indexOfFirstInstruction >= 0)
+                {
+                    indexOfLastInstruction = i - 1;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Merges together supported consecutive tokens of the same type.
         /// This includes <see cref="WhitespaceToken"/> and <see cref="CommentToken"/>
         /// </summary>

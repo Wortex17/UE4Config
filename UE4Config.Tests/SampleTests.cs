@@ -77,6 +77,7 @@ namespace UE4Config.Tests
             //Cleanup the config before publishing it
             config.NormalizeLineEndings();
             config.MergeDuplicateSections();
+            config.GroupPropertyInstructions();
             config.CondenseWhitespace();
 
             //Publish the config and write it back
