@@ -59,5 +59,37 @@ namespace UE4Config.Tests
                 "%GAMEDIR%Content/Localization/Game"
             }));
         }
+        
+        [TestCase]
+        public void When_ModifyConfigFileByAppend()
+        {
+            //Create a new config hierarchy, with paths to the engine as well as the project directory
+            var configHierarchy = new FileConfigHierarchy(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockEngine"));
+            
+            //Acquire the target config we want to modify
+            var config = configHierarchy.GetOrCreateConfig("Windows", "Game", ConfigHierarchyLevel.ProjectPlatformCategory, out _);
+
+            //We modify the config by just appending further configuration which will redefine properties
+            config.AppendRawText("[Global]\n" +
+                                 "+GUIDs=modifieda44d");
+            //Here we use the config ini syntax to add another value to the list
+
+            //Cleanup the config before publishing it
+            config.NormalizeLineEndings();
+            config.MergeDuplicateSections();
+            config.CondenseWhitespace();
+
+            //Publish the config and write it back
+            configHierarchy.PublishConfig("Windows", "Game", ConfigHierarchyLevel.ProjectPlatformCategory, config);
+
+            //Make sure the modified value made it in
+            var win64Values = new List<string>();
+            configHierarchy.EvaluatePropertyValues("Windows", "Game", "Global", "GUIDs", win64Values);
+            Assert.That(win64Values, Is.EquivalentTo(new[]
+            {
+                "a44b",
+                "modifieda44d"
+            }));
+        }
     }
 }

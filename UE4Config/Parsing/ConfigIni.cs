@@ -244,6 +244,37 @@ namespace UE4Config.Parsing
         {
             ReadLine(line, LineEnding.None, ref currentSection);
         }
+        
+        /// <summary>
+        /// Appends raw text parsed as <see cref="ConfigIni"/> into this one.
+        /// </summary>
+        public void AppendRawText(string text)
+        {
+            AppendRawText(new StringReader(text));
+        }
+        
+        /// <summary>
+        /// Appends raw text parsed as <see cref="ConfigIni"/> into this one.
+        /// </summary>
+        public void AppendRawText(TextReader textReader)
+        {
+            var config = new ConfigIni();
+            config.Read(textReader);
+            AppendCloneOf(config);
+        }
+
+        /// <summary>
+        /// Appends the contents of another <see cref="ConfigIni"/> into this one.
+        /// Sections and tokens will be cloned before appending so the other stays usable.
+        /// </summary>
+        public void AppendCloneOf(ConfigIni other)
+        {
+            foreach (var otherSection in other.Sections)
+            {
+                var section = ConfigIniSection.Clone(otherSection);
+                this.Sections.Add(section);
+            }
+        }
 
         /// <summary>
         /// Writes the whole config to a text blob
