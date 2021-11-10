@@ -655,7 +655,7 @@ namespace UE4Config.Tests.Parsing
             {
                 var sectionA1 = new ConfigIniSection("A");
                 var tokenA1_1 = new TextToken();
-                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new []{"   "}), LineEnding.Unknown);
+                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new []{"   "}), LineEnding.None);
                 var tokenA1_3 = new TextToken();
                 sectionA1.Tokens.Add(tokenA1_1);
                 sectionA1.Tokens.Add(tokenA1_2_WS);
@@ -676,9 +676,9 @@ namespace UE4Config.Tests.Parsing
             {
                 var sectionA1 = new ConfigIniSection("A");
                 var tokenA1_1 = new TextToken();
-                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
-                var tokenA1_3_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
-                var tokenA1_4_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
+                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.None);
+                var tokenA1_3_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.None);
+                var tokenA1_4_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.None);
                 var tokenA1_5 = new TextToken();
                 sectionA1.Tokens.Add(tokenA1_1);
                 sectionA1.Tokens.Add(tokenA1_2_WS);
@@ -701,9 +701,9 @@ namespace UE4Config.Tests.Parsing
             {
                 var sectionA1 = new ConfigIniSection("A");
                 var tokenA1_1 = new TextToken();
-                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
+                var tokenA1_2_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.None);
                 var tokenA1_3 = new TextToken();
-                var tokenA1_4_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.Unknown);
+                var tokenA1_4_WS = new WhitespaceToken(new List<string>(new[] { "   " }), LineEnding.None);
                 var tokenA1_5 = new TextToken();
                 sectionA1.Tokens.Add(tokenA1_1);
                 sectionA1.Tokens.Add(tokenA1_2_WS);

@@ -17,10 +17,19 @@ namespace UE4Config.Parsing
         /// </summary>
         public void Condense()
         {
+            //Look for any lineEnding to take over
+            LineEnding condensedLineEnding = LineEnding.None;
+            foreach (var textLine in Lines)
+            {
+                if (textLine.LineEnding != LineEnding.None)
+                {
+                    condensedLineEnding = textLine.LineEnding;
+                }
+            }
             if (Lines.Count > 0)
             {
                 Lines.Clear();
-                Lines.Add(String.Empty);
+                AddLine(String.Empty, condensedLineEnding);
             }
         }
     }
