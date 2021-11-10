@@ -83,6 +83,42 @@ namespace UE4Config.Hierarchy
         }
 
         /// <summary>
+        /// Creates the platform config of the given <see cref="category"/> and the given <see cref="level"/>.
+        /// Will not automatically save/write the config, so it needs to be saved before the next Get can be sure to return it.
+        /// </summary>
+        public abstract ConfigIni CreateConfig(string platform, string category, ConfigHierarchyLevel level);
+
+        /// <summary>
+        /// Gets the platform config of the given <see cref="category"/> and the given <see cref="level"/>, creating it
+        /// if it doesn't exist yet.
+        /// <seealso cref="GetConfig(string,string,UE4Config.Hierarchy.ConfigHierarchyLevel)"/>
+        /// <seealso cref="CreateConfig(string,string,UE4Config.Hierarchy.ConfigHierarchyLevel)"/>
+        /// </summary>
+        public ConfigIni GetOrCreateConfig(string platform, string category, ConfigHierarchyLevel level, out bool wasCreated)
+        {
+            ConfigIni config = GetConfig(platform, category, level);
+            if (config == null)
+            {
+                config = CreateConfig(platform, category, level);
+                wasCreated = true;
+            }
+            else
+            {
+                wasCreated = false;
+            }
+            return config;
+        }
+        /// <summary>
+        /// Returns the default config of the given <see cref="category"/> and the given <see cref="level"/>, if available.
+        /// Returns null otherwise.
+        /// <seealso cref="GetOrCreateConfig(string,string,UE4Config.Hierarchy.ConfigHierarchyLevel,out bool)"/>
+        /// </summary>
+        public ConfigIni GetOrCreateConfig(string category, ConfigHierarchyLevel level, out bool wasCreated)
+        {
+            return GetOrCreateConfig(DefaultPlatform, category, level, out wasCreated);
+        }
+
+        /// <summary>
         /// Evaluates a properties values over this hierarchy of configs.
         /// </summary>
         public virtual void EvaluatePropertyValues(string platform, string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range,

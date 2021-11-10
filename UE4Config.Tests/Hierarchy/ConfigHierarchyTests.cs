@@ -14,6 +14,9 @@ namespace UE4Config.Tests.Hierarchy
         {
             public delegate ConfigIni SpyGetConfig(string platform, string category, ConfigHierarchyLevel level);
             public SpyGetConfig OnSpyGetConfig;
+            
+            public delegate ConfigIni SpyCreateConfig(string platform, string category, ConfigHierarchyLevel level);
+            public SpyCreateConfig OnSpyCreateConfig;
 
             public Action<string, string, string, string, ConfigHierarchyLevelRange, PropertyEvaluator, IList<string>> OnEvaluatePropertyValues;
 
@@ -30,6 +33,11 @@ namespace UE4Config.Tests.Hierarchy
             public override ConfigIni GetConfig(string platform, string category, ConfigHierarchyLevel level)
             {
                 return OnSpyGetConfig?.Invoke(platform, category, level);
+            }
+
+            public override ConfigIni CreateConfig(string platform, string category, ConfigHierarchyLevel level)
+            {
+                return OnSpyCreateConfig?.Invoke(platform, category, level);
             }
 
             public override void EvaluatePropertyValues(string platform, string category, string sectionName, string propertyKey, ConfigHierarchyLevelRange range,
@@ -164,7 +172,66 @@ namespace UE4Config.Tests.Hierarchy
                 Assert.That(latestRequestedPlatform, Is.EqualTo("MyPlatform"));
             }
         }
+    
+        
+        [TestFixture]
+        public class GetOrCreateConfig
+        {
+            [Test]
+            public void When_CalledWithoutPlatform_RelaysToDefaultPlatform()
+            {
+                int spyCount = 0;
 
+                var expectedConfig = new ConfigIni("MyConfig");
+
+                var hierarchy = new MockConfigHierarchy()
+                {
+                    OnSpyGetConfig = (platform, category, level) =>
+                    {
+                        spyCount++;
+                        Assert.That(level, Is.EqualTo(ConfigHierarchyLevel.BaseCategory));
+                        Assert.That(category, Is.EqualTo("MyCategory"));
+                        Assert.That(platform, Is.EqualTo("Default"));
+                        return expectedConfig;
+                    }
+                };
+
+                hierarchy.GetOrCreateConfig("MyCategory", ConfigHierarchyLevel.BaseCategory, out _);
+                Assert.That(spyCount, Is.EqualTo(1));
+            }
+            
+            [Test]
+            public void When_CalledWithoutPlatform_ReturnsPositiveGetConfigResult()
+            {
+                var expectedConfig = new ConfigIni("MyConfig");
+
+                var hierarchy = new MockConfigHierarchy()
+                {
+                    OnSpyGetConfig = (platform, category, level) => expectedConfig
+                };
+
+                var config = hierarchy.GetOrCreateConfig("MyCategory", ConfigHierarchyLevel.BaseCategory, out bool wasCreated);
+                Assert.That(wasCreated, Is.False);
+                Assert.That(config, Is.SameAs(expectedConfig));
+            }
+            
+            [Test]
+            public void When_CalledWithoutPlatform_ReturnsCreateConfigResult()
+            {
+                var expectedConfig = new ConfigIni("MyConfig");
+
+                var hierarchy = new MockConfigHierarchy()
+                {
+                    OnSpyGetConfig = (platform, category, level) => null,
+                    OnSpyCreateConfig = (platform, category, level) => expectedConfig
+                };
+
+                var config = hierarchy.GetOrCreateConfig("MyCategory", ConfigHierarchyLevel.BaseCategory, out bool wasCreated);
+                Assert.That(wasCreated, Is.True);
+                Assert.That(config, Is.SameAs(expectedConfig));
+            }
+        }
+        
         [TestFixture]
         public class EvaluatePropertyValues
         {

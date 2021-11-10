@@ -52,6 +52,17 @@ namespace UE4Config.Hierarchy
             return config;
         }
 
+        public override ConfigIni CreateConfig(string platform, string category, ConfigHierarchyLevel level)
+        {
+            var filePath = GetConfigFilePath(platform, category, level);
+            if (filePath == null)
+                return null;
+
+            ConfigIni config = new ConfigIni(filePath);
+            CacheConfig(platform, category, level, config);
+            return config;
+        }
+
         public override bool CheckEngineHasPlatformExtension(string platform)
         {
             string expectedPath = GenerateEnginePlatformExtensionConfigDirPath(platform);

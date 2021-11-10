@@ -22,8 +22,10 @@ namespace UE4Config.Tests.Hierarchy
         private class MockFileConfigHierarchy : FileConfigHierarchy
         {
             public delegate ConfigIni HandleLoadConfig(string platform, string category, ConfigHierarchyLevel level);
+            public delegate void HandleCacheConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config);
 
             public HandleLoadConfig OnLoadConfig;
+            public HandleCacheConfig OnCacheConfig;
 
             public MockFileConfigHierarchy(string projectPath, string enginePath) : base(projectPath, enginePath)
             {}
@@ -37,6 +39,18 @@ namespace UE4Config.Tests.Hierarchy
                 else
                 {
                     return base.LoadConfig(platform, category, level);
+                }
+            }
+
+            protected override void CacheConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config)
+            {
+                if (OnCacheConfig != null)
+                {
+                    OnCacheConfig(platform, category, level, config);
+                }
+                else
+                {
+                    base.CacheConfig(platform, category, level, config);
                 }
             }
 
@@ -275,6 +289,35 @@ namespace UE4Config.Tests.Hierarchy
                 Assert.That(gotConfig2, Is.SameAs(gotConfig1));
                 Assert.That(gotConfig2, Is.SameAs(fakeLoadedConfig));
                 Assert.That(countCallLoadConfig, Is.EqualTo(1));
+            }
+        }
+        
+        [TestFixture]
+        public class CreateConfig
+        {
+            [TestCase("MyPlatform", "MyCategory", ConfigHierarchyLevel.Base)]
+            [TestCase("MyPlatform", "MyCategory", ConfigHierarchyLevel.BaseCategory)]
+            [TestCase("MyPlatform", "MyCategory", ConfigHierarchyLevel.BasePlatformCategory)]
+            [TestCase("MyPlatform", "MyCategory", ConfigHierarchyLevel.ProjectCategory)]
+            [TestCase("MyPlatform", "MyCategory", ConfigHierarchyLevel.ProjectPlatformCategory)]
+            public void When_Called_CallsCacheConfig(string platform, string category, ConfigHierarchyLevel level)
+            {
+                var hierarchy = new MockFileConfigHierarchy(@".\MyProject\", @".\Engine\");
+                var spiedConfig = new ConfigIni();
+
+                bool didCallCacheConfig = false;
+                hierarchy.OnCacheConfig += (loadPlatform, loadCategory, loadHierarchyLevel, config) =>
+                    {
+                        Assert.That(loadPlatform, Is.EqualTo(platform));
+                        Assert.That(loadCategory, Is.EqualTo(category));
+                        Assert.That(loadHierarchyLevel, Is.EqualTo(level));
+                        spiedConfig = config;
+                        didCallCacheConfig = true;
+                    };
+
+                var createdConfig = hierarchy.CreateConfig(platform, category, level);
+                Assert.That(didCallCacheConfig, Is.True);
+                Assert.That(createdConfig, Is.SameAs(spiedConfig));
             }
         }
 
