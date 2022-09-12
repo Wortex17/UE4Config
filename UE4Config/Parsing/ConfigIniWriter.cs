@@ -8,6 +8,7 @@ namespace UE4Config.Parsing
     public class ConfigIniWriter
     {
         public TextWriter ContentWriter = null;
+        public LineEnding LineEnding = LineEnding.Unknown;
         /// <summary>
         /// The Unreal Engine 4 config file serializer has a quirk that always makes the file end with 2 line endings
         /// (one for the last token, one empty line).
@@ -30,19 +31,30 @@ namespace UE4Config.Parsing
             var writtenString = ContentWriter.ToString();
             if (AppendQuirkFileEnding)
             {
-                if (!writtenString.EndsWith("\n\n"))
+                var lineEndingStr = LineEnding.AsString();
+                if (!writtenString.EndsWith(lineEndingStr+lineEndingStr))
                 {
-                    if (!writtenString.EndsWith("\n"))
+                    if (writtenString.EndsWith(lineEndingStr))
                     {
-                        writtenString += "\n\n";
+                        writtenString += lineEndingStr;
                     }
                     else
                     {
-                        writtenString += "\n";
+                        writtenString += lineEndingStr;
+                        writtenString += lineEndingStr;
                     }
                 }
             }
             return writtenString;
+        }
+
+        public void WriteLineEnding(LineEnding lineEnding)
+        {
+            lineEnding.WriteTo(ContentWriter);
+            if (LineEnding != lineEnding && LineEnding == LineEnding.Unknown && lineEnding != LineEnding.None)
+            {
+                LineEnding = lineEnding;
+            }
         }
     }
 }

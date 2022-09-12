@@ -69,7 +69,7 @@ namespace UE4Config.Parsing
         
         public static void WriteTo(this LineEnding lineEnding, ConfigIniWriter writer)
         {
-            WriteTo(lineEnding, writer.ContentWriter);
+            writer.WriteLineEnding(lineEnding);
         }
     }
 }

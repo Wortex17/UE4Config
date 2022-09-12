@@ -15,59 +15,89 @@ namespace UE4Config.Tests.Parsing
         {
             public string CaseName;
             public string Content;
+            public bool NoLEInformed;
         }
-        static IEnumerable<ConfigIniCase> Cases_ConfigInis
+        
+        struct LineEndingCase
+        {
+            public string CaseName;
+            public LineEnding Content;
+            public string ContentAsString => Content.AsString();
+        }
+
+        static IEnumerable<LineEndingCase> Cases_LineEndings
         {
             get
             {
-                yield return new ConfigIniCase()
+                yield return new LineEndingCase()
                 {
-                    CaseName = "Empty",
-                    Content = ""
+                    CaseName = "Unix",
+                    Content = LineEnding.Unix
                 };
-                yield return new ConfigIniCase()
+                yield return new LineEndingCase()
                 {
-                    CaseName = "Sole Header",
-                    Content = "[MySection]"
+                    CaseName = "Windows",
+                    Content = LineEnding.Windows
                 };
-                yield return new ConfigIniCase()
+                yield return new LineEndingCase()
                 {
-                    CaseName = "One Section",
-                    Content = "[MySection]\n" +
-                              "MyProp=4"
-                };
-                yield return new ConfigIniCase()
-                {
-                    CaseName = "One Section + Leading Comment",
-                    Content = ";MyComment\n" +
-                              "[MySection]\n" +
-                              "MyProp=4"
-                };
-                yield return new ConfigIniCase()
-                {
-                    CaseName = "One Section + Closing Comment",
-                    Content = "[MySection]\n" +
-                              "MyProp=4\n" +
-                              ";MyComment"
-                };
-                yield return new ConfigIniCase()
-                {
-                    CaseName = "One Section with superfl. newline",
-                    Content = "[MySection]\n" + 
-                              "MyProp=4\n" + 
-                              "\n" + 
-                              "MyProp3=44"
-                };
-                yield return new ConfigIniCase()
-                {
-                    CaseName = "Two Sections",
-                    Content = "[MySection]\n" +
-                              "MyProp=4\n" +
-                              "\n" +
-                              "[MySection2]\n" +
-                              "MyProp2=4"
+                    CaseName = "Mac",
+                    Content = LineEnding.Mac
                 };
             }
+        }
+        
+        static IEnumerable<ConfigIniCase> Get_Cases_ConfigInis(string lineEnding)
+        {
+            yield return new ConfigIniCase()
+            {
+                CaseName = "Empty",
+                Content = "",
+                NoLEInformed = true
+            };
+            yield return new ConfigIniCase()
+            {
+                CaseName = "Sole Header (Leading LE)",
+                Content = "[MySection]",
+                NoLEInformed = true
+            };
+            yield return new ConfigIniCase()
+            {
+                CaseName = "One Section",
+                Content = "[MySection]"+lineEnding+
+                          "MyProp=4"
+            };
+            yield return new ConfigIniCase()
+            {
+                CaseName = "One Section + Leading Comment",
+                Content = ";MyComment"+lineEnding+
+                          "[MySection]"+lineEnding+
+                          "MyProp=4"
+            };
+            yield return new ConfigIniCase()
+            {
+                CaseName = "One Section + Closing Comment",
+                Content = "[MySection]"+lineEnding+
+                          "MyProp=4"+lineEnding+
+                          ";MyComment"
+            };
+            yield return new ConfigIniCase()
+            {
+                CaseName = "One Section with superfl. newline",
+                Content = "[MySection]"+lineEnding+
+                          "MyProp=4"+lineEnding+
+                          lineEnding+
+                          "MyProp3=44"
+            };
+            yield return new ConfigIniCase()
+            {
+                CaseName = "Two Sections",
+                Content = "[MySection]"+lineEnding+
+                          "MyProp=4"+lineEnding+
+                          lineEnding+
+                          "[MySection2]"+lineEnding+
+                          "MyProp2=4"
+            };
         }
             
         [TestFixture]
@@ -86,12 +116,15 @@ namespace UE4Config.Tests.Parsing
             {
                 get
                 {
-                    foreach (var configIniCase in Cases_ConfigInis)
+                    foreach (var lineEndingCase in Cases_LineEndings)
                     {
-                        const string caseSuffix = "\n\n";
-                        yield return new TestCaseData(
-                                new object[] { configIniCase.Content + caseSuffix })
-                            .SetName(configIniCase.CaseName);
+                        foreach (var configIniCase in Get_Cases_ConfigInis(lineEndingCase.ContentAsString))
+                        {
+                            string caseSuffix = lineEndingCase.ContentAsString + lineEndingCase.ContentAsString;
+                            yield return new TestCaseData(
+                                    new object[] { configIniCase.Content + caseSuffix })
+                                .SetName(configIniCase.CaseName + $"(LE:{lineEndingCase.CaseName})");
+                        }
                     }
                 }
             }
@@ -110,21 +143,24 @@ namespace UE4Config.Tests.Parsing
             {
                 get
                 {
-                    foreach (var configIniCase in Cases_ConfigInis)
+                    foreach (var lineEndingCase in Cases_LineEndings)
                     {
-                        const string caseVariantName = "No LE";
-                        const string caseSuffix = "";
-                        yield return new TestCaseData(
-                            new object[] { configIniCase.Content + caseSuffix })
-                            .SetName(configIniCase.CaseName + ", " + caseVariantName);
-                    }
-                    foreach (var configIniCase in Cases_ConfigInis)
-                    {
-                        const string caseVariantName = "Single LE";
-                        const string caseSuffix = "\n";
-                        yield return new TestCaseData(
-                                new object[] { configIniCase.Content + caseSuffix })
-                            .SetName(configIniCase.CaseName + ", " + caseVariantName);
+                        foreach (var configIniCase in Get_Cases_ConfigInis(lineEndingCase.ContentAsString))
+                        {
+                            const string caseVariantName = "No LE@EOF";
+                            const string caseSuffix = "";
+                            yield return new TestCaseData(
+                                    new object[] { configIniCase.Content + caseSuffix, lineEndingCase.Content, configIniCase.NoLEInformed })
+                                .SetName(configIniCase.CaseName + ", " + caseVariantName + $" (LE:{lineEndingCase.CaseName})");
+                        }
+                        foreach (var configIniCase in Get_Cases_ConfigInis(lineEndingCase.ContentAsString))
+                        {
+                            const string caseVariantName = "Single LE@EOF";
+                            string caseSuffix = lineEndingCase.ContentAsString;
+                            yield return new TestCaseData(
+                                    new object[] { configIniCase.Content + caseSuffix, lineEndingCase.Content, configIniCase.NoLEInformed })
+                                .SetName(configIniCase.CaseName + ", " + caseVariantName + $" (LE:{lineEndingCase.CaseName})");
+                        }
                     }
                 }
             }
@@ -132,28 +168,36 @@ namespace UE4Config.Tests.Parsing
             {
                 get
                 {
-                    foreach (var configIniCase in Cases_ConfigInis)
+                    foreach (var lineEndingCase in Cases_LineEndings)
                     {
-                        const string caseVariantName = "Three LEs";
-                        const string caseSuffix = "\n\n\n";
-                        yield return new TestCaseData(
-                                new object[] { configIniCase.Content + caseSuffix })
-                            .SetName(configIniCase.CaseName + ", " + caseVariantName);
+                        foreach (var configIniCase in Get_Cases_ConfigInis(lineEndingCase.ContentAsString))
+                        {
+                            const string caseVariantName = "Three LEs@EOF";
+                            string caseSuffix = lineEndingCase.ContentAsString+lineEndingCase.ContentAsString+lineEndingCase.ContentAsString;
+                            yield return new TestCaseData(
+                                    new object[] { configIniCase.Content + caseSuffix, lineEndingCase.Content, configIniCase.NoLEInformed })
+                                .SetName(configIniCase.CaseName + ", " + caseVariantName + $" (LE:{lineEndingCase.CaseName})");
+                        }
                     }
                 }
             }
 
             [TestCaseSource(nameof(Cases_When_HasTooFewLineEndingAtEndOfFile))]
             [TestCaseSource(nameof(Cases_When_HasTooManyLineEndingAtEndOfFile))]
-            public void When_HasNoDoubleLineEndingAtEndOfFile(string original)
+            public void When_HasNoDoubleLineEndingAtEndOfFile(string original, LineEnding lineEnding, bool noLEInformed)
             {
                 var config = new ConfigIni();
                 config.Read(new StringReader(original));
-                
+                if (noLEInformed)
+                {
+                    Writer.LineEnding = lineEnding;
+                }
+
+                var leStr = lineEnding.AsString();
                 config.Write(Writer);
                 var writtenString = Writer.ToString();
-                Assert.That(writtenString.Length - original.Length, Is.InRange(0, 2));
-                Assert.That(writtenString.Substring(writtenString.Length-2), Is.EqualTo("\n\n"));
+                Assert.That(writtenString.Length - original.Length, Is.InRange(0, leStr.Length*2));
+                Assert.That(writtenString.Substring(writtenString.Length-leStr.Length*2), Is.EqualTo(leStr+leStr));
                 Assert.That(writtenString.Substring(0, original.Length), Is.EqualTo(original));
             }
         }
