@@ -8,27 +8,35 @@ namespace UE4Config.Hierarchy
     public enum ConfigHierarchyLevel
     {
         /// <example>
-        /// Engine/Config/Base.ini 
+        /// Engine/Config/Base.ini
         /// </example>
         Base,
         /// <example>
-        /// Engine/Config/Base[Category].ini 
-        /// Engine/Config/BaseEngine.ini 
+        /// Engine/Config/Base[Category].ini
+        /// </example>
+        /// <example>
+        /// Engine/Config/BaseEngine.ini
         /// </example>
         BaseCategory,
         /// <example>
         /// Engine/Config/[Platform]/[Platform][Category].ini
+        /// </example>
+        /// <example>
         /// Engine/Config/PS4/PS4Engine.ini
         /// </example>
         BasePlatformCategory,
         /// <example>
         /// [ProjectDirectory]/Config/Default[Category].ini
+        /// </example>
+        /// <example>
         /// [ProjectDirectory]/Config/DefaultEngine.ini
         /// </example>
         ProjectCategory,
         /// <example>
-        /// [ProjectDirectory]/Config/[Platform]/[Platform][Category].ini 
-        /// [ProjectDirectory]/Config/PS4/PS4Engine.ini 
+        /// [ProjectDirectory]/Config/[Platform]/[Platform][Category].ini
+        /// </example>
+        /// <example>
+        /// [ProjectDirectory]/Config/PS4/PS4Engine.ini
         /// </example>
         ProjectPlatformCategory
     }
