@@ -41,10 +41,10 @@ namespace UE4Config.Tests.Parsing
             public void When_UnspecifiedNewLine_UsesWriterNewLine(Type tokenType, string[] lines, LineEnding lineEnding)
             {
                 var token = System.Activator.CreateInstance(tokenType, new object[] { lines, lineEnding }) as MultilineToken;
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 token.Write(writer);
                 var expectedLines = String.Join(lineEnding.AsString(), lines);
-                expectedLines += writer.NewLine; //Expecting final newline
+                expectedLines += writer.ContentWriter.NewLine; //Expecting final newline
 
                 Assert.That(writer.ToString(), Is.EqualTo(expectedLines));
             }
@@ -54,13 +54,13 @@ namespace UE4Config.Tests.Parsing
             public void When_HasNullLines_DoesSkipNulls(Type tokenType, string[] lines, LineEnding lineEnding)
             {
                 var token = System.Activator.CreateInstance(tokenType, new object[] { lines, lineEnding }) as MultilineToken;
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 token.Write(writer);
 
                 var linesWithoutNull = new List<string>(lines);
                 linesWithoutNull.RemoveAll((line) => line == null);
                 var expectedLines = String.Join(lineEnding.AsString(), linesWithoutNull);
-                expectedLines += writer.NewLine; //Expecting final newline
+                expectedLines += writer.ContentWriter.NewLine; //Expecting final newline
 
                 Assert.That(writer.ToString(), Is.EqualTo(expectedLines));
             }

@@ -53,6 +53,7 @@
     <Compile Include="Hierarchy\FileConfigHierarchyTests.cs" />
     <Compile Include="Hierarchy\ConfigHierarchyTests.cs" />
     <Compile Include="Parsing\ConfigIniSectionTests.cs" />
+    <Compile Include="Parsing\ConfigIniWriterTests.cs" />
     <Compile Include="Parsing\InstructionTokenTests.cs" />
     <Compile Include="Parsing\InstructionTypeTests.cs" />
     <Compile Include="Parsing\LineEndingTests.cs" />

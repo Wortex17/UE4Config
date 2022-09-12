@@ -625,7 +625,6 @@ namespace UE4Config.Tests.Parsing
             }
         }
 
-
         [TestFixture]
         class CondenseWhitespace
         {
@@ -1014,7 +1013,7 @@ namespace UE4Config.Tests.Parsing
                 Assert.That(() => {config.NormalizeLineEndings();}, Throws.Nothing);
             }
         }
-
+        
         [TestFixture]
         public class Write
         {
@@ -1024,7 +1023,7 @@ namespace UE4Config.Tests.Parsing
 
                 public List<ConfigIniSection> Write_CallLog;
 
-                public override void Write(TextWriter writer)
+                public override void Write(ConfigIniWriter writer)
                 {
                     Write_CallLog?.Add(this);
                     base.Write(writer);
@@ -1041,7 +1040,7 @@ namespace UE4Config.Tests.Parsing
                 config.Sections.Add(spySectionA);
                 config.Sections.Add(spySectionB);
 
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 config.Write(writer);
                 Assert.That(callLog, Is.EquivalentTo(new[] { spySectionA, spySectionB }));
             }
@@ -1057,7 +1056,7 @@ namespace UE4Config.Tests.Parsing
                 config.Sections.Add(null);
                 config.Sections.Add(spySectionB);
 
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 config.Write(writer);
                 Assert.That(config.Sections, Has.Count.EqualTo(3));
                 Assert.That(callLog, Is.EquivalentTo(new[] { spySectionA, spySectionB }));
@@ -1295,7 +1294,7 @@ namespace UE4Config.Tests.Parsing
             {
                 var config = new ConfigIni();
                 config.Read(new StringReader(original));
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 config.Write(writer);
 
                 Assert.That(writer.ToString(), Is.EqualTo(original));
@@ -1315,7 +1314,7 @@ namespace UE4Config.Tests.Parsing
                 reader.Close();
 
                 var fileContent = File.ReadAllText(filePath);
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 config.Write(writer);
                 var writerContent = writer.ToString();
                 Assert.That(writerContent, Is.EqualTo(fileContent));

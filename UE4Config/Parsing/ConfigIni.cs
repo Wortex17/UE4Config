@@ -280,7 +280,7 @@ namespace UE4Config.Parsing
         /// Writes the whole config to a text blob
         /// </summary>
         /// <param name="writer"></param>
-        public void Write(TextWriter writer)
+        public void Write(ConfigIniWriter writer)
         {
             foreach (var section in Sections)
             {

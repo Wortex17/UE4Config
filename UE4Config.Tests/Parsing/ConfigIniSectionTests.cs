@@ -80,7 +80,7 @@ namespace UE4Config.Tests.Parsing
             {
                 public List<IniToken> Write_CallLog;
 
-                public override void Write(TextWriter writer)
+                public override void Write(ConfigIniWriter writer)
                 {
                     Write_CallLog?.Add(this);
                 }
@@ -95,7 +95,7 @@ namespace UE4Config.Tests.Parsing
                 var spyToken2 = new SpyIniToken() { Write_CallLog = callLog };
                 spySection.Tokens.Add(spyToken1);
                 spySection.Tokens.Add(spyToken2);
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 spySection.WriteTokens(writer);
                 Assert.That(callLog, Is.EquivalentTo(new[] { spyToken1 , spyToken2}));
             }
@@ -110,7 +110,7 @@ namespace UE4Config.Tests.Parsing
                 spySection.Tokens.Add(spyToken1);
                 spySection.Tokens.Add(null);
                 spySection.Tokens.Add(spyToken2);
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 spySection.WriteTokens(writer);
                 Assert.That(spySection.Tokens, Has.Count.EqualTo(3));
                 Assert.That(callLog, Is.EquivalentTo(new[] { spyToken1, spyToken2 }));
@@ -124,7 +124,7 @@ namespace UE4Config.Tests.Parsing
             {
                 public int WriteTokens_CallCount;
 
-                public override void WriteTokens(TextWriter writer)
+                public override void WriteTokens(ConfigIniWriter writer)
                 {
                     WriteTokens_CallCount++;
                     base.WriteTokens(writer);
@@ -135,7 +135,7 @@ namespace UE4Config.Tests.Parsing
             public void Does_RelayCalls()
             {
                 var spySection = new SpyConfigIniSection();
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 spySection.Write(writer);
                 Assert.That(spySection.WriteTokens_CallCount, Is.EqualTo(1));
             }
@@ -203,7 +203,7 @@ namespace UE4Config.Tests.Parsing
             [TestCaseSource(nameof(Cases_WriteHeader))]
             public void WriteHeader(ConfigIniSection section, string expectedText)
             {
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 section.WriteHeader(writer);
                 Assert.That(writer.ToString(), Is.EqualTo(expectedText));
             }
@@ -244,8 +244,8 @@ namespace UE4Config.Tests.Parsing
                     Assert.That(cloneToken.GetType(), Is.EqualTo(originToken.GetType()));
                 }
 
-                StringWriter originWriter = new StringWriter();
-                StringWriter cloneWriter = new StringWriter();
+                var originWriter = new ConfigIniWriter(new StringWriter());
+                var cloneWriter = new ConfigIniWriter(new StringWriter());
 
                 section.Write(originWriter);
                 clone.Write(cloneWriter);

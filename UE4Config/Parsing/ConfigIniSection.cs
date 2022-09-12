@@ -208,7 +208,7 @@ namespace UE4Config.Parsing
         /// <summary>
         /// Writes this sections to a string
         /// </summary>
-        public virtual void Write(TextWriter writer)
+        public virtual void Write(ConfigIniWriter writer)
         {
             WriteHeader(writer);
             WriteTokens(writer);
@@ -217,7 +217,7 @@ namespace UE4Config.Parsing
         /// <summary>
         /// Writes this sections header to a text blob
         /// </summary>
-        public void WriteHeader(TextWriter writer)
+        public void WriteHeader(ConfigIniWriter writer)
         {
             if (Name != null)
             {
@@ -241,7 +241,7 @@ namespace UE4Config.Parsing
         /// Writes this sections <see cref="Tokens"/> to a text blob
         /// </summary>
         /// <param name="writer"></param>
-        public virtual void WriteTokens(TextWriter writer)
+        public virtual void WriteTokens(ConfigIniWriter writer)
         {
             foreach (var token in Tokens)
             {

@@ -8,7 +8,7 @@ namespace UE4Config.Parsing
         /// <summary>
         /// Writes this ini token to a text blob
         /// </summary>
-        public abstract void Write(TextWriter writer);
+        public abstract void Write(ConfigIniWriter writer);
 
         /// <summary>
         /// Creates another instance of this token, that contains the same data and can be used else where

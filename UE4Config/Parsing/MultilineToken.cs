@@ -48,7 +48,7 @@ namespace UE4Config.Parsing
             return clone;
         }
 
-        public override void Write(TextWriter writer)
+        public override void Write(ConfigIniWriter writer)
         {
             foreach (var line in Lines)
             {

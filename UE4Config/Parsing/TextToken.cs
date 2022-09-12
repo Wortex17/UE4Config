@@ -9,7 +9,7 @@ namespace UE4Config.Parsing
     {
         public string Text;
 
-        public override void Write(TextWriter writer)
+        public override void Write(ConfigIniWriter writer)
         {
             writer.Write(Text);
             LineEnding.WriteTo(writer);

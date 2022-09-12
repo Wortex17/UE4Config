@@ -168,9 +168,9 @@ namespace UE4Config.Hierarchy
             var filePath = GetConfigFilePath(platform, category, level);
             FileStream fileStream;
             fileStream = File.OpenWrite(filePath);
-            StreamWriter writer = new StreamWriter(fileStream);
+            var writer = new ConfigIniWriter(new StreamWriter(fileStream));
             config.Write(writer);
-            writer.Close();
+            writer.ContentWriter.Close();
         }
 
         protected virtual void CacheConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config)

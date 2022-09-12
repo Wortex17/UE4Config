@@ -125,7 +125,7 @@ namespace UE4Config.Tests.Parsing
         [TestCaseSource(nameof(Cases_Write_RemoveAllInstructionToken))]
         public void Write(LineToken token, string expectedText)
         {
-            var writer = new StringWriter();
+            var writer = new ConfigIniWriter(new StringWriter());
             token.Write(writer);
             Assert.That(writer.ToString(), Is.EqualTo(expectedText));
         }
