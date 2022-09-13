@@ -1,0 +1,109 @@
+﻿using System;
+using System.Collections.Generic;
+using NUnit.Framework;
+using UE4Config.Hierarchy;
+
+namespace UE4Config.Tests.Hierarchy
+{
+    [TestFixture]
+    public class IConfigTreeExtensionsTests
+    {
+        class TestConfigTree : IConfigTree
+        {
+            public Action<Action<ConfigFileReference>> OnVisitConfigRoot;
+            public void VisitConfigRoot(Action<ConfigFileReference> onConfig)
+            {
+                OnVisitConfigRoot(onConfig);
+            }
+
+            public Action<string, string, Action<ConfigFileReference>> OnVisitConfigBranch;
+            public void VisitConfigBranch(string configType, string platformIdentifier, Action<ConfigFileReference> onConfig)
+            {
+                OnVisitConfigBranch(configType, platformIdentifier, onConfig);
+            }
+
+            public IConfigPlatform GetPlatform(string platformIdentifier)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IConfigPlatform RegisterPlatform(string platformIdentifier, IConfigPlatform parentPlatform = null)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Test]
+        public void GetConfigRoot()
+        {
+            var tree = new TestConfigTree();
+            var expectedResult = new ConfigFileReference(ConfigDomain.Custom, new ConfigPlatform("MyPlatform"), "MyConfig");
+            int onVisitConfigRootCount = 0;
+            tree.OnVisitConfigRoot = action =>
+            {
+                onVisitConfigRootCount++;
+                action(expectedResult);
+            };
+            
+            ConfigFileReference? result = IConfigTreeExtensions.GetConfigRoot(tree);
+            
+            Assert.That(onVisitConfigRootCount, Is.EqualTo(1));
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void GetConfigRoot_WithoutCallback()
+        {
+            var tree = new TestConfigTree();
+            int onVisitConfigRootCount = 0;
+            tree.OnVisitConfigRoot = action =>
+            {
+                onVisitConfigRootCount++;
+            };
+            
+            ConfigFileReference? result = IConfigTreeExtensions.GetConfigRoot(tree);
+            
+            Assert.That(onVisitConfigRootCount, Is.EqualTo(1));
+            Assert.That(result, Is.Null);
+        }
+        
+        [Test]
+        public void GetConfigBranch()
+        {
+            var tree = new TestConfigTree();
+            var expectedConfigType = "MyConfig";
+            var expectedPlatformIdentifier = "MyPlatform";
+            var expectedResult = new List<ConfigFileReference>();
+            tree.OnVisitConfigBranch = (configType, platformIdentifier, action) =>
+            {
+                var configFileReference = new ConfigFileReference(ConfigDomain.Custom, new ConfigPlatform(platformIdentifier),
+                    configType);
+                expectedResult.Add(configFileReference);
+                action(configFileReference);
+            };
+            
+            var result = IConfigTreeExtensions.GetConfigBranch(tree, expectedConfigType, expectedPlatformIdentifier);
+            
+            Assert.That(result, Is.EquivalentTo(expectedResult));
+            Assert.That(
+                result.FindIndex(reference => reference.Platform != null),
+                Is.GreaterThanOrEqualTo(0));
+            Assert.That(
+                result.FindIndex(reference => reference.Type != null),
+                Is.GreaterThanOrEqualTo(0));
+        }
+        
+        [Test]
+        public void GetConfigBranch_WithoutCallback()
+        {
+            var tree = new TestConfigTree();
+            tree.OnVisitConfigBranch = (configType, platformIdentifier, action) =>
+            {
+            };
+            
+            var result = IConfigTreeExtensions.GetConfigBranch(tree, "MyConfig", "MyPlatform");
+            
+            Assert.That(result, Is.Empty);
+        }
+    }
+}
