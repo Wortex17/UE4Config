@@ -48,9 +48,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Evaluation\PropertyEvaluatorTests.cs" />
+    <Compile Include="Hierarchy\ConfigFileProviderTests.cs" />
     <Compile Include="Hierarchy\ConfigFileReferenceTests.cs" />
     <Compile Include="Hierarchy\ConfigHierarchyLevelTests.cs" />
     <Compile Include="Hierarchy\ConfigHierarchyLevelRangeTests.cs" />
+    <Compile Include="Hierarchy\IConfigFileProviderTests.cs" />
     <Compile Include="Hierarchy\IConfigPlatformExtensionsTests.cs" />
     <Compile Include="Hierarchy\IConfigTreeExtensionsTests.cs" />
     <Compile Include="Hierarchy\IConfigTreeTests.cs" />
