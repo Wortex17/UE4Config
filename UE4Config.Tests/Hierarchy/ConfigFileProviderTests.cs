@@ -10,13 +10,20 @@ namespace UE4Config.Tests.Hierarchy
     [TestFixture]
     public class ConfigFileProviderTests
     {
+        private const string TestEnginePath = "%Engine%";
+        private const string TestProjectPath = "%Project%";
+        
         protected static ConfigFileProvider NewProvider()
         {
             return new ConfigFileProvider();
         }
-
-        private const string TestEnginePath = "%Engine%";
-        private const string TestProjectPath = "%Project%";
+        
+        protected static ConfigFileProvider NewProviderWithDefaultSetup()
+        {
+            var provider = new ConfigFileProvider();
+            provider.Setup(new ConfigFileIOAdapter(), TestEnginePath, TestProjectPath);
+            return provider;
+        }
 
         [TestFixture]
         public class ResolveConfigFilePath
@@ -90,8 +97,7 @@ namespace UE4Config.Tests.Hierarchy
             public void WithValidReference(ConfigDomain domain, string platform, string type,
                 string expectedPath)
             {
-                var provider = NewProvider();
-                provider.Setup(TestEnginePath, TestProjectPath);
+                var provider = NewProviderWithDefaultSetup();
 
                 var result =
                     provider.ResolveConfigFilePath(new ConfigFileReference(domain, new ConfigPlatform(platform), type));
@@ -104,9 +110,9 @@ namespace UE4Config.Tests.Hierarchy
             public void WithValidReference_LegacyPlatformConfigs(ConfigDomain domain,
                 string platform, string type, string expectedPath)
             {
-                var provider = NewProvider();
-                provider.Setup(TestEnginePath, TestProjectPath);
-                provider.SetPlatformLegacyConfig(platform, true);
+                var provider = NewProviderWithDefaultSetup();
+                provider.EnginePlatformLegacyConfig.SetPlatformLegacyConfig(platform, true);
+                provider.ProjectPlatformLegacyConfig.SetPlatformLegacyConfig(platform, true);
 
                 var result =
                     provider.ResolveConfigFilePath(new ConfigFileReference(domain, new ConfigPlatform(platform), type));
@@ -118,69 +124,77 @@ namespace UE4Config.Tests.Hierarchy
         [TestFixture]
         public class PlatformLegacyConfig
         {
-
-
             [Test]
             public void IsPlatformUsingLegacyConfig_Default()
             {
-                var provider = NewProvider();
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
                 const string platform = "MyPlatform";
 
-                Assert.That(provider.IsPlatformUsingLegacyConfig(platform), Is.False);
+                Assert.That(legacyConfig.IsPlatformUsingLegacyConfig(platform), Is.False);
             }
 
             [Test]
             public void SetPlatformLegacyConfig_Enable()
             {
-                var provider = NewProvider();
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
                 const string platform = "MyPlatform";
 
-                provider.SetPlatformLegacyConfig(platform, true);
+                legacyConfig.SetPlatformLegacyConfig(platform, true);
 
-                Assert.That(provider.IsPlatformUsingLegacyConfig(platform), Is.True);
+                Assert.That(legacyConfig.IsPlatformUsingLegacyConfig(platform), Is.True);
             }
 
             [Test]
             public void SetPlatformLegacyConfig_EnableEnabled()
             {
-                var provider = NewProvider();
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
                 const string platform = "MyPlatform";
 
-                provider.SetPlatformLegacyConfig(platform, true);
-                Assert.That(() => { provider.SetPlatformLegacyConfig(platform, true); }, Throws.Nothing);
+                legacyConfig.SetPlatformLegacyConfig(platform, true);
+                Assert.That(() => { legacyConfig.SetPlatformLegacyConfig(platform, true); }, Throws.Nothing);
 
-                Assert.That(provider.IsPlatformUsingLegacyConfig(platform), Is.True);
+                Assert.That(legacyConfig.IsPlatformUsingLegacyConfig(platform), Is.True);
             }
 
             [Test]
             public void SetPlatformLegacyConfig_DisableEnabled()
             {
-                var provider = NewProvider();
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
                 const string platform = "MyPlatform";
 
-                provider.SetPlatformLegacyConfig(platform, true);
-                provider.SetPlatformLegacyConfig(platform, false);
+                legacyConfig.SetPlatformLegacyConfig(platform, true);
+                legacyConfig.SetPlatformLegacyConfig(platform, false);
 
-                Assert.That(provider.IsPlatformUsingLegacyConfig(platform), Is.False);
+                Assert.That(legacyConfig.IsPlatformUsingLegacyConfig(platform), Is.False);
             }
 
             [Test]
             public void SetPlatformLegacyConfig_DisableDisabled()
             {
-                var provider = NewProvider();
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
                 const string platform = "MyPlatform";
 
-                provider.SetPlatformLegacyConfig(platform, true);
-                provider.SetPlatformLegacyConfig(platform, false);
-                Assert.That(() => { provider.SetPlatformLegacyConfig(platform, false); }, Throws.Nothing);
+                legacyConfig.SetPlatformLegacyConfig(platform, true);
+                legacyConfig.SetPlatformLegacyConfig(platform, false);
+                Assert.That(() => { legacyConfig.SetPlatformLegacyConfig(platform, false); }, Throws.Nothing);
 
-                Assert.That(provider.IsPlatformUsingLegacyConfig(platform), Is.False);
+                Assert.That(legacyConfig.IsPlatformUsingLegacyConfig(platform), Is.False);
+            }
+
+            [Test]
+            public void SetPlatformLegacyConfig_Null()
+            {
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
+
+                legacyConfig.SetPlatformLegacyConfig(null, true);
+
+                Assert.That(legacyConfig.IsPlatformUsingLegacyConfig(null), Is.False);
             }
 
             [Test]
             public void GetPlatformsUsingLegacyConfig()
             {
-                var provider = NewProvider();
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
                 var platformsEnablingLegacyConfig = new List<string>()
                 {
                     "MyPlatform",
@@ -190,10 +204,10 @@ namespace UE4Config.Tests.Hierarchy
 
                 foreach (var platformId in platformsEnablingLegacyConfig)
                 {
-                    provider.SetPlatformLegacyConfig(platformId, true);
+                    legacyConfig.SetPlatformLegacyConfig(platformId, true);
                 }
 
-                var platformsUsingLegacyConfig = provider.GetPlatformsUsingLegacyConfig().ToList();
+                var platformsUsingLegacyConfig = legacyConfig.GetPlatformsUsingLegacyConfig().ToList();
 
                 Assert.That(platformsUsingLegacyConfig, Is.EquivalentTo(platformsEnablingLegacyConfig));
             }
@@ -201,7 +215,7 @@ namespace UE4Config.Tests.Hierarchy
             [Test]
             public void GetPlatformsUsingLegacyConfig_WithRemoval()
             {
-                var provider = NewProvider();
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
                 var platformsEnablingLegacyConfig = new List<string>()
                 {
                     "MyPlatform",
@@ -217,16 +231,16 @@ namespace UE4Config.Tests.Hierarchy
 
                 foreach (var platformId in platformsEnablingLegacyConfig)
                 {
-                    provider.SetPlatformLegacyConfig(platformId, true);
+                    legacyConfig.SetPlatformLegacyConfig(platformId, true);
                 }
 
                 foreach (var platformId in platformsDisablingLegacyConfig)
                 {
-                    provider.SetPlatformLegacyConfig(platformId, false);
+                    legacyConfig.SetPlatformLegacyConfig(platformId, false);
                     platformsEnablingLegacyConfig.Remove(platformId);
                 }
 
-                var platformsUsingLegacyConfig = provider.GetPlatformsUsingLegacyConfig().ToList();
+                var platformsUsingLegacyConfig = legacyConfig.GetPlatformsUsingLegacyConfig().ToList();
 
                 Assert.That(platformsUsingLegacyConfig, Is.EquivalentTo(platformsEnablingLegacyConfig));
             }
@@ -234,7 +248,7 @@ namespace UE4Config.Tests.Hierarchy
             [Test]
             public void ClearPlatformUsingLegacyConfig()
             {
-                var provider = NewProvider();
+                var legacyConfig = new ConfigFileProvider.PlatformLegacyConfig();
                 var platformsEnablingLegacyConfig = new List<string>()
                 {
                     "MyPlatform",
@@ -244,16 +258,16 @@ namespace UE4Config.Tests.Hierarchy
 
                 foreach (var platformId in platformsEnablingLegacyConfig)
                 {
-                    provider.SetPlatformLegacyConfig(platformId, true);
+                    legacyConfig.SetPlatformLegacyConfig(platformId, true);
                 }
 
-                provider.ClearPlatformUsingLegacyConfig();
+                legacyConfig.ClearPlatformUsingLegacyConfig();
 
                 foreach (var platformId in platformsEnablingLegacyConfig)
                 {
-                    Assert.That(provider.IsPlatformUsingLegacyConfig(platformId), Is.False);
+                    Assert.That(legacyConfig.IsPlatformUsingLegacyConfig(platformId), Is.False);
                 }
-                Assert.That(provider.GetPlatformsUsingLegacyConfig().ToList(), Is.Empty);
+                Assert.That(legacyConfig.GetPlatformsUsingLegacyConfig().ToList(), Is.Empty);
             }
         }
     }

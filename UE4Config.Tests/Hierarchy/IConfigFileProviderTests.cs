@@ -18,12 +18,14 @@ namespace UE4Config.Tests.Hierarchy
         public void Setup(string enginePath, string projectPath)
         {
             var provider = NewProvider();
+            var fileIOAdapter = new ConfigFileIOAdapter();
             var expectedEnginePath = enginePath;
             var expectedProjectPath = projectPath;
             
             Assert.That(provider.IsSetup, Is.False);
-            provider.Setup(enginePath, projectPath);
+            provider.Setup(fileIOAdapter, enginePath, projectPath);
             
+            Assert.That(provider.FileIOAdapter, Is.SameAs(fileIOAdapter));
             Assert.That(provider.EnginePath, Is.EqualTo(expectedEnginePath));
             Assert.That(provider.ProjectPath, Is.EqualTo(expectedProjectPath));
             Assert.That(provider.IsSetup, Is.True);
@@ -33,11 +35,26 @@ namespace UE4Config.Tests.Hierarchy
         public void Setup_WithoutPaths()
         {
             var provider = NewProvider();
+            var fileIOAdapter = new ConfigFileIOAdapter();
+            provider.Setup(fileIOAdapter, null, null);
             
-            provider.Setup(null, null);
-            
+            Assert.That(provider.FileIOAdapter, Is.SameAs(fileIOAdapter));
             Assert.That(provider.EnginePath, Is.Null);
             Assert.That(provider.ProjectPath, Is.Null);
+            Assert.That(provider.IsSetup, Is.False);
+        }
+        
+        [Test]
+        public void Setup_WithoutIOAdapter()
+        {
+            var provider = NewProvider();
+            var expectedEnginePath = "%Engine%";
+            var expectedProjectPath = "%Project%";
+            provider.Setup(null, expectedEnginePath, expectedProjectPath);
+            
+            Assert.That(provider.FileIOAdapter, Is.Null);
+            Assert.That(provider.EnginePath, Is.EqualTo(expectedEnginePath));
+            Assert.That(provider.ProjectPath, Is.EqualTo(expectedProjectPath));
             Assert.That(provider.IsSetup, Is.False);
         }
         
@@ -49,6 +66,10 @@ namespace UE4Config.Tests.Hierarchy
 
             var result = provider.ResolveConfigFilePath(new ConfigFileReference(domain, new ConfigPlatform(platform), type));
             
+            Assert.That(provider.FileIOAdapter, Is.Null);
+            Assert.That(provider.EnginePath, Is.Null);
+            Assert.That(provider.ProjectPath, Is.Null);
+            Assert.That(provider.IsSetup, Is.False);
             Assert.That(result, Is.Null);
         }
         
@@ -68,6 +89,8 @@ namespace UE4Config.Tests.Hierarchy
         public void ResolveConfigFilePath_WithInvalidReference(ConfigDomain domain, string platform, string type)
         {
             var provider = NewProvider();
+            var ioAdapter = new ConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
 
             var result = provider.ResolveConfigFilePath(new ConfigFileReference(domain, new ConfigPlatform(platform), type));
             
@@ -89,7 +112,8 @@ namespace UE4Config.Tests.Hierarchy
         public void ResolveConfigFilePath_WithValidReference(ConfigDomain domain, string platform, string type)
         {
             var provider = NewProvider();
-            provider.Setup("%Engine%", "%Project%");
+            var ioAdapter = new ConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
 
             var result = provider.ResolveConfigFilePath(new ConfigFileReference(domain, new ConfigPlatform(platform), type));
             
