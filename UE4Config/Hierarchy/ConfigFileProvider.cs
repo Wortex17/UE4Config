@@ -149,6 +149,53 @@ namespace UE4Config.Hierarchy
             
             return Path.Combine(basePath, configDirPath, $"{prefix}{platform}{type}.ini");
         }
+
+        /// <summary>
+        /// Automatically scans the <see cref="EnginePath"/> and <see cref="ProjectPath"/>
+        /// for all Platforms that require legacy config setup.
+        /// Will likely override manual settings made before, but will undiscovered platforms intact.
+        /// </summary>
+        public void AutoDetectPlatformsUsingLegacyConfig()
+        {
+            AutoDetectPlatformsUsingLegacyConfig(EnginePath, EnginePlatformLegacyConfig);
+            AutoDetectPlatformsUsingLegacyConfig(ProjectPath, ProjectPlatformLegacyConfig);
+        }
+
+        protected void AutoDetectPlatformsUsingLegacyConfig(string basePath, PlatformLegacyConfig platformLegacyConfig)
+        {
+            if (FileIOAdapter != null && !String.IsNullOrEmpty(basePath))
+            {
+                var legacyPlatformDirs = FileIOAdapter.GetDirectories(Path.Combine(basePath, "Config"));
+                var modernPlatformDirs = FileIOAdapter.GetDirectories(Path.Combine(basePath, "Platforms"));
+                var legacyPlatforms = new List<string>();
+                var modernPlatforms = new List<string>();
+
+                foreach (var legacyPlatformDir in legacyPlatformDirs)
+                {
+                    legacyPlatforms.Add(Path.GetFileName(legacyPlatformDir));
+                }
+                foreach (var modernPlatformDir in modernPlatformDirs)
+                {
+                    modernPlatforms.Add(Path.GetFileName(modernPlatformDir));
+                }
+                
+                foreach (var legacyPlatform in legacyPlatforms)
+                {
+                    if (!modernPlatforms.Contains(legacyPlatform))
+                    {
+                        platformLegacyConfig.SetPlatformLegacyConfig(legacyPlatform, true);
+                    }
+                    else
+                    {
+                        platformLegacyConfig.SetPlatformLegacyConfig(legacyPlatform, false);
+                    }
+                }
+                foreach (var modernPlatform in modernPlatforms)
+                {
+                    platformLegacyConfig.SetPlatformLegacyConfig(modernPlatform, false);
+                }
+            }
+        }
         
         protected string GeneratePlatformConfigDirectory(string platformIdentifier)
         {

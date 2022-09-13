@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using UE4Config.Hierarchy;
 
 namespace UE4Config.Tests.Hierarchy
@@ -268,6 +269,234 @@ namespace UE4Config.Tests.Hierarchy
                     Assert.That(legacyConfig.IsPlatformUsingLegacyConfig(platformId), Is.False);
                 }
                 Assert.That(legacyConfig.GetPlatformsUsingLegacyConfig().ToList(), Is.Empty);
+            }
+        }
+
+        [TestFixture]
+        public class AutoDetectPlatformsUsingLegacyConfig
+        {
+            class MockConfigFileIOAdapter : IConfigFileIOAdapter
+            {
+                public delegate List<string> GetDirectoriesDelegate(string pivotPath);
+
+                public GetDirectoriesDelegate OnGetDirectories;
+                
+                public List<string> GetDirectories(string pivotPath)
+                {
+                    return OnGetDirectories(pivotPath);
+                }
+            }
+
+            [Test]
+            public void When_NoIOAdapter()
+            {
+                var provider = NewProvider();
+                provider.Setup(null, TestEnginePath, TestProjectPath);
+                
+                Assert.That(() =>
+                {
+                    provider.AutoDetectPlatformsUsingLegacyConfig();
+                }, Throws.Nothing);
+            }
+
+            [Test]
+            public void When_NoSetup()
+            {
+                var provider = NewProvider();
+                
+                Assert.That(() =>
+                {
+                    provider.AutoDetectPlatformsUsingLegacyConfig();
+                }, Throws.Nothing);
+            }
+
+            [Test]
+            public void When_SetupComplete()
+            {
+                var provider = NewProvider();
+                var fileIOAdapter = new MockConfigFileIOAdapter();
+                provider.Setup(fileIOAdapter, TestEnginePath, TestProjectPath);
+                var onGetDirectoriesCalls = new List<string>();
+                var engineLegacyConfigDirs = new List<string>()
+                {
+                    Path.Combine(TestEnginePath, "Config", "LegacyPlatformA"),
+                    Path.Combine(TestEnginePath, "Config", "LegacyPlatformB")
+                };
+                var engineModernConfigDirs = new List<string>()
+                {
+                    Path.Combine(TestEnginePath, "Platforms", "PlatformD"),
+                    Path.Combine(TestEnginePath, "Platforms", "PlatformE")
+                };
+                var projectLegacyConfigDirs = new List<string>()
+                {
+                    Path.Combine(TestProjectPath, "Config", "LegacyPlatformA"),
+                    Path.Combine(TestProjectPath, "Config", "LegacyPlatformU")
+                };
+                var projectModernConfigDirs = new List<string>()
+                {
+                    Path.Combine(TestProjectPath, "Platforms", "PlatformD"),
+                    Path.Combine(TestProjectPath, "Platforms", "PlatformW")
+                };
+                fileIOAdapter.OnGetDirectories = path =>
+                {
+                    onGetDirectoriesCalls.Add(path);
+                    Assert.That(path, Does.StartWith(TestEnginePath).Or.StartsWith(TestProjectPath));
+                    
+                    bool isEngine = path.StartsWith(TestEnginePath);
+                    bool isLegacy = path.EndsWith("Config");
+                    if (isEngine)
+                    {
+                        if (isLegacy)
+                        {
+                            return engineLegacyConfigDirs;
+                        }
+                        else
+                        {
+                            return engineModernConfigDirs;
+                        }
+                    }
+                    else
+                    {
+                        if (isLegacy)
+                        {
+                            return projectLegacyConfigDirs;
+                        }
+                        else
+                        {
+                            return projectModernConfigDirs;
+                        }
+                    }
+                };
+                var expectedGetDirCalls = new List<string>()
+                {
+                    Path.Combine(TestEnginePath, "Config"),
+                    Path.Combine(TestEnginePath, "Platforms"),
+                    Path.Combine(TestProjectPath, "Config"),
+                    Path.Combine(TestProjectPath, "Platforms"),
+                };
+                
+                provider.AutoDetectPlatformsUsingLegacyConfig();
+                
+                Assert.That(onGetDirectoriesCalls, Is.EquivalentTo(expectedGetDirCalls));
+                foreach (var engineLegacyConfigDir in engineLegacyConfigDirs)
+                {
+                    var platformIdentifier = Path.GetFileName(engineLegacyConfigDir);
+                    Assert.That(provider.EnginePlatformLegacyConfig.IsPlatformUsingLegacyConfig(
+                            platformIdentifier), Is.True,
+                        $"{platformIdentifier} IsPlatformUsingLegacyConfig=true ");
+                }
+                foreach (var engineModernConfigDir in engineModernConfigDirs)
+                {
+                    var platformIdentifier = Path.GetFileName(engineModernConfigDir);
+                    Assert.That(provider.EnginePlatformLegacyConfig.IsPlatformUsingLegacyConfig(
+                            platformIdentifier), Is.False,
+                        $"{platformIdentifier} IsPlatformUsingLegacyConfig=false ");
+                }
+                foreach (var projectLegacyConfigDir in projectLegacyConfigDirs)
+                {
+                    var platformIdentifier = Path.GetFileName(projectLegacyConfigDir);
+                    Assert.That(provider.ProjectPlatformLegacyConfig.IsPlatformUsingLegacyConfig(
+                            platformIdentifier), Is.True,
+                        $"{platformIdentifier} IsPlatformUsingLegacyConfig=true ");
+                }
+                foreach (var projectModernConfigDir in projectModernConfigDirs)
+                {
+                    var platformIdentifier = Path.GetFileName(projectModernConfigDir);
+                    Assert.That(provider.ProjectPlatformLegacyConfig.IsPlatformUsingLegacyConfig(
+                            platformIdentifier), Is.False,
+                        $"{platformIdentifier} IsPlatformUsingLegacyConfig=false ");
+                }
+            }
+            
+            [Test]
+            public void When_OverlappingResults()
+            {
+                var provider = NewProvider();
+                const string platformName = "LegacyAndModernPlatform";
+                var fileIOAdapter = new MockConfigFileIOAdapter();
+                provider.Setup(fileIOAdapter, TestEnginePath, TestProjectPath);
+                var onGetDirectoriesCalls = new List<string>();
+                fileIOAdapter.OnGetDirectories = path =>
+                {
+                    onGetDirectoriesCalls.Add(path);
+                    Assert.That(path, Does.StartWith(TestEnginePath).Or.StartsWith(TestProjectPath));
+
+                    return new List<string>()
+                    {
+                        Path.Combine(path,platformName)
+                    };
+                };
+                var expectedGetDirCalls = new List<string>()
+                {
+                    Path.Combine(TestEnginePath, "Config"),
+                    Path.Combine(TestEnginePath, "Platforms"),
+                    Path.Combine(TestProjectPath, "Config"),
+                    Path.Combine(TestProjectPath, "Platforms"),
+                };
+                
+                provider.AutoDetectPlatformsUsingLegacyConfig();
+                
+                Assert.That(onGetDirectoriesCalls, Is.EquivalentTo(expectedGetDirCalls));
+                Assert.That(provider.EnginePlatformLegacyConfig.IsPlatformUsingLegacyConfig(
+                        platformName), Is.False,
+                    $"{platformName} IsPlatformUsingLegacyConfig=false ");
+                Assert.That(provider.ProjectPlatformLegacyConfig.IsPlatformUsingLegacyConfig(
+                        platformName), Is.False,
+                    $"{platformName} IsPlatformUsingLegacyConfig=false ");
+            }
+            
+            [Test]
+            public void When_MissingEnginePath()
+            {
+                var provider = NewProvider();
+                const string platformName = "LegacyAndModernPlatform";
+                var fileIOAdapter = new MockConfigFileIOAdapter();
+                provider.Setup(fileIOAdapter, null, TestProjectPath);
+                var onGetDirectoriesCalls = new List<string>();
+                fileIOAdapter.OnGetDirectories = path =>
+                {
+                    onGetDirectoriesCalls.Add(path);
+                    return new List<string>()
+                    {
+                        Path.Combine(path,platformName)
+                    };
+                };
+                var expectedGetDirCalls = new List<string>()
+                {
+                    Path.Combine(TestProjectPath, "Config"),
+                    Path.Combine(TestProjectPath, "Platforms"),
+                };
+                
+                provider.AutoDetectPlatformsUsingLegacyConfig();
+                
+                Assert.That(onGetDirectoriesCalls, Is.EquivalentTo(expectedGetDirCalls));
+            }
+            
+            [Test]
+            public void When_MissingProjectPath()
+            {
+                var provider = NewProvider();
+                const string platformName = "LegacyAndModernPlatform";
+                var fileIOAdapter = new MockConfigFileIOAdapter();
+                provider.Setup(fileIOAdapter, TestEnginePath, null);
+                var onGetDirectoriesCalls = new List<string>();
+                fileIOAdapter.OnGetDirectories = path =>
+                {
+                    onGetDirectoriesCalls.Add(path);
+                    return new List<string>()
+                    {
+                        Path.Combine(path,platformName)
+                    };
+                };
+                var expectedGetDirCalls = new List<string>()
+                {
+                    Path.Combine(TestEnginePath, "Config"),
+                    Path.Combine(TestEnginePath, "Platforms"),
+                };
+                
+                provider.AutoDetectPlatformsUsingLegacyConfig();
+                
+                Assert.That(onGetDirectoriesCalls, Is.EquivalentTo(expectedGetDirCalls));
             }
         }
     }
