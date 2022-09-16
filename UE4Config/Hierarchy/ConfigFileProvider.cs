@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using UE4Config.Parsing;
 
 namespace UE4Config.Hierarchy
 {
@@ -90,7 +90,7 @@ namespace UE4Config.Hierarchy
             
             switch (reference.Domain)
             {
-                case ConfigDomain.Custom:
+                case ConfigDomain.None:
                     return null; //Not yet supported
                 case ConfigDomain.EngineBase:
                     if (EnginePath == null)
@@ -148,6 +148,64 @@ namespace UE4Config.Hierarchy
             }
             
             return Path.Combine(basePath, configDirPath, $"{prefix}{platform}{type}.ini");
+        }
+
+        public bool LoadOrCreateConfig(ConfigFileReference configFileReference, out ConfigIni configIni)
+        {
+            string configFilePath = ResolveConfigFilePath(configFileReference);
+            string configFileName = Path.GetFileName(configFilePath);
+
+            configIni = LoadConfig(configFilePath, configFileName);
+            if (configIni == null)
+            {
+                configIni = new ConfigIni(configFileName);
+                return false;
+            }
+            return true;
+        }
+
+        public IList<ConfigIni> LoadOrCreateConfigs(IList<ConfigFileReference> configBranch)
+        {
+            var result = new List<ConfigIni>();
+            foreach (var configFileReference in configBranch)
+            {
+                LoadOrCreateConfig(configFileReference, out var configIni);
+                result.Add(configIni);
+            }
+            return result;
+        }
+
+        protected ConfigIni LoadConfig(string configFilePath, string configFileName)
+        {
+            StreamReader reader;
+            try
+            {
+                reader = FileIOAdapter.OpenText(configFilePath);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return null;
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
+            
+            var config = new ConfigIni(configFileName);
+            config.Read(reader);
+            reader.Close();
+            
+            return config;
+        }
+
+        public void SaveConfig(ConfigFileReference configFileReference, ConfigIni configIni)
+        {
+            string configFilePath = ResolveConfigFilePath(configFileReference);
+            
+            var contentWriter = FileIOAdapter.OpenWrite(configFilePath);
+            var writer = new ConfigIniWriter(contentWriter);
+            configIni.Write(writer);
+            writer.ContentWriter.Close();
         }
 
         /// <summary>

@@ -14,6 +14,8 @@ namespace UE4Config.Hierarchy
     /// </remarks>
     public interface IConfigTree
     {
+        IConfigFileProvider FileProvider { get; }
+        void Setup(IConfigFileProvider configFileProvider);
         void VisitConfigRoot(Action<ConfigFileReference> onConfig);
         void VisitConfigBranch(string configType, string platformIdentifier, Action<ConfigFileReference> onConfig);
         IConfigPlatform GetPlatform(string platformIdentifier);

@@ -14,6 +14,25 @@ namespace UE4Config.Tests.Hierarchy
         }
 
         [Test]
+        public void Setup()
+        {
+            var tree = NewTree();
+            var fileProvider = new ConfigFileProvider();
+            
+            tree.Setup(fileProvider);
+            
+            Assert.That(tree.FileProvider, Is.SameAs(fileProvider));
+        }
+
+        [Test]
+        public void MissingSetup()
+        {
+            var tree = NewTree();
+            
+            Assert.That(tree.FileProvider, Is.Null);
+        }
+
+        [Test]
         public void RegisterPlatform()
         {
             var tree = NewTree();

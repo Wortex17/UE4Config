@@ -11,6 +11,13 @@ namespace UE4Config.Tests.Hierarchy
         class TestConfigTree : IConfigTree
         {
             public Action<Action<ConfigFileReference>> OnVisitConfigRoot;
+            public IConfigFileProvider FileProvider { get; private set; }
+
+            public void Setup(IConfigFileProvider configFileProvider)
+            {
+                FileProvider = configFileProvider;
+            }
+
             public void VisitConfigRoot(Action<ConfigFileReference> onConfig)
             {
                 OnVisitConfigRoot(onConfig);
@@ -37,7 +44,7 @@ namespace UE4Config.Tests.Hierarchy
         public void GetConfigRoot()
         {
             var tree = new TestConfigTree();
-            var expectedResult = new ConfigFileReference(ConfigDomain.Custom, new ConfigPlatform("MyPlatform"), "MyConfig");
+            var expectedResult = new ConfigFileReference(ConfigDomain.None, new ConfigPlatform("MyPlatform"), "MyConfig");
             int onVisitConfigRootCount = 0;
             tree.OnVisitConfigRoot = action =>
             {
@@ -76,7 +83,7 @@ namespace UE4Config.Tests.Hierarchy
             var expectedResult = new List<ConfigFileReference>();
             tree.OnVisitConfigBranch = (configType, platformIdentifier, action) =>
             {
-                var configFileReference = new ConfigFileReference(ConfigDomain.Custom, new ConfigPlatform(platformIdentifier),
+                var configFileReference = new ConfigFileReference(ConfigDomain.None, new ConfigPlatform(platformIdentifier),
                     configType);
                 expectedResult.Add(configFileReference);
                 action(configFileReference);

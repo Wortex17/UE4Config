@@ -14,7 +14,7 @@ namespace UE4Config.Tests.Hierarchy
             {
                 var configFileReference = new ConfigFileReference();
                 
-                Assert.That(configFileReference.Domain, Is.EqualTo(ConfigDomain.Custom));
+                Assert.That(configFileReference.Domain, Is.EqualTo(ConfigDomain.None));
                 Assert.That(configFileReference.Platform, Is.Null);
                 Assert.That(configFileReference.Type, Is.Null);
             }
@@ -26,7 +26,7 @@ namespace UE4Config.Tests.Hierarchy
             {
                 Assert.That(() =>
                 {
-                    var configFileReference = new ConfigFileReference(ConfigDomain.Custom, null, "  ");
+                    var configFileReference = new ConfigFileReference(ConfigDomain.None, null, "  ");
                 }, Throws.ArgumentException);
             }
             
@@ -38,7 +38,7 @@ namespace UE4Config.Tests.Hierarchy
             {
                 Assert.That(() =>
                 {
-                    var configFileReference = new ConfigFileReference(ConfigDomain.Custom, null, "  ");
+                    var configFileReference = new ConfigFileReference(ConfigDomain.None, null, "  ");
                 }, Throws.ArgumentException);
             }
         }

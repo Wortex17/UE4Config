@@ -77,15 +77,15 @@ namespace UE4Config.Tests.Hierarchy
         [TestCase(ConfigDomain.Engine, null, null)]
         [TestCase(ConfigDomain.Project, null, null)]
         [TestCase(ConfigDomain.ProjectGenerated, null, null)]
-        [TestCase(ConfigDomain.Custom, "MyPlatform", null)]
+        [TestCase(ConfigDomain.None, "MyPlatform", null)]
         [TestCase(ConfigDomain.EngineBase, "MyPlatform", null)]
         [TestCase(ConfigDomain.Engine, "MyPlatform", null)]
         [TestCase(ConfigDomain.Project, "MyPlatform", null)]
         [TestCase(ConfigDomain.ProjectGenerated, "MyPlatform", null)]
-        [TestCase(ConfigDomain.Custom, null, null)]
-        [TestCase(ConfigDomain.Custom, null, "MyConfig")]
-        [TestCase(ConfigDomain.Custom, "MyPlatform", null)]
-        [TestCase(ConfigDomain.Custom, "MyPlatform", "MyConfig")]
+        [TestCase(ConfigDomain.None, null, null)]
+        [TestCase(ConfigDomain.None, null, "MyConfig")]
+        [TestCase(ConfigDomain.None, "MyPlatform", null)]
+        [TestCase(ConfigDomain.None, "MyPlatform", "MyConfig")]
         public void ResolveConfigFilePath_WithInvalidReference(ConfigDomain domain, string platform, string type)
         {
             var provider = NewProvider();

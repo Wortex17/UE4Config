@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
+using UE4Config.Evaluation;
 using UE4Config.Hierarchy;
 using UE4Config.Parsing;
 
@@ -65,7 +66,7 @@ namespace UE4Config.Tests
         {
             //Create a new config hierarchy, with paths to the engine as well as the project directory
             var configHierarchy = new FileConfigHierarchy(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockEngine"));
-            
+
             //Acquire the target config we want to modify
             var config = configHierarchy.GetOrCreateConfig("Windows", "Game", ConfigHierarchyLevel.ProjectPlatformCategory, out _);
 
@@ -86,6 +87,47 @@ namespace UE4Config.Tests
             //Make sure the modified value made it in
             var win64Values = new List<string>();
             configHierarchy.EvaluatePropertyValues("Windows", "Game", "Global", "GUIDs", win64Values);
+            Assert.That(win64Values, Is.EquivalentTo(new[]
+            {
+                "a44b",
+                "modifieda44d"
+            }));
+        }
+        
+        [TestCase]
+        public void When_ModifyConfigFileByAppend_ConfigTree()
+        {
+            //Create a new config hierarchy, with paths to the engine as well as the project directory
+            var configProvider = new ConfigFileProvider();
+            configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockEngine"));
+            configProvider.AutoDetectPlatformsUsingLegacyConfig();
+            var configTree = new ConfigTreeUE427();
+            configTree.Setup(configProvider);
+
+            //Acquire the target config ("Game" on Platform "Windows") we want to modify
+            var configBranch = configTree.GetConfigBranch("Game", "Windows");
+            //var configFileReference = configBranch.SelectConfig(ConfigHierarchyLevel.ProjectPlatformCategory);
+            var configFileReference = configBranch.SelectHeadConfig(ConfigDomain.EngineBase);
+            configTree.FileProvider.LoadOrCreateConfig(configFileReference, out var config);
+
+            //We modify the config by just appending further configuration which will redefine properties
+            config.AppendRawText("[Global]\n" +
+                                 "+GUIDs=modifieda44d");
+            //Here we use the config ini syntax to add another value to the list
+
+            //Cleanup the config before publishing it
+            config.NormalizeLineEndings();
+            config.MergeDuplicateSections();
+            config.GroupPropertyInstructions();
+            config.CondenseWhitespace();
+
+            //Publish the config and write it back
+            configTree.FileProvider.SaveConfig(configFileReference, config);
+
+            //Make sure the modified value made it in
+            var win64Values = new List<string>();
+            PropertyEvaluator.Default.EvaluatePropertyValues(configTree.FileProvider.LoadOrCreateConfigs(configBranch), "Global", "GUIDs", win64Values);
+            //configBranch.EvaluatePropertyValues("Global", "GUIDs", win64Values);
             Assert.That(win64Values, Is.EquivalentTo(new[]
             {
                 "a44b",

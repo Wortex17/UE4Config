@@ -12,6 +12,8 @@ namespace UE4Config.Hierarchy
         public IConfigPlatform Platform { get; private set; }
         public string Type { get; private set; }
 
+        public bool IsPlatformConfig => Platform != null;
+
         public ConfigFileReference(ConfigDomain domain, IConfigPlatform platform, string type)
         {
             if (type != null && string.IsNullOrWhiteSpace(type))

@@ -1,4 +1,7 @@
-﻿namespace UE4Config.Hierarchy
+﻿using System.Collections.Generic;
+using UE4Config.Parsing;
+
+namespace UE4Config.Hierarchy
 {
     public interface IConfigFileProvider
     {
@@ -42,6 +45,23 @@
         /// Returns null if the reference cannot be resolved.
         /// </summary>
         string ResolveConfigFilePath(ConfigFileReference reference);
+
+        /// <summary>
+        /// Loads a config from the filesystem, if it exists or creates a new one.
+        /// Returns true if the config was loaded.
+        /// </summary>
+        bool LoadOrCreateConfig(ConfigFileReference configFileReference, out ConfigIni configIni);
+
+        /// <summary>
+        /// Loads multiple configs from the filesystem, if they exist, or creates a new one for the missing.
+        /// </summary>
+        IList<ConfigIni> LoadOrCreateConfigs(IList<ConfigFileReference> configBranch);
+
+        /// <summary>
+        /// Saves a config to the filesystem, overwriting a possibly existing one.
+        /// Will not save if there were no meaningful changes.
+        /// </summary>
+        void SaveConfig(ConfigFileReference configFileReference, ConfigIni configIni);
     }
 }
 

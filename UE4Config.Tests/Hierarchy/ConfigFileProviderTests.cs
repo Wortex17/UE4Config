@@ -285,6 +285,16 @@ namespace UE4Config.Tests.Hierarchy
                 {
                     return OnGetDirectories(pivotPath);
                 }
+
+                public StreamReader OpenText(string filePath)
+                {
+                    return StreamReader.Null;
+                }
+
+                public StreamWriter OpenWrite(string filePath)
+                {
+                    return StreamWriter.Null;
+                }
             }
 
             [Test]

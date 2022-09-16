@@ -12,6 +12,18 @@ namespace UE4Config.Hierarchy
         {
             return new List<string>(Directory.GetDirectories(pivotPath));
         }
+
+        public StreamReader OpenText(string filePath)
+        {
+            return File.OpenText(filePath);
+        }
+
+        public StreamWriter OpenWrite(string filePath)
+        {
+            FileStream fileStream;
+            fileStream = File.OpenWrite(filePath);
+            return new StreamWriter(fileStream);
+        }
     }
 }
 
