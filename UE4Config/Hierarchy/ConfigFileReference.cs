@@ -8,6 +8,7 @@ namespace UE4Config.Hierarchy
     /// </summary>
     public struct ConfigFileReference
     {
+        public static ConfigFileReference None => new ConfigFileReference(); 
         public ConfigDomain Domain { get; private set; }
         public IConfigPlatform Platform { get; private set; }
         public string Type { get; private set; }

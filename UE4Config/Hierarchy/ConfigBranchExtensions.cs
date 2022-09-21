@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UE4Config.Parsing;
 
 namespace UE4Config.Hierarchy
 {
@@ -29,38 +30,67 @@ namespace UE4Config.Hierarchy
             if (index >= 0)
                 return configBranch[index];
 
-            return default(ConfigFileReference);
+            return default;
+        }
+        
+        public static ConfigIni SelectHeadConfig(this IReadOnlyList<ConfigIni> configBranch, ConfigDomain configDomain, ConfigBranchPlatformSelector platformSelector = ConfigBranchPlatformSelector.NoneOrAny, string specifcPlatformIdentifier = null)
+        {
+            var index = FindHeadConfigIndex(configBranch, configDomain, platformSelector, specifcPlatformIdentifier);
+            if (index >= 0)
+                return configBranch[index];
+
+            return default;
         }
 
         private static int FindHeadConfigIndex(this IReadOnlyList<ConfigFileReference> configBranch, ConfigDomain configDomain, ConfigBranchPlatformSelector platformSelector, string specifcPlatformIdentifier)
         {
             for (int i = configBranch.Count - 1; i >= 0; i--)
             {
-                var pivot = configBranch[i];
-                if (pivot.Domain != configDomain)
-                    continue;
-                switch (platformSelector)
-                {
-                    case ConfigBranchPlatformSelector.None:
-                        if(pivot.IsPlatformConfig) 
-                            continue;
-                        break;
-                    case ConfigBranchPlatformSelector.Any:
-                        if(!pivot.IsPlatformConfig) 
-                            continue;
-                        break;
-                    case ConfigBranchPlatformSelector.Specific:
-                        if(pivot.Platform?.Identifier != specifcPlatformIdentifier)
-                            continue;
-                        break;
-                    case ConfigBranchPlatformSelector.NoneOrAny:
-                    default:
-                        break;
-                }
-                return i;
+                var pivotRef = configBranch[i];
+                if (IsHeadConfigReference(pivotRef, configDomain, platformSelector, specifcPlatformIdentifier))
+                    return i;
             }
 
             return -1;
+        }
+        
+        private static int FindHeadConfigIndex(this IReadOnlyList<ConfigIni> configBranch, ConfigDomain configDomain, ConfigBranchPlatformSelector platformSelector, string specifcPlatformIdentifier)
+        {
+            for (int i = configBranch.Count - 1; i >= 0; i--)
+            {
+                var pivot = configBranch[i];
+                var pivotRef = pivot.Reference;
+                if (IsHeadConfigReference(pivotRef, configDomain, platformSelector, specifcPlatformIdentifier))
+                    return i;
+            }
+
+            return -1;
+        }
+        
+        private static bool IsHeadConfigReference(ConfigFileReference reference, ConfigDomain configDomain, ConfigBranchPlatformSelector platformSelector, string specifcPlatformIdentifier)
+        {
+            if (reference.Domain != configDomain)
+                return false;
+            switch (platformSelector)
+            {
+                case ConfigBranchPlatformSelector.None:
+                    if(reference.IsPlatformConfig) 
+                        return false;
+                    break;
+                case ConfigBranchPlatformSelector.Any:
+                    if(!reference.IsPlatformConfig) 
+                        return false;
+                    break;
+                case ConfigBranchPlatformSelector.Specific:
+                    if(reference.Platform == null || reference.Platform?.Identifier != specifcPlatformIdentifier)
+                        return false;
+                    break;
+                case ConfigBranchPlatformSelector.NoneOrAny:
+                default:
+                    break;
+            }
+
+            return true;
         }
     }
 }

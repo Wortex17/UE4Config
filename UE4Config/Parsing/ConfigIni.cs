@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UE4Config.Evaluation;
+using UE4Config.Hierarchy;
 
 namespace UE4Config.Parsing
 {
@@ -14,12 +15,19 @@ namespace UE4Config.Parsing
     {
         public string Name = null;
         public List<ConfigIniSection> Sections = new List<ConfigIniSection>();
+        public ConfigFileReference Reference { get; private set; }
 
         public ConfigIni() { }
 
         public ConfigIni(string name)
         {
             Name = name;
+        }
+        
+        public ConfigIni(string name, ConfigFileReference configFileReference)
+        {
+            Name = name;
+            Reference = configFileReference;
         }
 
         public ConfigIni(IEnumerable<ConfigIniSection> sections)

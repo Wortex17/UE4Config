@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
+using UE4Config.Hierarchy;
 using UE4Config.Parsing;
 
 namespace UE4Config.Tests.Parsing
@@ -26,6 +27,18 @@ namespace UE4Config.Tests.Parsing
             ConfigIni config = null;
             Assert.That(() => { config = new ConfigIni(name); }, Throws.Nothing);
             Assert.That(config.Name, Is.EqualTo(name));
+            Assert.That(config.Sections, Is.Empty);
+        }
+
+        [Test]
+        public void When_ConstructedWithNameAndReference()
+        {
+            string name = "Engine/Config/Base.ini";
+            ConfigFileReference configFileReference = new ConfigFileReference(ConfigDomain.Engine, null, null);
+            ConfigIni config = null;
+            Assert.That(() => { config = new ConfigIni(name, configFileReference); }, Throws.Nothing);
+            Assert.That(config.Name, Is.EqualTo(name));
+            Assert.That(config.Reference, Is.EqualTo(configFileReference));
             Assert.That(config.Sections, Is.Empty);
         }
 

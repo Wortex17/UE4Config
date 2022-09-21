@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using NUnit.Framework;
 using UE4Config.Hierarchy;
+using UE4Config.Parsing;
 
 namespace UE4Config.Tests.Hierarchy
 {
     [TestFixture(typeof(ConfigFileProvider))]
     public class IConfigFileProviderTests<T> where T : IConfigFileProvider, new()
     {
-        protected T NewProvider()
+        protected static T NewProvider()
         {
             return new T();
         }
@@ -119,6 +123,244 @@ namespace UE4Config.Tests.Hierarchy
             
             Assert.That(result, Is.Not.Null);
             Assert.That(String.IsNullOrWhiteSpace(result), Is.False);
+        }
+
+        class MockConfigFileIOAdapter : IConfigFileIOAdapter
+        {
+            public delegate List<string> GetDirectoriesDelegate(string pivotPath);
+            public GetDirectoriesDelegate OnGetDirectories;
+            
+            public delegate StreamReader OpenTextDelegate(string filePath);
+            public OpenTextDelegate OnOpenText = path => StreamReader.Null;
+            
+            public delegate StreamWriter OpenWriteDelegate(string filePath);
+            public OpenWriteDelegate OnOpenWrite = path => StreamWriter.Null;
+                
+            public List<string> GetDirectories(string pivotPath)
+            {
+                return OnGetDirectories(pivotPath);
+            }
+
+            public StreamReader OpenText(string filePath)
+            {
+                return OnOpenText(filePath);
+            }
+
+            public StreamWriter OpenWrite(string filePath)
+            {
+                return OnOpenWrite(filePath);
+            }
+        }
+        
+        [Test]
+        public void LoadOrCreateConfig_ResolvesToFile()
+        {
+            const string configType = "MyConfig";
+            var provider = NewProvider();
+            var ioAdapter = new MockConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
+            var configFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+
+            int openText_CallCount = 0;
+            ioAdapter.OnOpenText = path =>
+            {
+                openText_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(configFileRef)));
+                return StreamReader.Null;
+            };
+            
+            bool wasLoaded = provider.LoadOrCreateConfig(configFileRef, out var config);
+            
+            Assert.That(wasLoaded, Is.True);
+            Assert.That(config, Is.Not.Null);
+            Assert.That(config.Reference, Is.EqualTo(configFileRef));
+            Assert.That(String.IsNullOrWhiteSpace(config.Name), Is.False);
+            Assert.That(openText_CallCount, Is.EqualTo(1));
+        }
+        
+        [Test]
+        public void LoadOrCreateConfig_DirectoryNotFoundException()
+        {
+            const string configType = "MyConfig";
+            var provider = NewProvider();
+            var ioAdapter = new MockConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
+            var configFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+
+            int openText_CallCount = 0;
+            ioAdapter.OnOpenText = path =>
+            {
+                openText_CallCount++;
+                throw new DirectoryNotFoundException();
+            };
+            
+            bool wasLoaded = provider.LoadOrCreateConfig(configFileRef, out var config);
+            
+            Assert.That(wasLoaded, Is.False);
+            Assert.That(config, Is.Not.Null);
+            Assert.That(config.Reference, Is.EqualTo(configFileRef));
+            Assert.That(String.IsNullOrWhiteSpace(config.Name), Is.False);
+            Assert.That(openText_CallCount, Is.EqualTo(1));
+        }
+        
+        [Test]
+        public void LoadOrCreateConfig_FileNotFoundException()
+        {
+            const string configType = "MyConfig";
+            var provider = NewProvider();
+            var ioAdapter = new MockConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
+            var configFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+
+            int openText_CallCount = 0;
+            ioAdapter.OnOpenText = path =>
+            {
+                openText_CallCount++;
+                throw new FileNotFoundException();
+            };
+            
+            bool wasLoaded = provider.LoadOrCreateConfig(configFileRef, out var config);
+            
+            Assert.That(wasLoaded, Is.False);
+            Assert.That(config, Is.Not.Null);
+            Assert.That(config.Reference, Is.EqualTo(configFileRef));
+            Assert.That(String.IsNullOrWhiteSpace(config.Name), Is.False);
+            Assert.That(openText_CallCount, Is.EqualTo(1));
+        }
+        
+        [Test]
+        public void SaveConfig_When_TargetDoesNotExist()
+        {
+            const string configType = "MyConfig";
+            var configFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+            var configIni = new ConfigIni(configType, configFileRef);
+            var content = "[MySection]\nSection=Prop";
+            configIni.Read(new StringReader(content));
+            var provider = NewProvider();
+            var ioAdapter = new MockConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
+            var outputFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+
+            int openWrite_CallCount = 0;
+            int openRead_CallCount = 0;
+            ioAdapter.OnOpenText = path =>
+            {
+                openRead_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(outputFileRef)));
+                throw new FileNotFoundException();
+            };
+            ioAdapter.OnOpenWrite = path =>
+            {
+                openWrite_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(outputFileRef)));
+                return StreamWriter.Null;
+            };
+        
+            provider.SaveConfig(outputFileRef, configIni);
+        
+            Assert.That(openRead_CallCount, Is.EqualTo(1));
+            Assert.That(openWrite_CallCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void SaveConfig_When_OriginalIsNewAndTargetDoesNotExist()
+        {
+            const string configType = "MyConfig";
+            var configFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+            var configIni = new ConfigIni(configType, configFileRef);
+            var provider = NewProvider();
+            var ioAdapter = new MockConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
+            var outputFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+
+            int openWrite_CallCount = 0;
+            int openRead_CallCount = 0;
+            ioAdapter.OnOpenText = path =>
+            {
+                openRead_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(outputFileRef)));
+                return null;
+            };
+            ioAdapter.OnOpenWrite = path =>
+            {
+                openWrite_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(outputFileRef)));
+                return StreamWriter.Null;
+            };
+        
+            provider.SaveConfig(outputFileRef, configIni);
+        
+            Assert.That(openRead_CallCount, Is.EqualTo(1));
+            Assert.That(openWrite_CallCount, Is.EqualTo(0));
+        }
+        
+        [Test]
+        public void SaveConfig_When_TargetHasSameContent()
+        {
+            const string configType = "MyConfig";
+            var configFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+            var configIni = new ConfigIni(configType, configFileRef);
+            var content = "[MySection]\nSection=Prop";
+            configIni.Read(new StringReader(content));
+            var provider = NewProvider();
+            var ioAdapter = new MockConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
+            var outputFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+
+            int openWrite_CallCount = 0;
+            int openRead_CallCount = 0;
+            ioAdapter.OnOpenText = path =>
+            {
+                openRead_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(outputFileRef)));
+                return new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(content)));
+            };
+            ioAdapter.OnOpenWrite = path =>
+            {
+                openWrite_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(outputFileRef)));
+                return StreamWriter.Null;
+            };
+        
+            provider.SaveConfig(outputFileRef, configIni);
+        
+            Assert.That(openRead_CallCount, Is.EqualTo(1));
+            Assert.That(openWrite_CallCount, Is.EqualTo(0));
+        }
+        
+        [Test]
+        public void SaveConfig_When_TargetHasDifferentContent()
+        {
+            const string configType = "MyConfig";
+            var configFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+            var configIni = new ConfigIni(configType, configFileRef);
+            var content = "[MySection]\nSection=Prop";
+            configIni.Read(new StringReader(content));
+            var provider = NewProvider();
+            var ioAdapter = new MockConfigFileIOAdapter();
+            provider.Setup(ioAdapter, "%Engine%", "%Project%");
+            var outputFileRef = new ConfigFileReference(ConfigDomain.Engine, null, configType);
+
+            int openWrite_CallCount = 0;
+            int openRead_CallCount = 0;
+            ioAdapter.OnOpenText = path =>
+            {
+                var differentContent = "[MySection]\nSection=Prop2";
+                openRead_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(outputFileRef)));
+                return new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(differentContent)));
+            };
+            ioAdapter.OnOpenWrite = path =>
+            {
+                openWrite_CallCount++;
+                Assert.That(path, Is.EqualTo(provider.ResolveConfigFilePath(outputFileRef)));
+                return StreamWriter.Null;
+            };
+        
+            provider.SaveConfig(outputFileRef, configIni);
+        
+            Assert.That(openRead_CallCount, Is.EqualTo(1));
+            Assert.That(openWrite_CallCount, Is.EqualTo(1));
         }
     }
 }

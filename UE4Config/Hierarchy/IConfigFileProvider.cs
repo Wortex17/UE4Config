@@ -53,11 +53,6 @@ namespace UE4Config.Hierarchy
         bool LoadOrCreateConfig(ConfigFileReference configFileReference, out ConfigIni configIni);
 
         /// <summary>
-        /// Loads multiple configs from the filesystem, if they exist, or creates a new one for the missing.
-        /// </summary>
-        IList<ConfigIni> LoadOrCreateConfigs(IList<ConfigFileReference> configBranch);
-
-        /// <summary>
         /// Saves a config to the filesystem, overwriting a possibly existing one.
         /// Will not save if there were no meaningful changes.
         /// </summary>

@@ -155,32 +155,34 @@ namespace UE4Config.Hierarchy
             string configFilePath = ResolveConfigFilePath(configFileReference);
             string configFileName = Path.GetFileName(configFilePath);
 
-            configIni = LoadConfig(configFilePath, configFileName);
+            configIni = LoadConfig(configFilePath, configFileName, configFileReference);
             if (configIni == null)
             {
-                configIni = new ConfigIni(configFileName);
+                configIni = new ConfigIni(configFileName, configFileReference);
                 return false;
             }
             return true;
         }
 
-        public IList<ConfigIni> LoadOrCreateConfigs(IList<ConfigFileReference> configBranch)
+        protected ConfigIni LoadConfig(string configFilePath, string configFileName, ConfigFileReference configFileReference)
         {
-            var result = new List<ConfigIni>();
-            foreach (var configFileReference in configBranch)
-            {
-                LoadOrCreateConfig(configFileReference, out var configIni);
-                result.Add(configIni);
-            }
-            return result;
+            StreamReader reader = OpenReaderIfAvailable(configFilePath);
+            if (reader == null)
+                return null;
+            
+            var config = new ConfigIni(configFileName, configFileReference);
+            config.Read(reader);
+            reader.Close();
+            
+            return config;
         }
 
-        protected ConfigIni LoadConfig(string configFilePath, string configFileName)
+        protected StreamReader OpenReaderIfAvailable(string filePath)
         {
             StreamReader reader;
             try
             {
-                reader = FileIOAdapter.OpenText(configFilePath);
+                reader = FileIOAdapter.OpenText(filePath);
             }
             catch (DirectoryNotFoundException)
             {
@@ -190,22 +192,52 @@ namespace UE4Config.Hierarchy
             {
                 return null;
             }
-            
-            var config = new ConfigIni(configFileName);
-            config.Read(reader);
-            reader.Close();
-            
-            return config;
+
+            return reader;
         }
 
         public void SaveConfig(ConfigFileReference configFileReference, ConfigIni configIni)
         {
             string configFilePath = ResolveConfigFilePath(configFileReference);
-            
-            var contentWriter = FileIOAdapter.OpenWrite(configFilePath);
-            var writer = new ConfigIniWriter(contentWriter);
+
+            var previewWriter = new StringWriter();
+            var writer = new ConfigIniWriter(previewWriter);
             configIni.Write(writer);
             writer.ContentWriter.Close();
+
+            var targetContent = WriteConfigToString(configIni);
+            var shouldWrite = false;
+            
+            StreamReader presentConfigReader = OpenReaderIfAvailable(configFilePath);
+            if (presentConfigReader == null)
+            {
+                shouldWrite = !String.IsNullOrWhiteSpace(targetContent);
+            }
+            else
+            {
+                var presentContent = presentConfigReader.ReadToEnd();
+                if (String.CompareOrdinal(targetContent, presentContent) != 0)
+                {
+                    shouldWrite = true;
+                }
+                presentConfigReader.Close();
+            }
+            
+            if (shouldWrite)
+            {
+                var contentWriter = FileIOAdapter.OpenWrite(configFilePath);
+                contentWriter.Write(targetContent);
+                contentWriter.Close();
+            }
+        }
+
+        protected string WriteConfigToString(ConfigIni configIni)
+        {
+            var stringWriter = new StringWriter();
+            var writer = new ConfigIniWriter(stringWriter);
+            configIni.Write(writer);
+            writer.ContentWriter.Close();
+            return stringWriter.ToString();
         }
 
         /// <summary>

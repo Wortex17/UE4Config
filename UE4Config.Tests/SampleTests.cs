@@ -97,18 +97,29 @@ namespace UE4Config.Tests
         [TestCase]
         public void When_ModifyConfigFileByAppend_ConfigTree()
         {
+            try
+            {
+                Directory.Delete(TestUtils.GetTestDataPath("MockProjectTmp"), true);
+            } catch(DirectoryNotFoundException) {}
+            try
+            {
+                Directory.Delete(TestUtils.GetTestDataPath("MockEngineTmp"), true);
+            } catch(DirectoryNotFoundException) {}
+            
+            TestUtils.CopyDirectory(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockProjectTmp"), true);
+            TestUtils.CopyDirectory(TestUtils.GetTestDataPath("MockEngine"), TestUtils.GetTestDataPath("MockEngineTmp"), true);
+            
             //Create a new config hierarchy, with paths to the engine as well as the project directory
             var configProvider = new ConfigFileProvider();
-            configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockEngine"));
+            configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockProjectTmp"), TestUtils.GetTestDataPath("MockEngineTmp"));
             configProvider.AutoDetectPlatformsUsingLegacyConfig();
-            var configTree = new ConfigTreeUE427();
-            configTree.Setup(configProvider);
+            var configRefTree = new ConfigTreeUE427();
+            configRefTree.Setup(configProvider);
+            var configTree = new VirtualConfigTree(configRefTree);
 
             //Acquire the target config ("Game" on Platform "Windows") we want to modify
-            var configBranch = configTree.GetConfigBranch("Game", "Windows");
-            //var configFileReference = configBranch.SelectConfig(ConfigHierarchyLevel.ProjectPlatformCategory);
-            var configFileReference = configBranch.SelectHeadConfig(ConfigDomain.EngineBase);
-            configTree.FileProvider.LoadOrCreateConfig(configFileReference, out var config);
+            var configBranch = configTree.FetchConfigBranch("Game", "Windows");
+            var config = configBranch.SelectHeadConfig(ConfigDomain.Engine);
 
             //We modify the config by just appending further configuration which will redefine properties
             config.AppendRawText("[Global]\n" +
@@ -122,11 +133,11 @@ namespace UE4Config.Tests
             config.CondenseWhitespace();
 
             //Publish the config and write it back
-            configTree.FileProvider.SaveConfig(configFileReference, config);
+            configTree.PublishConfig(config);
 
             //Make sure the modified value made it in
             var win64Values = new List<string>();
-            PropertyEvaluator.Default.EvaluatePropertyValues(configTree.FileProvider.LoadOrCreateConfigs(configBranch), "Global", "GUIDs", win64Values);
+            PropertyEvaluator.Default.EvaluatePropertyValues(configBranch, "Global", "GUIDs", win64Values);
             //configBranch.EvaluatePropertyValues("Global", "GUIDs", win64Values);
             Assert.That(win64Values, Is.EquivalentTo(new[]
             {

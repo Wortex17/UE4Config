@@ -38,9 +38,25 @@ namespace UE4Config.Tests.Hierarchy
             {
                 Assert.That(() =>
                 {
-                    var configFileReference = new ConfigFileReference(ConfigDomain.None, null, "  ");
+                    var configFileReference = new ConfigFileReference(ConfigDomain.None, null, type);
                 }, Throws.ArgumentException);
             }
+        }
+        
+        [Test]
+        public void IsPlatformConfig_WhenNoPlatform()
+        {
+            var configFileReference = new ConfigFileReference(ConfigDomain.Engine, null, "MyConfig");
+                
+            Assert.That(configFileReference.IsPlatformConfig, Is.False);
+        }
+        
+        [Test]
+        public void IsPlatformConfig_WhenPlatform()
+        {
+            var configFileReference = new ConfigFileReference(ConfigDomain.Engine, new ConfigPlatform("MyPlatform"), "MyConfig");
+                
+            Assert.That(configFileReference.IsPlatformConfig, Is.True);
         }
     }
 }
