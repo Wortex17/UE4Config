@@ -297,6 +297,8 @@ namespace UE4Config.Parsing
 
                 section.Write(writer);
             }
+            //Make sure to flush once we're done
+            writer.ContentWriter.Flush();
         }
 
         public void EvaluatePropertyValues(string sectionName, string propertyKey, IList<string> values, PropertyEvaluator evaluator = null)
