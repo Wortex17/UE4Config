@@ -30,7 +30,7 @@ namespace UE4Config.Hierarchy
             if (index >= 0)
                 return configBranch[index];
 
-            return default;
+            return default(ConfigFileReference);
         }
         
         public static ConfigIni SelectHeadConfig(this IReadOnlyList<ConfigIni> configBranch, ConfigDomain configDomain, ConfigBranchPlatformSelector platformSelector = ConfigBranchPlatformSelector.NoneOrAny, string specifcPlatformIdentifier = null)
@@ -39,7 +39,7 @@ namespace UE4Config.Hierarchy
             if (index >= 0)
                 return configBranch[index];
 
-            return default;
+            return default(ConfigIni);
         }
 
         private static int FindHeadConfigIndex(this IReadOnlyList<ConfigFileReference> configBranch, ConfigDomain configDomain, ConfigBranchPlatformSelector platformSelector, string specifcPlatformIdentifier)
