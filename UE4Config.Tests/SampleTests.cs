@@ -16,7 +16,7 @@ namespace UE4Config.Tests
         [TestCase]
         public void When_ReadConfig_DefaultGame()
         {
-            //Create a new config with a name for identification
+            //Create a new virtual config with a name for identification
             var config = new ConfigIni("DefaultGame");
 
             //Load the configs contents from a file
@@ -109,17 +109,24 @@ namespace UE4Config.Tests
             TestUtils.CopyDirectory(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockProjectTmp"), true);
             TestUtils.CopyDirectory(TestUtils.GetTestDataPath("MockEngine"), TestUtils.GetTestDataPath("MockEngineTmp"), true);
             
-            //Create a new config hierarchy, with paths to the engine as well as the project directory
+            //Create a new config tree.
+            //This will provide paths and a virtual hierarchy for a project+engine base path combination
             var configProvider = new ConfigFileProvider();
-            configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockProjectTmp"), TestUtils.GetTestDataPath("MockEngineTmp"));
+            configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));
+            //Auto-detect if a project still uses the legacy Config/{Platform}/*.ini setup.
             configProvider.AutoDetectPlatformsUsingLegacyConfig();
-            var configRefTree = new ConfigTreeUE427();
+            //Create the base tree model, based on the config hierarchy used by UE since 4.27+
+            var configRefTree = new ConfigReferenceTree427();
             configRefTree.Setup(configProvider);
+            //Create a virtual config tree to allow us working with an in-memory virtual hierarchy
             var configTree = new VirtualConfigTree(configRefTree);
 
             //Acquire the target config ("Game" on Platform "Windows") we want to modify
+            //Select the trees branch first, by providing a config category and the platform we're branching on
             var configBranch = configTree.FetchConfigBranch("Game", "Windows");
-            var config = configBranch.SelectHeadConfig(ConfigDomain.Engine);
+            //Select the head config on that branch that is still in "Engine" domain
+            var config = configBranch.SelectHeadConfig(ConfigDomain.Project);
+            //This will be the {Project}/Config/Windows/WindowsGame.ini
 
             //We modify the config by just appending further configuration which will redefine properties
             config.AppendRawText("[Global]\n" +
@@ -127,18 +134,18 @@ namespace UE4Config.Tests
             //Here we use the config ini syntax to add another value to the list
 
             //Cleanup the config before publishing it
-            config.NormalizeLineEndings();
-            config.MergeDuplicateSections();
-            config.GroupPropertyInstructions();
-            config.CondenseWhitespace();
+            config.Cleanup();
 
             //Publish the config and write it back
             configTree.PublishConfig(config);
 
-            //Make sure the modified value made it in
+            //Make sure the modified value made it into the file:
+            //Invalidate our cache to reload the branch from disk
+            configTree.ConfigsCache.InvalidateCache();
+            configBranch = configTree.FetchConfigBranch("Game", "Windows");
+            //Resolve the value on the branch
             var win64Values = new List<string>();
             PropertyEvaluator.Default.EvaluatePropertyValues(configBranch, "Global", "GUIDs", win64Values);
-            //configBranch.EvaluatePropertyValues("Global", "GUIDs", win64Values);
             Assert.That(win64Values, Is.EquivalentTo(new[]
             {
                 "a44b",

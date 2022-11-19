@@ -10,7 +10,7 @@ namespace UE4Config.Hierarchy
         /// </summary>
         List<string> GetDirectories(string pivotPath);
 
-        StreamReader OpenText(string filePath);
+        StreamReader OpenRead(string filePath);
         
         StreamWriter OpenWrite(string filePath);
     }

@@ -8,7 +8,7 @@ namespace UE4Config.Tests.Hierarchy
     [TestFixture]
     public class IConfigTreeExtensionsTests
     {
-        class TestConfigTree : IConfigTree
+        class TestConfigReferenceTree : IConfigReferenceTree
         {
             public Action<Action<ConfigFileReference>> OnVisitConfigRoot;
             public IConfigFileProvider FileProvider { get; private set; }
@@ -43,7 +43,7 @@ namespace UE4Config.Tests.Hierarchy
         [Test]
         public void GetConfigRoot()
         {
-            var tree = new TestConfigTree();
+            var tree = new TestConfigReferenceTree();
             var expectedResult = new ConfigFileReference(ConfigDomain.None, new ConfigPlatform("MyPlatform"), "MyConfig");
             int onVisitConfigRootCount = 0;
             tree.OnVisitConfigRoot = action =>
@@ -52,7 +52,7 @@ namespace UE4Config.Tests.Hierarchy
                 action(expectedResult);
             };
             
-            ConfigFileReference? result = IConfigTreeExtensions.GetConfigRoot(tree);
+            ConfigFileReference? result = IConfigReferenceTreeExtensions.GetConfigRoot(tree);
             
             Assert.That(onVisitConfigRootCount, Is.EqualTo(1));
             Assert.That(result, Is.EqualTo(expectedResult));
@@ -61,14 +61,14 @@ namespace UE4Config.Tests.Hierarchy
         [Test]
         public void GetConfigRoot_WithoutCallback()
         {
-            var tree = new TestConfigTree();
+            var tree = new TestConfigReferenceTree();
             int onVisitConfigRootCount = 0;
             tree.OnVisitConfigRoot = action =>
             {
                 onVisitConfigRootCount++;
             };
             
-            ConfigFileReference? result = IConfigTreeExtensions.GetConfigRoot(tree);
+            ConfigFileReference? result = IConfigReferenceTreeExtensions.GetConfigRoot(tree);
             
             Assert.That(onVisitConfigRootCount, Is.EqualTo(1));
             Assert.That(result, Is.Null);
@@ -77,7 +77,7 @@ namespace UE4Config.Tests.Hierarchy
         [Test]
         public void GetConfigBranch()
         {
-            var tree = new TestConfigTree();
+            var tree = new TestConfigReferenceTree();
             var expectedConfigType = "MyConfig";
             var expectedPlatformIdentifier = "MyPlatform";
             var expectedResult = new List<ConfigFileReference>();
@@ -89,7 +89,7 @@ namespace UE4Config.Tests.Hierarchy
                 action(configFileReference);
             };
             
-            var result = IConfigTreeExtensions.GetConfigBranch(tree, expectedConfigType, expectedPlatformIdentifier);
+            var result = IConfigReferenceTreeExtensions.GetConfigBranch(tree, expectedConfigType, expectedPlatformIdentifier);
             
             Assert.That(result, Is.EquivalentTo(expectedResult));
             Assert.That(
@@ -103,12 +103,12 @@ namespace UE4Config.Tests.Hierarchy
         [Test]
         public void GetConfigBranch_WithoutCallback()
         {
-            var tree = new TestConfigTree();
+            var tree = new TestConfigReferenceTree();
             tree.OnVisitConfigBranch = (configType, platformIdentifier, action) =>
             {
             };
             
-            var result = IConfigTreeExtensions.GetConfigBranch(tree, "MyConfig", "MyPlatform");
+            var result = IConfigReferenceTreeExtensions.GetConfigBranch(tree, "MyConfig", "MyPlatform");
             
             Assert.That(result, Is.Empty);
         }

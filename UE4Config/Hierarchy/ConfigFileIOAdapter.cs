@@ -13,7 +13,7 @@ namespace UE4Config.Hierarchy
             return new List<string>(Directory.GetDirectories(pivotPath));
         }
 
-        public StreamReader OpenText(string filePath)
+        public StreamReader OpenRead(string filePath)
         {
             return File.OpenText(filePath);
         }

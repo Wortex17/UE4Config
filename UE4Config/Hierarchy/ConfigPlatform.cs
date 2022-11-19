@@ -1,5 +1,8 @@
 ﻿namespace UE4Config.Hierarchy
 {
+    /// <summary>
+    /// Default implementation of an <see cref="IConfigPlatform"/>
+    /// </summary>
     public class ConfigPlatform : IConfigPlatform
     {
         public string Identifier { get; }

@@ -12,10 +12,9 @@ namespace UE4Config.Hierarchy
     /// This does not support layer-hierarchies below UE427+
     /// This does not yet support user-layers
     /// </remarks>
-    /// TODO: Rename this to ConfigReferenceTree
     // TODO: Add support for DataDrivenPlatformInfo.ini to generate platforms
     // TODO: Add support for (DataDrivenPlatformInfo:IniParent) to setup platform hierarchy
-    public class ConfigTreeUE427 : IConfigTree
+    public class ConfigReferenceTree427 : IConfigReferenceTree
     {
         public IConfigFileProvider FileProvider { get; private set; }
 

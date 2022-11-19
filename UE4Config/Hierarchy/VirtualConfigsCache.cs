@@ -3,6 +3,9 @@ using UE4Config.Parsing;
 
 namespace UE4Config.Hierarchy
 {
+    /// <summary>
+    /// Stores multiple <see cref="VirtualConfigCache"/> based on their <see cref="ConfigFileReference"/>
+    /// </summary>
     public class VirtualConfigsCache
     {
         public VirtualConfigCache Peek(ConfigFileReference configFileReference)

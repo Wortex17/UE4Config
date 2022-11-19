@@ -12,7 +12,7 @@ namespace UE4Config.Hierarchy
     /// This does not support layer-hierarchies below UE427+
     /// This does not yet support user-layers
     /// </remarks>
-    public interface IConfigTree
+    public interface IConfigReferenceTree
     {
         IConfigFileProvider FileProvider { get; }
         void Setup(IConfigFileProvider configFileProvider);
@@ -22,19 +22,19 @@ namespace UE4Config.Hierarchy
         IConfigPlatform RegisterPlatform(string platformIdentifier, IConfigPlatform parentPlatform = null);
     }
     
-    public static class IConfigTreeExtensions
+    public static class IConfigReferenceTreeExtensions
     {
-        public static ConfigFileReference? GetConfigRoot(this IConfigTree configTree)
+        public static ConfigFileReference? GetConfigRoot(this IConfigReferenceTree configReferenceTree)
         {
             ConfigFileReference? result = null;
-            configTree.VisitConfigRoot(reference => result = reference);
+            configReferenceTree.VisitConfigRoot(reference => result = reference);
             return result;
         }
         
-        public static List<ConfigFileReference> GetConfigBranch(this IConfigTree configTree, string configType, string platformIdentifier)
+        public static List<ConfigFileReference> GetConfigBranch(this IConfigReferenceTree configReferenceTree, string configType, string platformIdentifier)
         {
             var result = new List<ConfigFileReference>();
-            configTree.VisitConfigBranch(configType, platformIdentifier, reference => result.Add(reference));
+            configReferenceTree.VisitConfigBranch(configType, platformIdentifier, reference => result.Add(reference));
             return result;
         }
     }

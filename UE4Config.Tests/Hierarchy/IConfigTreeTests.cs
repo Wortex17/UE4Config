@@ -5,8 +5,8 @@ using UE4Config.Hierarchy;
 
 namespace UE4Config.Tests.Hierarchy
 {
-    [TestFixture(typeof(ConfigTreeUE427))]
-    public class IConfigTreeTests<T> where T : IConfigTree, new()
+    [TestFixture(typeof(ConfigReferenceTree427))]
+    public class IConfigTreeTests<T> where T : IConfigReferenceTree, new()
     {
         protected T NewTree()
         {

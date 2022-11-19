@@ -74,3 +74,52 @@ Assert.That(engineDefaultWin64Values, Is.EquivalentTo(new[]
 }));
 
 ```
+
+### Modify configs in a config hierarchy
+You can use the virtual config tree to work with config files in memory
+and save them to disk after making modifications.
+```C#
+//Create a new config tree.
+//This will provide paths and a virtual hierarchy for a project+engine base path combination
+var configProvider = new ConfigFileProvider();
+configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));
+//Auto-detect if a project still uses the legacy Config/{Platform}/*.ini setup.
+configProvider.AutoDetectPlatformsUsingLegacyConfig();
+//Create the base tree model, based on the config hierarchy used by UE since 4.27+
+var configRefTree = new ConfigReferenceTree427();
+configRefTree.Setup(configProvider);
+//Create a virtual config tree to allow us working with an in-memory virtual hierarchy
+var configTree = new VirtualConfigTree(configRefTree);
+
+//Acquire the target config ("Game" on Platform "Windows") we want to modify
+//Select the trees branch first, by providing a config category and the platform we're branching on
+var configBranch = configTree.FetchConfigBranch("Game", "Windows");
+//Select the head config on that branch that is still in "Engine" domain
+var config = configBranch.SelectHeadConfig(ConfigDomain.Project);
+//This will be the {Project}/Config/Windows/WindowsGame.ini
+
+//We modify the config by just appending further configuration which will redefine properties
+config.AppendRawText("[Global]\n" +
+                     "+GUIDs=modifieda44d");
+//Here we use the config ini syntax to add another value to the list
+
+//Cleanup the config before publishing it
+config.Cleanup();
+
+//Publish the config and write it back
+configTree.PublishConfig(config);
+
+//Make sure the modified value made it into the file:
+//Invalidate our cache to reload the branch from disk
+configTree.ConfigsCache.InvalidateCache();
+configBranch = configTree.FetchConfigBranch("Game", "Windows");
+//Resolve the value on the branch
+var win64Values = new List<string>();
+PropertyEvaluator.Default.EvaluatePropertyValues(configBranch, "Global", "GUIDs", win64Values);
+Assert.That(win64Values, Is.EquivalentTo(new[]
+{
+    "a44b",
+    "modifieda44d"
+}));
+
+```

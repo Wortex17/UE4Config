@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UE4Config.Evaluation;
 using UE4Config.Parsing;
 
@@ -7,6 +8,7 @@ namespace UE4Config.Hierarchy
     /// <remarks>
     /// STUB
     /// </remarks>
+    [Obsolete]
     public abstract class ConfigHierarchy
     {
         /// <summary>

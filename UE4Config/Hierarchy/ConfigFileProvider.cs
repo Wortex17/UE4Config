@@ -6,8 +6,8 @@ using UE4Config.Parsing;
 namespace UE4Config.Hierarchy
 {
     /// <summary>
-    /// Translates ConfigFileReferences to file paths as use din UE4.27+ and above.
-    /// Supports legacy config file paths, but assumes modern ones as default.
+    /// Translates ConfigFileReferences to file paths as used in UE4.27+ and above.
+    /// Supports legacy platform config file paths, but assumes modern platform setups as default.
     /// </summary>
     public class ConfigFileProvider : IConfigFileProvider
     {
@@ -182,7 +182,7 @@ namespace UE4Config.Hierarchy
             StreamReader reader;
             try
             {
-                reader = FileIOAdapter.OpenText(filePath);
+                reader = FileIOAdapter.OpenRead(filePath);
             }
             catch (DirectoryNotFoundException)
             {

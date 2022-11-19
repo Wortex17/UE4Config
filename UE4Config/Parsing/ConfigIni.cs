@@ -410,5 +410,16 @@ namespace UE4Config.Parsing
                 pivotSection.NormalizeLineEndings(lineEnding);
             }
         }
+
+        /// <summary>
+        /// Utility method to call common cleanup routines in the correct order
+        /// </summary>
+        public void Cleanup()
+        {
+            NormalizeLineEndings();
+            MergeDuplicateSections();
+            GroupPropertyInstructions();
+            CondenseWhitespace();
+        }
     }
 }

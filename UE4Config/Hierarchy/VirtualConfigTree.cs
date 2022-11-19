@@ -10,11 +10,11 @@ namespace UE4Config.Hierarchy
     /// </summary>
     public class VirtualConfigTree
     {
-        public IConfigTree ReferenceTree { get; private set; }
+        public IConfigReferenceTree ReferenceTree { get; private set; }
         public IConfigFileProvider FileProvider => ReferenceTree.FileProvider;
         public VirtualConfigsCache ConfigsCache { get; private set; }
 
-        public VirtualConfigTree(IConfigTree referenceTree)
+        public VirtualConfigTree(IConfigReferenceTree referenceTree)
         {
             ReferenceTree = referenceTree;
             ConfigsCache = new VirtualConfigsCache();

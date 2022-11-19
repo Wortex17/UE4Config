@@ -47,13 +47,13 @@ namespace UE4Config.Tests.Hierarchy
         public void Constructor()
         {
             var configFileProvider = new MockConfigFileProvider();
-            var configTree = new ConfigTreeUE427();
-            configTree.Setup(configFileProvider);
+            var configRefTree = new ConfigReferenceTree427();
+            configRefTree.Setup(configFileProvider);
             
-            var virtualConfigTree = new VirtualConfigTree(configTree);
+            var virtualConfigTree = new VirtualConfigTree(configRefTree);
 
-            Assert.That(virtualConfigTree.ReferenceTree, Is.SameAs(configTree));
-            Assert.That(virtualConfigTree.FileProvider, Is.SameAs(configTree.FileProvider));
+            Assert.That(virtualConfigTree.ReferenceTree, Is.SameAs(configRefTree));
+            Assert.That(virtualConfigTree.FileProvider, Is.SameAs(configRefTree.FileProvider));
             Assert.That(virtualConfigTree.ConfigsCache, Is.Not.Null);
         }
         
@@ -61,9 +61,9 @@ namespace UE4Config.Tests.Hierarchy
         public void FetchConfigRoot()
         {
             var configFileProvider = new MockConfigFileProvider();
-            var configTree = new ConfigTreeUE427();
-            configTree.Setup(configFileProvider);
-            var virtualConfigTree = new VirtualConfigTree(configTree);
+            var configRefTree = new ConfigReferenceTree427();
+            configRefTree.Setup(configFileProvider);
+            var virtualConfigTree = new VirtualConfigTree(configRefTree);
             var rootConfig = new ConfigIni();
             virtualConfigTree.ConfigsCache.Peek((ConfigFileReference)virtualConfigTree.ReferenceTree.GetConfigRoot()).SetConfigIni(rootConfig, true);
             
@@ -76,10 +76,10 @@ namespace UE4Config.Tests.Hierarchy
         public void FetchConfigBranch()
         {
             var configFileProvider = new MockConfigFileProvider();
-            var configTree = new ConfigTreeUE427();
-            configTree.Setup(configFileProvider);
-            var virtualConfigTree = new VirtualConfigTree(configTree);
-            var refBranch = configTree.GetConfigBranch("MyConfig", null);
+            var configRefTree = new ConfigReferenceTree427();
+            configRefTree.Setup(configFileProvider);
+            var virtualConfigTree = new VirtualConfigTree(configRefTree);
+            var refBranch = configRefTree.GetConfigBranch("MyConfig", null);
             var expectedBranch = new List<ConfigIni>();
             foreach (var refBranchItem in refBranch)
             {
@@ -97,9 +97,9 @@ namespace UE4Config.Tests.Hierarchy
         public void PublishConfig()
         {
             var configFileProvider = new MockConfigFileProvider();
-            var configTree = new ConfigTreeUE427();
-            configTree.Setup(configFileProvider);
-            var virtualConfigTree = new VirtualConfigTree(configTree);
+            var configRefTree = new ConfigReferenceTree427();
+            configRefTree.Setup(configFileProvider);
+            var virtualConfigTree = new VirtualConfigTree(configRefTree);
             var configFileReference = new ConfigFileReference(ConfigDomain.Project, null, "MyConfig");
             var editConfig = new ConfigIni("MyConfig", configFileReference);
             editConfig.AppendRawText("foobar"); //Make the config contain anything

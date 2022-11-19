@@ -141,7 +141,7 @@ namespace UE4Config.Tests.Hierarchy
                 return OnGetDirectories(pivotPath);
             }
 
-            public StreamReader OpenText(string filePath)
+            public StreamReader OpenRead(string filePath)
             {
                 return OnOpenText(filePath);
             }

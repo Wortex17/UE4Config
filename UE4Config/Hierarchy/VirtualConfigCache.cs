@@ -4,6 +4,9 @@ using UE4Config.Parsing;
 
 namespace UE4Config.Hierarchy
 {
+    /// <summary>
+    /// Wraps a single possibly cached <see cref="ConfigIni"/>
+    /// </summary>
     public class VirtualConfigCache
     {
         public enum ConfigFileState
