@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UE4Config.Parsing;
 
 namespace UE4Config.Hierarchy

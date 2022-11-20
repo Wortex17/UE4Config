@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using UE4Config.Hierarchy;
 
 namespace UE4Config.Tests.Hierarchy
