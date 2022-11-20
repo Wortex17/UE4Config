@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using UE4Config.Parsing;
 
 namespace UE4Config.Tests.Parsing

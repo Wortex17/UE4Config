@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace UE4Config.Parsing
+﻿namespace UE4Config.Parsing
 {
     public class InstructionToken : LineToken
     {

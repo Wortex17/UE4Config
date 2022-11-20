@@ -10,6 +10,7 @@ namespace UE4Config.Hierarchy
     /// Helps load config files in hierarchical chains, emulating the Unreal Engine toolset.
     /// Allows fetching specific configs as well as evaluating a propertys values at any level of the hierarchy.
     /// </remarks>
+    [Obsolete]
     public class FileConfigHierarchy : ConfigHierarchy
     {
         /// <summary>
