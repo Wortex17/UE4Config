@@ -66,5 +66,10 @@ namespace UE4Config.Parsing
                     break;
             }
         }
+        
+        public static void WriteTo(this LineEnding lineEnding, ConfigIniWriter writer)
+        {
+            writer.WriteLineEnding(lineEnding);
+        }
     }
 }

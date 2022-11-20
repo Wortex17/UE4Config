@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 
 namespace UE4Config.Parsing
 {
@@ -41,7 +40,14 @@ namespace UE4Config.Parsing
             AddLines(lines, lineEnding);
         }
 
-        public override void Write(TextWriter writer)
+        public override IniToken CreateClone()
+        {
+            var clone = base.CreateClone() as MultilineToken;
+            clone.Lines.AddRange(Lines);
+            return clone;
+        }
+
+        public override void Write(ConfigIniWriter writer)
         {
             foreach (var line in Lines)
             {

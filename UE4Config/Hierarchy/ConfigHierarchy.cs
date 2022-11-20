@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UE4Config.Evaluation;
 using UE4Config.Parsing;
 
@@ -7,6 +8,7 @@ namespace UE4Config.Hierarchy
     /// <remarks>
     /// STUB
     /// </remarks>
+    [Obsolete]
     public abstract class ConfigHierarchy
     {
         /// <summary>
@@ -80,6 +82,57 @@ namespace UE4Config.Hierarchy
         public void GetConfigs(string category, IList<ConfigIni> configs)
         {
             GetConfigs(category, ConfigHierarchyLevelRange.All(), configs);
+        }
+        
+        /// <summary>
+        /// Publishes a new config or replaces a previous one as the factual one
+        /// </summary>
+        public abstract void PublishConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config);
+
+        /// <summary>
+        /// Publishes a new config or replaces a previous one as the factual one for the default platform
+        /// <seealso cref="PublishConfig(string,string,UE4Config.Hierarchy.ConfigHierarchyLevel,UE4Config.Parsing.ConfigIni)"/>
+        /// </summary>
+        public void PublishConfig(string category, ConfigHierarchyLevel level, ConfigIni config)
+        {
+            PublishConfig(DefaultPlatform, category, level, config);
+        }
+
+        /// <summary>
+        /// Creates the platform config of the given <see cref="category"/> and the given <see cref="level"/>.
+        /// Will not automatically save/write the config, so it needs to be saved before the next Get can be sure to return it.
+        /// </summary>
+        public abstract ConfigIni CreateConfig(string platform, string category, ConfigHierarchyLevel level);
+
+        /// <summary>
+        /// Gets the platform config of the given <see cref="category"/> and the given <see cref="level"/>, creating it
+        /// if it doesn't exist yet.
+        /// <seealso cref="GetConfig(string,string,UE4Config.Hierarchy.ConfigHierarchyLevel)"/>
+        /// <seealso cref="CreateConfig(string,string,UE4Config.Hierarchy.ConfigHierarchyLevel)"/>
+        /// </summary>
+        public ConfigIni GetOrCreateConfig(string platform, string category, ConfigHierarchyLevel level, out bool wasCreated)
+        {
+            ConfigIni config = GetConfig(platform, category, level);
+            if (config == null)
+            {
+                config = CreateConfig(platform, category, level);
+                wasCreated = true;
+            }
+            else
+            {
+                wasCreated = false;
+            }
+            return config;
+        }
+        
+        /// <summary>
+        /// Returns the default config of the given <see cref="category"/> and the given <see cref="level"/>, if available.
+        /// Returns null otherwise.
+        /// <seealso cref="GetOrCreateConfig(string,string,UE4Config.Hierarchy.ConfigHierarchyLevel,out bool)"/>
+        /// </summary>
+        public ConfigIni GetOrCreateConfig(string category, ConfigHierarchyLevel level, out bool wasCreated)
+        {
+            return GetOrCreateConfig(DefaultPlatform, category, level, out wasCreated);
         }
 
         /// <summary>

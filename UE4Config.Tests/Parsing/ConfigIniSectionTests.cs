@@ -80,7 +80,7 @@ namespace UE4Config.Tests.Parsing
             {
                 public List<IniToken> Write_CallLog;
 
-                public override void Write(TextWriter writer)
+                public override void Write(ConfigIniWriter writer)
                 {
                     Write_CallLog?.Add(this);
                 }
@@ -95,7 +95,7 @@ namespace UE4Config.Tests.Parsing
                 var spyToken2 = new SpyIniToken() { Write_CallLog = callLog };
                 spySection.Tokens.Add(spyToken1);
                 spySection.Tokens.Add(spyToken2);
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 spySection.WriteTokens(writer);
                 Assert.That(callLog, Is.EquivalentTo(new[] { spyToken1 , spyToken2}));
             }
@@ -110,7 +110,7 @@ namespace UE4Config.Tests.Parsing
                 spySection.Tokens.Add(spyToken1);
                 spySection.Tokens.Add(null);
                 spySection.Tokens.Add(spyToken2);
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 spySection.WriteTokens(writer);
                 Assert.That(spySection.Tokens, Has.Count.EqualTo(3));
                 Assert.That(callLog, Is.EquivalentTo(new[] { spyToken1, spyToken2 }));
@@ -124,7 +124,7 @@ namespace UE4Config.Tests.Parsing
             {
                 public int WriteTokens_CallCount;
 
-                public override void WriteTokens(TextWriter writer)
+                public override void WriteTokens(ConfigIniWriter writer)
                 {
                     WriteTokens_CallCount++;
                     base.WriteTokens(writer);
@@ -135,7 +135,7 @@ namespace UE4Config.Tests.Parsing
             public void Does_RelayCalls()
             {
                 var spySection = new SpyConfigIniSection();
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 spySection.Write(writer);
                 Assert.That(spySection.WriteTokens_CallCount, Is.EqualTo(1));
             }
@@ -203,12 +203,57 @@ namespace UE4Config.Tests.Parsing
             [TestCaseSource(nameof(Cases_WriteHeader))]
             public void WriteHeader(ConfigIniSection section, string expectedText)
             {
-                var writer = new StringWriter();
+                var writer = new ConfigIniWriter(new StringWriter());
                 section.WriteHeader(writer);
                 Assert.That(writer.ToString(), Is.EqualTo(expectedText));
             }
         }
 
+        [TestFixture]
+        class Clone
+        {
+            [Test]
+            public void When_CloningIniSection()
+            {
+                var section = new ConfigIniSection();
+                section.LineWastePrefix = "AAA";
+                section.LineWasteSuffix = "BBB";
+                section.Name = "MySection";
+                section.LineEnding = LineEnding.Unix;
+                var token1 = new WhitespaceToken(new[] { "", "\t", "  " }, LineEnding.None);
+                var token2 = new InstructionToken(InstructionType.Add, "MyKey", "MyVal");
+                var token3 = new CommentToken();
+                token3.AddLine("What a nice", LineEnding.Mac);
+                token3.AddLine("Day", LineEnding.Unix);
+                var token4 = new TextToken {Text = "SomeGarbageText", LineEnding = LineEnding.Windows};
+                section.Tokens.Add(token1);
+                section.Tokens.Add(token2);
+                section.Tokens.Add(token3);
+                section.Tokens.Add(token4);
+
+                var clone = ConfigIniSection.Clone(section);
+
+                Assert.That(clone, Is.Not.SameAs(section));
+                Assert.That(clone.Tokens.Count, Is.EqualTo(section.Tokens.Count));
+                for(int t = 0; t < clone.Tokens.Count; t++)
+                {
+                    var originToken = section.Tokens[t];
+                    var cloneToken = clone.Tokens[t];
+
+                    Assert.That(cloneToken, Is.Not.SameAs(originToken));
+                    Assert.That(cloneToken.GetType(), Is.EqualTo(originToken.GetType()));
+                }
+
+                var originWriter = new ConfigIniWriter(new StringWriter());
+                var cloneWriter = new ConfigIniWriter(new StringWriter());
+
+                section.Write(originWriter);
+                clone.Write(cloneWriter);
+
+                Assert.That(cloneWriter.ToString(), Is.EqualTo(originWriter.ToString()));
+
+            }
+        }
 
         [TestFixture]
         class MergeConsecutiveTokens
@@ -345,6 +390,36 @@ namespace UE4Config.Tests.Parsing
                 Assert.That(token1.GetStringLines(), Is.EquivalentTo(new[] { "; Hey", ";Whats", " ;Up?" }));
                 Assert.That(token2.GetStringLines(), Is.EquivalentTo(new[] { " ", "\t", "", " \t\t" }));
                 Assert.That(token4.GetStringLines(), Is.EquivalentTo(new[] { ";Baz" }));
+            }
+        }
+
+        [TestFixture]
+        class NormalizeLineEndings
+        {
+            [TestCase(LineEnding.None)]
+            [TestCase(LineEnding.Unix)]
+            [TestCase(LineEnding.Mac)]
+            [TestCase(LineEnding.Windows)]
+            [TestCase(LineEnding.Unknown)]
+            public void When_ChangingToSpecificLineEnding(LineEnding targetLineEnding)
+            {
+                var section = new ConfigIniSection();
+                section.LineEnding = LineEnding.Mac;
+                var token1 = new InstructionToken(InstructionType.Add, "InstA", LineEnding.Windows);
+                var token2 = new WhitespaceToken(new[] { " \t\t", " " }, LineEnding.None);
+                var token3 = new CommentToken(new[] { ";Baz", "OO" }, LineEnding.Unix);
+                section.Tokens.Add(token1);
+                section.Tokens.Add(token2);
+                section.Tokens.Add(token3);
+
+                section.NormalizeLineEndings(targetLineEnding);
+
+                Assert.That(section.LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token1.LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token2.Lines[0].LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token2.Lines[1].LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token3.Lines[0].LineEnding, Is.EqualTo(targetLineEnding));
+                Assert.That(token3.Lines[1].LineEnding, Is.EqualTo(targetLineEnding));
             }
         }
     }

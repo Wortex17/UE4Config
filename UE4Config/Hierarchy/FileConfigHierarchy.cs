@@ -10,6 +10,7 @@ namespace UE4Config.Hierarchy
     /// Helps load config files in hierarchical chains, emulating the Unreal Engine toolset.
     /// Allows fetching specific configs as well as evaluating a propertys values at any level of the hierarchy.
     /// </remarks>
+    [Obsolete]
     public class FileConfigHierarchy : ConfigHierarchy
     {
         /// <summary>
@@ -49,6 +50,23 @@ namespace UE4Config.Hierarchy
                 config = GetCachedConfig(platform, category, level);
             }
 
+            return config;
+        }
+
+        public override void PublishConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config)
+        {
+            CacheConfig(platform, category, level, config);
+            SaveConfig(platform, category, level, config);
+        }
+
+        public override ConfigIni CreateConfig(string platform, string category, ConfigHierarchyLevel level)
+        {
+            var filePath = GetConfigFilePath(platform, category, level);
+            if (filePath == null)
+                return null;
+
+            ConfigIni config = new ConfigIni(filePath);
+            CacheConfig(platform, category, level, config);
             return config;
         }
 
@@ -144,6 +162,16 @@ namespace UE4Config.Hierarchy
             config.Read(reader);
             reader.Close();
             return config;
+        }
+
+        protected virtual void SaveConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config)
+        {
+            var filePath = GetConfigFilePath(platform, category, level);
+            FileStream fileStream;
+            fileStream = File.OpenWrite(filePath);
+            var writer = new ConfigIniWriter(new StreamWriter(fileStream));
+            config.Write(writer);
+            writer.ContentWriter.Close();
         }
 
         protected virtual void CacheConfig(string platform, string category, ConfigHierarchyLevel level, ConfigIni config)

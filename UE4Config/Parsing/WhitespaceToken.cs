@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace UE4Config.Parsing
@@ -13,19 +13,23 @@ namespace UE4Config.Parsing
         public WhitespaceToken(IEnumerable<string> lines, LineEnding lineEnding) : base(lines, lineEnding) { }
 
         /// <summary>
-        /// Condenses the whitespace to a single newline
+        /// Condenses the whitespace to a single empty line
         /// </summary>
         public void Condense()
         {
-            Condense(Environment.NewLine);
-        }
-
-        public void Condense(string newline)
-        {
+            //Look for any lineEnding to take over
+            LineEnding condensedLineEnding = LineEnding.None;
+            foreach (var textLine in Lines)
+            {
+                if (textLine.LineEnding != LineEnding.None)
+                {
+                    condensedLineEnding = textLine.LineEnding;
+                }
+            }
             if (Lines.Count > 0)
             {
                 Lines.Clear();
-                Lines.Add(newline);
+                AddLine(String.Empty, condensedLineEnding);
             }
         }
     }

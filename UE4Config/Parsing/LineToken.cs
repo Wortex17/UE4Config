@@ -10,5 +10,12 @@
         {
             LineEnding = lineEnding;
         }
+
+        public override IniToken CreateClone()
+        {
+            var clone = base.CreateClone() as LineToken;
+            clone.LineEnding = LineEnding;
+            return clone;
+        }
     }
 }

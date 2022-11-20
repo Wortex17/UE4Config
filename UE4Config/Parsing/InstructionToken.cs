@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace UE4Config.Parsing
+﻿namespace UE4Config.Parsing
 {
     public class InstructionToken : LineToken
     {
@@ -30,7 +28,16 @@ namespace UE4Config.Parsing
             Value = value;
         }
 
-        public override void Write(TextWriter writer)
+        public override IniToken CreateClone()
+        {
+            var clone = base.CreateClone() as InstructionToken;
+            clone.InstructionType = InstructionType;
+            clone.Key = Key;
+            clone.Value = Value;
+            return clone;
+        }
+
+        public override void Write(ConfigIniWriter writer)
         {
             writer.Write(InstructionType.AsPrefixString());
             writer.Write(Key);
