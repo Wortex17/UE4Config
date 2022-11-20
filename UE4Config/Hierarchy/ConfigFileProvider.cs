@@ -9,7 +9,7 @@ namespace UE4Config.Hierarchy
     /// Translates ConfigFileReferences to file paths as used in UE4.27+ and above.
     /// Supports legacy platform config file paths, but assumes modern platform setups as default.
     /// </summary>
-    public class ConfigFileProvider : IConfigFileProvider
+    public class ConfigFileProvider : IConfigFileProviderAutoPlatformModel
     {
         /// <summary>
         /// Utility class to manage which platforms are using the legacy config model
@@ -240,11 +240,6 @@ namespace UE4Config.Hierarchy
             return stringWriter.ToString();
         }
 
-        /// <summary>
-        /// Automatically scans the <see cref="EnginePath"/> and <see cref="ProjectPath"/>
-        /// for all Platforms that require legacy config setup.
-        /// Will likely override manual settings made before, but will undiscovered platforms intact.
-        /// </summary>
         public void AutoDetectPlatformsUsingLegacyConfig()
         {
             AutoDetectPlatformsUsingLegacyConfig(EnginePath, EnginePlatformLegacyConfig);

@@ -45,8 +45,8 @@ You can use the virtual config tree to work with config files in memory by provi
 It can provide you branches based on target category (like Game, Editor, Input etc.) and platform you want to use.
 This emulates best what property values would be in which context of any Unreal Engine 4 project.
 ```C#
-//Create a new config hierarchy, with paths to the engine as well as the project directory
-var configHierarchy = new FileConfigHierarchy("Mock/Project/Directory", "Mock/Engine/Directory");
+//Create a new virtual config tree to allow us working with an in-memory virtual hierarchy
+var configTree = VirtualConfigTreeUtility.CreateVirtualConfigTree(enginePath, projectPath);
 
 //Evaluate the values and put them into a list. Should the property only have a single value, the list will have a single element.
 //Should the property not exist or should all its values have been deleted via config, the list will be empty.
@@ -54,42 +54,32 @@ var win64Values = new List<string>();
 
 //Evaluate the property "LocalizationPaths" in the section "Internationalization" in the category "Game" for the topmost "Windows"-platform config in the hierarchy.
 //This will take all lower hierarchy layers into account.
-configHierarchy.EvaluatePropertyValues("Windows", "Game", "Internationalization", "LocalizationPaths", win64Values);
+var configBranch = configTree.FetchConfigBranch("Game", "Windows");
+PropertyEvaluator.Default.EvaluatePropertyValues(configBranch, "Internationalization", "LocalizationPaths", win64Values);
 
-Assert.That(values, Is.EquivalentTo(new[]
-  {
+Assert.That(win64Values, Is.EquivalentTo(new[]
+{
     "%GAMEDIR%Content/Localization/Game",
     "%GAMEDIR%Content/Localization/Game/Default",
     "%GAMEDIR%Content/Localization/Game/Win64"
-  }));
-
+}));
 
 //It is also possible to ask for a specific level range within the hierarchy
+var filteredBranch = configBranch.FindAll((ini => ini.Reference.Domain <= ConfigDomain.Engine));
 var engineDefaultWin64Values = new List<string>();
-configHierarchy.EvaluatePropertyValues("Windows", "Game", "Internationalization", "LocalizationPaths",
-    ConfigHierarchyLevel.BasePlatformCategory.AndLower(), engineDefaultWin64Values);
+PropertyEvaluator.Default.EvaluatePropertyValues(filteredBranch, "Internationalization", "LocalizationPaths", engineDefaultWin64Values);
 Assert.That(engineDefaultWin64Values, Is.EquivalentTo(new[]
 {
     "%GAMEDIR%Content/Localization/Game"
 }));
-
 ```
 
 ### Modify configs in a config hierarchy
 You can use the virtual config tree to work with config files in memory
 and save them to disk after making modifications.
 ```C#
-//Create a new virtual config tree.
-//This will provide paths and a virtual hierarchy for a project+engine base path combination
-var configProvider = new ConfigFileProvider();
-configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));
-//Auto-detect if a project still uses the legacy Config/{Platform}/*.ini setup.
-configProvider.AutoDetectPlatformsUsingLegacyConfig();
-//Create the base tree model, based on the config hierarchy used by UE since 4.27+
-var configRefTree = new ConfigReferenceTree427();
-configRefTree.Setup(configProvider);
-//Create a virtual config tree to allow us working with an in-memory virtual hierarchy
-var configTree = new VirtualConfigTree(configRefTree);
+//Create a new virtual config tree to allow us working with an in-memory virtual hierarchy
+var configTree = VirtualConfigTreeUtility.CreateVirtualConfigTree(enginePath, projectPath);
 
 //Acquire the target config ("Game" on Platform "Windows") we want to modify
 //Select the trees branch first, by providing a config category and the platform we're branching on
@@ -121,5 +111,24 @@ Assert.That(win64Values, Is.EquivalentTo(new[]
     "a44b",
     "modifieda44d"
 }));
+```
 
+### Setting up a VirtualConfigTree
+While there is the utility method to create a virtual config tree,
+you may set it up manually your own to customize behavior.
+```C#
+var autoTree = VirtualConfigTreeUtility.CreateVirtualConfigTree(enginePath, projectPath);
+            
+//This will provide paths and a virtual hierarchy for a project+engine base path combination
+var configProvider = new ConfigFileProvider();
+configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));
+//Auto-detect if a project still uses the legacy Config/{Platform}/*.ini setup.
+configProvider.AutoDetectPlatformsUsingLegacyConfig();
+//Create the base tree model, based on the config hierarchy used by UE since 4.27+
+var configRefTree = new ConfigReferenceTree427();
+configRefTree.Setup(configProvider);
+//Create a virtual config tree to allow us working with an in-memory virtual hierarchy
+var configTree = new VirtualConfigTree(configRefTree);
+
+//autoTree and configTree have the exact same setup (though different instances)
 ```

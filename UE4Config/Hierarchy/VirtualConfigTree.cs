@@ -19,7 +19,7 @@ namespace UE4Config.Hierarchy
             ReferenceTree = referenceTree;
             ConfigsCache = new VirtualConfigsCache();
         }
-        
+
         /// <summary>
         /// Calls <paramref name="onConfig"/> passing the root config as referenced by <see cref="ReferenceTree"/>.
         /// Either passes the cached instance or creates a new instance, loading contents from disk if possible.
