@@ -414,12 +414,18 @@ namespace UE4Config.Parsing
         /// <summary>
         /// Utility method to call common cleanup routines in the correct order
         /// </summary>
-        public void Cleanup()
+        public void Sanitize()
         {
             NormalizeLineEndings();
             MergeDuplicateSections();
             GroupPropertyInstructions();
             CondenseWhitespace();
+        }
+
+        [Obsolete]
+        public void Cleanup()
+        {
+            Sanitize();
         }
     }
 }

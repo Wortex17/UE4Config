@@ -104,7 +104,7 @@ namespace UE4Config.Tests
             //Here we use the config ini syntax to add another value to the list
 
             //Cleanup the config before publishing it
-            config.Cleanup();
+            config.Sanitize();
 
             //Publish the config and write it back
             configTree.PublishConfig(config);
