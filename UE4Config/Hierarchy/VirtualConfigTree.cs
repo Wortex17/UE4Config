@@ -19,7 +19,11 @@ namespace UE4Config.Hierarchy
             ReferenceTree = referenceTree;
             ConfigsCache = new VirtualConfigsCache();
         }
-
+        
+        /// <summary>
+        /// Calls <paramref name="onConfig"/> passing the root config as referenced by <see cref="ReferenceTree"/>.
+        /// Either passes the cached instance or creates a new instance, loading contents from disk if possible.
+        /// </summary>
         public void VisitConfigRoot(Action<ConfigIni> onConfig)
         {
             ReferenceTree.VisitConfigRoot(reference =>
@@ -29,6 +33,10 @@ namespace UE4Config.Hierarchy
             });
         }
         
+        /// <summary>
+        /// Calls <paramref name="onConfig"/> passing every config on a branch referenced by <see cref="ReferenceTree"/>.
+        /// Either passes the cached instances or creates new instances, loading contents from disk if possible.
+        /// </summary>
         public void VisitConfigBranch(string configType, string platformIdentifier, Action<ConfigIni> onConfig)
         {
             ReferenceTree.VisitConfigBranch(configType, platformIdentifier, reference =>
@@ -38,6 +46,11 @@ namespace UE4Config.Hierarchy
             });
         }
 
+        /// <summary>
+        /// Utility method wrapping <see cref="VisitConfigRoot"/>.
+        /// Returns the root config as referenced by <see cref="ReferenceTree"/>.
+        /// Either returns the cached instance or creates a new instance, loading contents from disk if possible.
+        /// </summary>
         public ConfigIni FetchConfigRoot()
         {
             ConfigIni result = null;
@@ -48,6 +61,11 @@ namespace UE4Config.Hierarchy
             return result;
         }
         
+        /// <summary>
+        /// Utility method wrapping <see cref="VisitConfigBranch"/>.
+        /// Returns every config on a branch referenced by <see cref="ReferenceTree"/>.
+        /// Either returns the cached instances or creates new instances, loading contents from disk if possible.
+        /// </summary>
         public List<ConfigIni> FetchConfigBranch(string configType, string platformIdentifier)
         {
             List<ConfigIni> result = new List<ConfigIni>();
@@ -58,6 +76,11 @@ namespace UE4Config.Hierarchy
             return result;
         }
 
+        /// <summary>
+        /// Caches the given config instance, possibly overwriting a currently cached instance, before also
+        /// saving it to disk. Use the <see cref="ConfigIni.Reference"/> of the given <paramref name="configIni"/> as
+        /// cache identifier.
+        /// </summary>
         public void PublishConfig(ConfigIni configIni)
         {
             if (configIni == null)

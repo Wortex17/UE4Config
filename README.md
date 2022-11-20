@@ -12,9 +12,9 @@ A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for U
 ## Features
 
 * Read & parse single \*.ini config files
-* Serialization pertains file structure and formatting of the original file by default
+* Serialization retains file structure and formatting of the original file by default
 * Evaluate the value(s) of any property across one, or multiple config files
-* ConfigFileHierarchy emulates UE4s hierarchical config layers and loads config files automatically
+* Hierarchy classes emulate UE4s hierarchical config layers and load config files automatically
 * Supports new "PlatformExtension" folder structure & configs of UE4.24+
 
 ## Next to come
