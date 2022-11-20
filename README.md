@@ -26,7 +26,7 @@ A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for U
 
 ### Evaluate a property from a single config file
 You can directly load and read from a single specific config \*.ini file by reading and parsing that file, before evaluating any property values.
-```
+```C#
 var config = new ConfigIni("DefaultGame");
 
 //Load the configs contents from a file, via a read stream
@@ -41,10 +41,10 @@ Assert.That(values, Is.EquivalentTo(new[]{"3F9D696D4363312194B0ECB2671E899F"}));
 ```
 
 ### Evaluate a property from a config hierarchy
-You can also initialize a config hierarchy by providing a engine and/or a project path, and then evaluate any property values for a specific target level & platform.
-This emulates best what proeprty values would exist in which context in any Unreal Engine 4 project.
-
-```
+You can use the virtual config tree to work with config files in memory by providing a engine and/or a project path.
+It can provide you branches based on target category (like Game, Editor, Input etc.) and platform you want to use.
+This emulates best what property values would be in which context of any Unreal Engine 4 project.
+```C#
 //Create a new config hierarchy, with paths to the engine as well as the project directory
 var configHierarchy = new FileConfigHierarchy("Mock/Project/Directory", "Mock/Engine/Directory");
 
@@ -79,7 +79,7 @@ Assert.That(engineDefaultWin64Values, Is.EquivalentTo(new[]
 You can use the virtual config tree to work with config files in memory
 and save them to disk after making modifications.
 ```C#
-//Create a new config tree.
+//Create a new virtual config tree.
 //This will provide paths and a virtual hierarchy for a project+engine base path combination
 var configProvider = new ConfigFileProvider();
 configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));

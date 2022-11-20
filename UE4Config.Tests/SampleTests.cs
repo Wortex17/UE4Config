@@ -13,6 +13,21 @@ namespace UE4Config.Tests
     [TestFixture]
     class SampleTests
     {
+        void ResetTestDirectories()
+        {
+            try
+            {
+                Directory.Delete(TestUtils.GetTestDataPath("MockProjectTmp"), true);
+            } catch(DirectoryNotFoundException) {}
+            try
+            {
+                Directory.Delete(TestUtils.GetTestDataPath("MockEngineTmp"), true);
+            } catch(DirectoryNotFoundException) {}
+            
+            TestUtils.CopyDirectory(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockProjectTmp"), true);
+            TestUtils.CopyDirectory(TestUtils.GetTestDataPath("MockEngine"), TestUtils.GetTestDataPath("MockEngineTmp"), true);
+        }
+        
         [TestCase]
         public void When_ReadConfig_DefaultGame()
         {
@@ -31,18 +46,30 @@ namespace UE4Config.Tests
         }
 
         [TestCase]
-        public void When_ReadConfigFromHierarchy_WindowsGame()
+        public void When_ReadConfigFromHierarchy_WindowsGame_ConfigTree()
         {
-            //Create a new config hierarchy, with paths to the engine as well as the project directory
-            var configHierarchy = new FileConfigHierarchy(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockEngine"));
-
+            ResetTestDirectories();
+            
+            //Create a new virtual config tree.
+            //This will provide paths and a virtual hierarchy for a project+engine base path combination
+            var configProvider = new ConfigFileProvider();
+            configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));
+            //Auto-detect if a project still uses the legacy Config/{Platform}/*.ini setup.
+            configProvider.AutoDetectPlatformsUsingLegacyConfig();
+            //Create the base tree model, based on the config hierarchy used by UE since 4.27+
+            var configRefTree = new ConfigReferenceTree427();
+            configRefTree.Setup(configProvider);
+            //Create a virtual config tree to allow us working with an in-memory virtual hierarchy
+            var configTree = new VirtualConfigTree(configRefTree);
+            
             //Evaluate the values and put them into a list. Should the property only have a single value, the list will have a single element.
             //Should the property not exist or should all its values have been deleted via config, the list will be empty.
             var win64Values = new List<string>();
 
-            //Evaluate the property "LocalizationPaths" in the section "Internationalization" int the category "Game" for the topmost "Windows"-platform config in the hierarchy.
+            //Evaluate the property "LocalizationPaths" in the section "Internationalization" in the category "Game" for the topmost "Windows"-platform config in the hierarchy.
             //This will take all lower hierarchy layers into account.
-            configHierarchy.EvaluatePropertyValues("Windows", "Game", "Internationalization", "LocalizationPaths", win64Values);
+            var configBranch = configTree.FetchConfigBranch("Game", "Windows");
+            PropertyEvaluator.Default.EvaluatePropertyValues(configBranch, "Internationalization", "LocalizationPaths", win64Values);
 
             Assert.That(win64Values, Is.EquivalentTo(new[]
             {
@@ -52,9 +79,9 @@ namespace UE4Config.Tests
             }));
 
             //It is also possible to ask for a specific level range within the hierarchy
+            var filteredBranch = configBranch.FindAll((ini => ini.Reference.Domain <= ConfigDomain.Engine));
             var engineDefaultWin64Values = new List<string>();
-            configHierarchy.EvaluatePropertyValues("Windows", "Game", "Internationalization", "LocalizationPaths",
-                ConfigHierarchyLevel.BasePlatformCategory.AndLower(), engineDefaultWin64Values);
+            PropertyEvaluator.Default.EvaluatePropertyValues(filteredBranch, "Internationalization", "LocalizationPaths", engineDefaultWin64Values);
             Assert.That(engineDefaultWin64Values, Is.EquivalentTo(new[]
             {
                 "%GAMEDIR%Content/Localization/Game"
@@ -62,54 +89,11 @@ namespace UE4Config.Tests
         }
         
         [TestCase]
-        public void When_ModifyConfigFileByAppend()
-        {
-            //Create a new config hierarchy, with paths to the engine as well as the project directory
-            var configHierarchy = new FileConfigHierarchy(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockEngine"));
-
-            //Acquire the target config we want to modify
-            var config = configHierarchy.GetOrCreateConfig("Windows", "Game", ConfigHierarchyLevel.ProjectPlatformCategory, out _);
-
-            //We modify the config by just appending further configuration which will redefine properties
-            config.AppendRawText("[Global]\n" +
-                                 "+GUIDs=modifieda44d");
-            //Here we use the config ini syntax to add another value to the list
-
-            //Cleanup the config before publishing it
-            config.NormalizeLineEndings();
-            config.MergeDuplicateSections();
-            config.GroupPropertyInstructions();
-            config.CondenseWhitespace();
-
-            //Publish the config and write it back
-            configHierarchy.PublishConfig("Windows", "Game", ConfigHierarchyLevel.ProjectPlatformCategory, config);
-
-            //Make sure the modified value made it in
-            var win64Values = new List<string>();
-            configHierarchy.EvaluatePropertyValues("Windows", "Game", "Global", "GUIDs", win64Values);
-            Assert.That(win64Values, Is.EquivalentTo(new[]
-            {
-                "a44b",
-                "modifieda44d"
-            }));
-        }
-        
-        [TestCase]
         public void When_ModifyConfigFileByAppend_ConfigTree()
         {
-            try
-            {
-                Directory.Delete(TestUtils.GetTestDataPath("MockProjectTmp"), true);
-            } catch(DirectoryNotFoundException) {}
-            try
-            {
-                Directory.Delete(TestUtils.GetTestDataPath("MockEngineTmp"), true);
-            } catch(DirectoryNotFoundException) {}
+            ResetTestDirectories();
             
-            TestUtils.CopyDirectory(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockProjectTmp"), true);
-            TestUtils.CopyDirectory(TestUtils.GetTestDataPath("MockEngine"), TestUtils.GetTestDataPath("MockEngineTmp"), true);
-            
-            //Create a new config tree.
+            //Create a new virtual config tree.
             //This will provide paths and a virtual hierarchy for a project+engine base path combination
             var configProvider = new ConfigFileProvider();
             configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));
@@ -150,6 +134,70 @@ namespace UE4Config.Tests
             {
                 "a44b",
                 "modifieda44d"
+            }));
+        }
+        
+        [TestCase]
+        public void When_ModifyConfigFileByAppend_Obsolete()
+        {
+            //Create a new config hierarchy, with paths to the engine as well as the project directory
+            var configHierarchy = new FileConfigHierarchy(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockEngine"));
+
+            //Acquire the target config we want to modify
+            var config = configHierarchy.GetOrCreateConfig("Windows", "Game", ConfigHierarchyLevel.ProjectPlatformCategory, out _);
+
+            //We modify the config by just appending further configuration which will redefine properties
+            config.AppendRawText("[Global]\n" +
+                                 "+GUIDs=modifieda44d");
+            //Here we use the config ini syntax to add another value to the list
+
+            //Cleanup the config before publishing it
+            config.NormalizeLineEndings();
+            config.MergeDuplicateSections();
+            config.GroupPropertyInstructions();
+            config.CondenseWhitespace();
+
+            //Publish the config and write it back
+            configHierarchy.PublishConfig("Windows", "Game", ConfigHierarchyLevel.ProjectPlatformCategory, config);
+
+            //Make sure the modified value made it in
+            var win64Values = new List<string>();
+            configHierarchy.EvaluatePropertyValues("Windows", "Game", "Global", "GUIDs", win64Values);
+            Assert.That(win64Values, Is.EquivalentTo(new[]
+            {
+                "a44b",
+                "modifieda44d"
+            }));
+        }
+
+        [TestCase]
+        public void When_ReadConfigFromHierarchy_WindowsGame_Obsolete()
+        {
+            //Create a new config hierarchy, with paths to the engine as well as the project directory
+            var configHierarchy = new FileConfigHierarchy(TestUtils.GetTestDataPath("MockProject"), TestUtils.GetTestDataPath("MockEngine"));
+
+            //Evaluate the values and put them into a list. Should the property only have a single value, the list will have a single element.
+            //Should the property not exist or should all its values have been deleted via config, the list will be empty.
+            var win64Values = new List<string>();
+
+            //Evaluate the property "LocalizationPaths" in the section "Internationalization" int the category "Game" for the topmost "Windows"-platform config in the hierarchy.
+            //This will take all lower hierarchy layers into account.
+            configHierarchy.EvaluatePropertyValues("Windows", "Game", "Internationalization", "LocalizationPaths", win64Values);
+
+            Assert.That(win64Values, Is.EquivalentTo(new[]
+            {
+                "%GAMEDIR%Content/Localization/Game",
+                "%GAMEDIR%Content/Localization/Game/Default",
+                "%GAMEDIR%Content/Localization/Game/Win64"
+            }));
+
+            //It is also possible to ask for a specific level range within the hierarchy
+            var engineDefaultWin64Values = new List<string>();
+            configHierarchy.EvaluatePropertyValues("Windows", "Game", "Internationalization", "LocalizationPaths",
+                ConfigHierarchyLevel.BasePlatformCategory.AndLower(), engineDefaultWin64Values);
+            Assert.That(engineDefaultWin64Values, Is.EquivalentTo(new[]
+            {
+                "%GAMEDIR%Content/Localization/Game"
             }));
         }
     }
