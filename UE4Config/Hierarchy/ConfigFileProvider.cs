@@ -164,6 +164,11 @@ namespace UE4Config.Hierarchy
             return true;
         }
 
+        public bool LoadOrCreateDataDrivenPlatformConfig(string platformIdentifier, out ConfigIni configIni)
+        {
+            throw new NotImplementedException();
+        }
+
         protected ConfigIni LoadConfig(string configFilePath, string configFileName, ConfigFileReference configFileReference)
         {
             StreamReader reader = OpenReaderIfAvailable(configFilePath);
@@ -240,29 +245,53 @@ namespace UE4Config.Hierarchy
             return stringWriter.ToString();
         }
 
+        public List<string> FindAllPlatforms()
+        {
+            var platforms = new List<string>();
+            IterateAllPlatforms(EnginePath, (platform)  =>
+            {
+                if (!platforms.Contains(platform))
+                {
+                    platforms.Add(platform);
+                }
+            }, (platform)  =>
+            {
+                if (!platforms.Contains(platform))
+                {
+                    platforms.Add(platform);
+                }
+            });
+            return platforms;
+        }
+
         public void AutoDetectPlatformsUsingLegacyConfig()
         {
             AutoDetectPlatformsUsingLegacyConfig(EnginePath, EnginePlatformLegacyConfig);
             AutoDetectPlatformsUsingLegacyConfig(ProjectPath, ProjectPlatformLegacyConfig);
         }
 
+        protected void IterateAllPlatforms(string basePath, Action<string> onLegacyPlatform, Action<string> onModernPlatform)
+        {
+            var legacyPlatformDirs = FileIOAdapter.GetDirectories(Path.Combine(basePath, "Config"));
+            var modernPlatformDirs = FileIOAdapter.GetDirectories(Path.Combine(basePath, "Platforms"));
+
+            foreach (var legacyPlatformDir in legacyPlatformDirs)
+            {
+                onLegacyPlatform(Path.GetFileName(legacyPlatformDir));
+            }
+            foreach (var modernPlatformDir in modernPlatformDirs)
+            {
+                onModernPlatform(Path.GetFileName(modernPlatformDir));
+            }
+        }
+
         protected void AutoDetectPlatformsUsingLegacyConfig(string basePath, PlatformLegacyConfig platformLegacyConfig)
         {
             if (FileIOAdapter != null && !String.IsNullOrEmpty(basePath))
             {
-                var legacyPlatformDirs = FileIOAdapter.GetDirectories(Path.Combine(basePath, "Config"));
-                var modernPlatformDirs = FileIOAdapter.GetDirectories(Path.Combine(basePath, "Platforms"));
                 var legacyPlatforms = new List<string>();
                 var modernPlatforms = new List<string>();
-
-                foreach (var legacyPlatformDir in legacyPlatformDirs)
-                {
-                    legacyPlatforms.Add(Path.GetFileName(legacyPlatformDir));
-                }
-                foreach (var modernPlatformDir in modernPlatformDirs)
-                {
-                    modernPlatforms.Add(Path.GetFileName(modernPlatformDir));
-                }
+                IterateAllPlatforms(basePath, legacyPlatforms.Add, modernPlatforms.Add);
                 
                 foreach (var legacyPlatform in legacyPlatforms)
                 {

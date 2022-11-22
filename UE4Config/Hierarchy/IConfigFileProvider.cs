@@ -46,10 +46,16 @@ namespace UE4Config.Hierarchy
         string ResolveConfigFilePath(ConfigFileReference reference);
 
         /// <summary>
-        /// Loads a config from the filesystem, if it exists or creates a new one.
+        /// Loads a config from the filesystem if it exists or creates a new one.
         /// Returns true if the config was loaded.
         /// </summary>
         bool LoadOrCreateConfig(ConfigFileReference configFileReference, out ConfigIni configIni);
+        
+        /// <summary>
+        /// Loads a config from the filesystem if it exists or creates a new one.
+        /// Returns true if the config was loaded.
+        /// </summary>
+        bool LoadOrCreateDataDrivenPlatformConfig(string platformIdentifier, out ConfigIni configIni);
 
         /// <summary>
         /// Saves a config to the filesystem, overwriting a possibly existing one.
