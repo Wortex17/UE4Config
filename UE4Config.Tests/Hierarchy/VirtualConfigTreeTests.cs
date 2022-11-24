@@ -37,6 +37,11 @@ namespace UE4Config.Tests.Hierarchy
                 return OnLoadOrCreateConfig(configFileReference, out configIni);
             }
 
+            public bool LoadOrCreateDataDrivenPlatformConfig(string platformIdentifier, out ConfigIni configIni)
+            {
+                throw new System.NotImplementedException();
+            }
+
             public void SaveConfig(ConfigFileReference configFileReference, ConfigIni configIni)
             {
                 OnSaveConfig(configFileReference, configIni);

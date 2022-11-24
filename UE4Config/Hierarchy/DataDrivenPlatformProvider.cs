@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using UE4Config.Evaluation;
 using UE4Config.Parsing;
 
@@ -38,12 +37,13 @@ namespace UE4Config.Hierarchy
         {
             foreach (var iniSection in dataDrivenPlatformConfig.Sections)
             {
+                const string platformInfoHeaderPrefix = "PlatformInfo ";
                 string sectionName = iniSection.Name;
-                if(!sectionName.StartsWith("PlatformInfo "))
+                if(sectionName.Length <= platformInfoHeaderPrefix.Length || !sectionName.StartsWith(platformInfoHeaderPrefix))
                     continue;
                 
                 var platformInfo = new DataDrivenPlatformInfo();
-                platformInfo.PlatformIdentifier = iniSection.Name.Substring("PlatformInfo ".Length);
+                platformInfo.PlatformIdentifier = iniSection.Name.Substring(platformInfoHeaderPrefix.Length);
                 List<string> results = new List<string>();
                 
                 results.Clear();
