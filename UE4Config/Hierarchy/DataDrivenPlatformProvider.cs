@@ -11,7 +11,12 @@ namespace UE4Config.Hierarchy
     public class DataDrivenPlatformProvider
     {
         public IConfigFileProviderAutoPlatformModel FileProvider { get; private set; }
-        
+
+        public IReadOnlyDictionary<string, DataDrivenPlatformInfo> DataDrivenPlatformInfos => m_DataDrivenPlatformInfos;
+
+        protected Dictionary<string, DataDrivenPlatformInfo> m_DataDrivenPlatformInfos { get; }  =
+            new Dictionary<string, DataDrivenPlatformInfo>();
+
         public void Setup(IConfigFileProviderAutoPlatformModel configFileProvider)
         {
             FileProvider = configFileProvider;
@@ -19,6 +24,9 @@ namespace UE4Config.Hierarchy
 
         public void CollectDataDrivenPlatforms()
         {
+            if (FileProvider == null)
+                throw new NullReferenceException("FileProvider was null");
+            
             //Fetch all DataDrivenPlatformInfo.ini's, read them, construct platforms etc.
             var platforms = FileProvider.FindAllPlatforms();
             m_DataDrivenPlatformInfos.Clear();
@@ -35,6 +43,8 @@ namespace UE4Config.Hierarchy
 
         protected void ParseDataDrivenPlatformInfos(ConfigIni dataDrivenPlatformConfig, Action<DataDrivenPlatformInfo> onDataDrivenPlatformInfo)
         {
+            if (dataDrivenPlatformConfig == null)
+                return;
             foreach (var iniSection in dataDrivenPlatformConfig.Sections)
             {
                 const string platformInfoHeaderPrefix = "PlatformInfo ";
@@ -100,6 +110,9 @@ namespace UE4Config.Hierarchy
             DataDrivenPlatformInfo pivotPlatformInfo = platformInfo;
             do
             {
+                if (hierarchy.Contains(pivotPlatformInfo))
+                    break; // Loop detected
+                
                 hierarchy.Add(pivotPlatformInfo);
             } while (FindParentDataDrivenPlatformInfo(pivotPlatformInfo, platformInfos, out pivotPlatformInfo));
             
@@ -115,13 +128,19 @@ namespace UE4Config.Hierarchy
                     parentPlatformInfo = parentPlatformInfoCandidate;
                     return true;
                 }
+                else
+                {
+                    //Create a stand-in for the unresolved platform
+                    parentPlatformInfo = new DataDrivenPlatformInfo()
+                    {
+                        PlatformIdentifier = platformInfo.ParentPlatformIdentifier
+                    };
+                    return true;
+                }
             }
 
             parentPlatformInfo = new DataDrivenPlatformInfo();
             return false;
         }
-
-        private Dictionary<string, DataDrivenPlatformInfo> m_DataDrivenPlatformInfos =
-            new Dictionary<string, DataDrivenPlatformInfo>();
     }
 }

@@ -22,7 +22,7 @@ namespace UE4Config.Hierarchy
             {
                 //Auto-detect if a project still uses the legacy Config/{Platform}/*.ini setup.
                 configProviderAuto.AutoDetectPlatformsUsingLegacyConfig();
-                //Detect DataDrivenPlatforms
+                //Create a DataDrivenPlatform provider that can pre-fill our platform hierarchy like UE4.27 does (based on DataDrivenPlatform configs)
                 dataDrivenPlatformProvider.Setup(configProviderAuto);
                 dataDrivenPlatformProvider.CollectDataDrivenPlatforms();
             }

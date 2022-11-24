@@ -137,9 +137,15 @@ namespace UE4Config.Tests
             configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));
             //Auto-detect if a project still uses the legacy Config/{Platform}/*.ini setup.
             configProvider.AutoDetectPlatformsUsingLegacyConfig();
+            //Create a DataDrivenPlatform provider that can pre-fill our platform hierarchy like UE4.27 does (based on DataDrivenPlatform configs)
+            var dataDrivenPlatformProvider = new DataDrivenPlatformProvider();
+            dataDrivenPlatformProvider.Setup(configProvider);
+            dataDrivenPlatformProvider.CollectDataDrivenPlatforms();
             //Create the base tree model, based on the config hierarchy used by UE since 4.27+
             var configRefTree = new ConfigReferenceTree427();
             configRefTree.Setup(configProvider);
+            //Apply any detected DataDrivenPlatforms
+            dataDrivenPlatformProvider.RegisterDataDrivenPlatforms(configRefTree);
             //Create a virtual config tree to allow us working with an in-memory virtual hierarchy
             var configTree = new VirtualConfigTree(configRefTree);
 
