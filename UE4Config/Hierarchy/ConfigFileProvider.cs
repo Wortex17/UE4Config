@@ -146,6 +146,11 @@ namespace UE4Config.Hierarchy
                     configDirPath = GeneratePlatformConfigDirectory(platform);
                 }
             }
+
+            if (type == "DataDrivenPlatformInfo")
+            {
+                platform = "";
+            }
             
             return Path.Combine(basePath, configDirPath, $"{prefix}{platform}{type}.ini");
         }
@@ -166,7 +171,18 @@ namespace UE4Config.Hierarchy
 
         public bool LoadOrCreateDataDrivenPlatformConfig(string platformIdentifier, out ConfigIni configIni)
         {
-            throw new NotImplementedException();
+            ConfigFileReference configFileReference = new ConfigFileReference(ConfigDomain.Engine,
+                new ConfigPlatform(platformIdentifier), "DataDrivenPlatformInfo");
+            string configFilePath = ResolveConfigFilePath(configFileReference);
+            string configFileName = Path.GetFileName(configFilePath);
+            
+            configIni = LoadConfig(configFilePath, configFileName, configFileReference);
+            if (configIni == null)
+            {
+                configIni = new ConfigIni(configFileName, configFileReference);
+                return false;
+            }
+            return true;
         }
 
         protected ConfigIni LoadConfig(string configFilePath, string configFileName, ConfigFileReference configFileReference)
