@@ -14,13 +14,13 @@ A straightlaced C# libary to evaluate & edit Unreal Engine 4 config files, for U
 * Read & parse single \*.ini config files
 * Serialization retains file structure and formatting of the original file by default
 * Evaluate the value(s) of any property across one, or multiple config files
-* Hierarchy classes emulate UE4s hierarchical config layers and load config files automatically
+* ConfigTree classes emulate UE4s hierarchical config layers and load config files automatically
 * Supports new "PlatformExtension" folder structure & configs of UE4.24+
+* Supports DataDrivenPlatform definitions of UE 4.27+
 
 ## Next to come
 
 * Easier API to modify & add new properties and values
-* Sanitization utilities to declutter config files
 
 ## Examples
 
@@ -124,9 +124,15 @@ var configProvider = new ConfigFileProvider();
 configProvider.Setup(new ConfigFileIOAdapter(), TestUtils.GetTestDataPath("MockEngineTmp"), TestUtils.GetTestDataPath("MockProjectTmp"));
 //Auto-detect if a project still uses the legacy Config/{Platform}/*.ini setup.
 configProvider.AutoDetectPlatformsUsingLegacyConfig();
+//Create a DataDrivenPlatform provider that can pre-fill our platform hierarchy like UE4.27 does (based on DataDrivenPlatform configs)
+var dataDrivenPlatformProvider = new DataDrivenPlatformProvider();
+dataDrivenPlatformProvider.Setup(configProvider);
+dataDrivenPlatformProvider.CollectDataDrivenPlatforms();
 //Create the base tree model, based on the config hierarchy used by UE since 4.27+
 var configRefTree = new ConfigReferenceTree427();
 configRefTree.Setup(configProvider);
+//Apply any detected DataDrivenPlatforms
+dataDrivenPlatformProvider.RegisterDataDrivenPlatforms(configRefTree);
 //Create a virtual config tree to allow us working with an in-memory virtual hierarchy
 var configTree = new VirtualConfigTree(configRefTree);
 
