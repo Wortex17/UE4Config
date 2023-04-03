@@ -2,6 +2,10 @@
 
 namespace UE4Config.Parsing
 {
+    /**
+     * Represents a single token of UEs configuration INIs.
+     * Each token usually represents a comment, whitespace or an instruction to modify a named value.
+     */
     public abstract class IniToken
     {
         /// <summary>

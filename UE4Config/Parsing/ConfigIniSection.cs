@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace UE4Config.Parsing
 {
+    /**
+     * Represents a single named group of <see cref="IniToken"/>s
+     */
     public class ConfigIniSection
     {
         public string Name = null;
@@ -109,7 +112,6 @@ namespace UE4Config.Parsing
         {
             indexOfFirstInstruction = -1;
             indexOfLastInstruction = -1;
-            bool hasGroup = false;
             for (int i = 0; i < Tokens.Count; i++)
             {
                 var token = Tokens[i];

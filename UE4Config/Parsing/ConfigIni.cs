@@ -8,8 +8,10 @@ using UE4Config.Hierarchy;
 namespace UE4Config.Parsing
 {
     /// <remarks>
-    /// Special parser for a "command"-like INI.
-    /// Structure of the Ini file is preserved and can be evaluated for the actual value.
+    /// Represents the structure of UE's configuration INIs as a collection of <see cref="ConfigIniSection"/>s,
+    /// grouping multiple <see cref="IniToken"/>s.
+    /// Contains parsing methods to parse & generate the respective tokens form the INI file text.
+    /// Structure of the INI file text is preserved this way and can be evaluated for the actual value.
     /// </remarks>
     public class ConfigIni
     {
