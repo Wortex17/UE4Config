@@ -431,11 +431,5 @@ namespace UE4Config.Parsing
             GroupPropertyInstructions();
             CondenseWhitespace();
         }
-
-        [Obsolete]
-        public void Cleanup()
-        {
-            Sanitize();
-        }
     }
 }

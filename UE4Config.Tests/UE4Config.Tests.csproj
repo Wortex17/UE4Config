@@ -51,15 +51,11 @@
     <Compile Include="Hierarchy\ConfigBranchExtensionsTests.cs" />
     <Compile Include="Hierarchy\ConfigFileProviderTests.cs" />
     <Compile Include="Hierarchy\ConfigFileReferenceTests.cs" />
-    <Compile Include="Hierarchy\ConfigHierarchyLevelTests.cs" />
-    <Compile Include="Hierarchy\ConfigHierarchyLevelRangeTests.cs" />
     <Compile Include="Hierarchy\DataDrivenPlatformProviderTests.cs" />
     <Compile Include="Hierarchy\IConfigFileProviderTests.cs" />
     <Compile Include="Hierarchy\IConfigPlatformExtensionsTests.cs" />
     <Compile Include="Hierarchy\IConfigTreeExtensionsTests.cs" />
     <Compile Include="Hierarchy\IConfigTreeTests.cs" />
-    <Compile Include="Hierarchy\FileConfigHierarchyTests.cs" />
-    <Compile Include="Hierarchy\ConfigHierarchyTests.cs" />
     <Compile Include="Hierarchy\VirtualConfigCacheTests.cs" />
     <Compile Include="Hierarchy\VirtualConfigsCacheTests.cs" />
     <Compile Include="Hierarchy\VirtualConfigTreeTests.cs" />
