@@ -5,6 +5,7 @@ namespace UE4Config.Hierarchy
     /// <summary>
     /// Represents a level of the Unreal Engine 4 configuration hierarchy
     /// </summary>
+    [Obsolete]
     public enum ConfigHierarchyLevel
     {
         /// <example>
@@ -92,6 +93,6 @@ namespace UE4Config.Hierarchy
             return m_LevelsAscending;
         }
 
-        private static ConfigHierarchyLevel[] m_LevelsAscending = null;
+        private static ConfigHierarchyLevel[] m_LevelsAscending;
     }
 }

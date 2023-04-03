@@ -8,18 +8,18 @@ namespace UE4Config.Parsing
      */
     public class ConfigIniSection
     {
-        public string Name = null;
-        public List<IniToken> Tokens = new List<IniToken>();
-        public LineEnding LineEnding;
+        public string Name {get;set;}
+        public List<IniToken> Tokens {get;} = new List<IniToken>();
+        public LineEnding LineEnding {get;set;}
 
         /// <summary>
         /// Trimmed whitespace characters prefixing this sections header line
         /// </summary>
-        public string LineWastePrefix = null;
+        public string LineWastePrefix {get;set;}
         /// <summary>
         /// Trimmed whitespace characters suffixing this sections header line
         /// </summary>
-        public string LineWasteSuffix = null;
+        public string LineWasteSuffix {get;set;}
 
         public ConfigIniSection() { }
 

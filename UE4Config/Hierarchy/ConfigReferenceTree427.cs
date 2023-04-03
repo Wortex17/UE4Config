@@ -12,8 +12,6 @@ namespace UE4Config.Hierarchy
     /// This does not support layer-hierarchies below UE427+
     /// This does not yet support user-layers
     /// </remarks>
-    // TODO: Add support for DataDrivenPlatformInfo.ini to generate platforms
-    // TODO: Add support for (DataDrivenPlatformInfo:IniParent) to setup platform hierarchy
     public class ConfigReferenceTree427 : IConfigReferenceTree
     {
         public IConfigFileProvider FileProvider { get; private set; }
@@ -87,7 +85,7 @@ namespace UE4Config.Hierarchy
             return new ConfigFileReference(domain, platform, type);
         }
 
-        private Dictionary<string, IConfigPlatform> m_Platforms = new Dictionary<string, IConfigPlatform>();
+        private readonly Dictionary<string, IConfigPlatform> m_Platforms = new Dictionary<string, IConfigPlatform>();
     }
     
 }

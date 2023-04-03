@@ -5,7 +5,7 @@
     /// </summary>
     public class TextToken : LineToken
     {
-        public string Text;
+        public string Text {get;set;}
 
         public override void Write(ConfigIniWriter writer)
         {
