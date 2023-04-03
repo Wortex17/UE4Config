@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using NUnit.Framework;
 using UE4Config.Hierarchy;
 using UE4Config.Parsing;

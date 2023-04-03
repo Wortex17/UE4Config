@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UE4Config.Parsing;
-
-namespace UE4Config.Hierarchy
+﻿namespace UE4Config.Hierarchy
 {
     public static class VirtualConfigTreeUtility
     {

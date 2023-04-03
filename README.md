@@ -94,7 +94,7 @@ config.AppendRawText("[Global]\n" +
 //Here we use the config ini syntax to add another value to the list
 
 //Cleanup the config before publishing it
-config.Cleanup();
+config.Sanitize();
 
 //Publish the config and write it back
 configTree.PublishConfig(config);
@@ -115,7 +115,7 @@ Assert.That(win64Values, Is.EquivalentTo(new[]
 
 ### Setting up a VirtualConfigTree
 While there is the utility method to create a virtual config tree,
-you may set it up manually your own to customize behavior.
+you may set it up manually to customize behavior.
 ```C#
 var autoTree = VirtualConfigTreeUtility.CreateVirtualConfigTree(enginePath, projectPath);
             

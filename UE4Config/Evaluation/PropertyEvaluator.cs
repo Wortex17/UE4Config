@@ -96,9 +96,6 @@ namespace UE4Config.Evaluation
             }
         }
 
-        /// <remarks>
-        /// STUB
-        /// </remarks>
         /// <summary>
         /// Evaluates the value of an property, as constructed by one or more <see cref="ConfigIni"/>s
         /// </summary>
