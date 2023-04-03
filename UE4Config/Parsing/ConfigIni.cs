@@ -15,7 +15,7 @@ namespace UE4Config.Parsing
     /// </remarks>
     public class ConfigIni
     {
-        public string Name = null;
+        public string Name {get;set;}
         public List<ConfigIniSection> Sections = new List<ConfigIniSection>();
         public ConfigFileReference Reference { get; private set; }
 
@@ -295,7 +295,9 @@ namespace UE4Config.Parsing
             foreach (var section in Sections)
             {
                 if (section == null)
+                {
                     continue;
+                }
 
                 section.Write(writer);
             }
@@ -370,14 +372,18 @@ namespace UE4Config.Parsing
             foreach (var section in Sections)
             {
                 if (section.LineEnding != LineEnding.Unknown)
+                {
                     return section.LineEnding;
+                }
 
                 foreach (var token in section.Tokens)
                 {
                     if (token is LineToken lineToken)
                     {
                         if (lineToken.LineEnding != LineEnding.Unknown)
+                        {
                             return lineToken.LineEnding;
+                        }
                     }
 
                     if (token is MultilineToken multilineToken)
@@ -385,7 +391,9 @@ namespace UE4Config.Parsing
                         foreach (var line in multilineToken.Lines)
                         {
                             if (line.LineEnding != LineEnding.Unknown)
+                            {
                                 return line.LineEnding;
+                            }
                         }
                     }
                 }

@@ -24,9 +24,11 @@ namespace UE4Config.Hierarchy
             /// </summary>
             public void SetPlatformLegacyConfig(string platformIdentifier, bool isLegacyConfig)
             {
-                if(String.IsNullOrEmpty(platformIdentifier))
+                if (String.IsNullOrEmpty(platformIdentifier))
+                {
                     return;
-                
+                }
+
                 if (isLegacyConfig)
                 {
                     m_LegacyPlatforms.Add(platformIdentifier);
@@ -94,26 +96,38 @@ namespace UE4Config.Hierarchy
                     return null; //Not yet supported
                 case ConfigDomain.EngineBase:
                     if (EnginePath == null)
+                    {
                         return null;
+                    }
                     if (!String.IsNullOrEmpty(reference.Platform?.Identifier) && String.IsNullOrEmpty(reference.Type))
+                    {
                         return null;
+                    }
                     basePath = EnginePath;
                     prefix = "Base";
                     platformLegacyConfig = EnginePlatformLegacyConfig;
                     break;
                 case ConfigDomain.Engine:
                     if (EnginePath == null)
+                    {
                         return null;
+                    }
                     if (String.IsNullOrEmpty(reference.Type))
+                    {
                         return null;
+                    }
                     basePath = EnginePath;
                     platformLegacyConfig = EnginePlatformLegacyConfig;
                     break;
                 case ConfigDomain.Project:
                     if (ProjectPath == null)
+                    {
                         return null;
+                    }
                     if (String.IsNullOrEmpty(reference.Type))
+                    {
                         return null;
+                    }
                     basePath = ProjectPath;
                     platformLegacyConfig = ProjectPlatformLegacyConfig;
                     if (String.IsNullOrWhiteSpace(platform))
@@ -124,9 +138,13 @@ namespace UE4Config.Hierarchy
                     break;
                 case ConfigDomain.ProjectGenerated:
                     if (EnginePath == null)
+                    {
                         return null;
+                    }
                     if (String.IsNullOrEmpty(reference.Type))
+                    {
                         return null;
+                    }
                     basePath = ProjectPath;
                     prefix = "Generated";
                     platformLegacyConfig = ProjectPlatformLegacyConfig;

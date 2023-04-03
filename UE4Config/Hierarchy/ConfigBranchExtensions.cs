@@ -27,7 +27,9 @@ namespace UE4Config.Hierarchy
         {
             var index = FindHeadConfigIndex(configBranch, configDomain, platformSelector, specifcPlatformIdentifier);
             if (index >= 0)
+            {
                 return configBranch[index];
+            }
 
             return default(ConfigFileReference);
         }
@@ -36,7 +38,9 @@ namespace UE4Config.Hierarchy
         {
             var index = FindHeadConfigIndex(configBranch, configDomain, platformSelector, specifcPlatformIdentifier);
             if (index >= 0)
+            {
                 return configBranch[index];
+            }
 
             return default(ConfigIni);
         }
@@ -47,7 +51,9 @@ namespace UE4Config.Hierarchy
             {
                 var pivotRef = configBranch[i];
                 if (IsHeadConfigReference(pivotRef, configDomain, platformSelector, specifcPlatformIdentifier))
+                {
                     return i;
+                }
             }
 
             return -1;
@@ -60,7 +66,9 @@ namespace UE4Config.Hierarchy
                 var pivot = configBranch[i];
                 var pivotRef = pivot.Reference;
                 if (IsHeadConfigReference(pivotRef, configDomain, platformSelector, specifcPlatformIdentifier))
+                {
                     return i;
+                }
             }
 
             return -1;
@@ -69,20 +77,28 @@ namespace UE4Config.Hierarchy
         private static bool IsHeadConfigReference(ConfigFileReference reference, ConfigDomain configDomain, ConfigBranchPlatformSelector platformSelector, string specifcPlatformIdentifier)
         {
             if (reference.Domain != configDomain)
+            {
                 return false;
+            }
             switch (platformSelector)
             {
                 case ConfigBranchPlatformSelector.None:
-                    if(reference.IsPlatformConfig) 
+                    if (reference.IsPlatformConfig)
+                    {
                         return false;
+                    }
                     break;
                 case ConfigBranchPlatformSelector.Any:
-                    if(!reference.IsPlatformConfig) 
+                    if (!reference.IsPlatformConfig)
+                    {
                         return false;
+                    }
                     break;
                 case ConfigBranchPlatformSelector.Specific:
-                    if(reference.Platform == null || reference.Platform?.Identifier != specifcPlatformIdentifier)
+                    if (reference.Platform == null || reference.Platform?.Identifier != specifcPlatformIdentifier)
+                    {
                         return false;
+                    }
                     break;
                 case ConfigBranchPlatformSelector.NoneOrAny:
                 default:

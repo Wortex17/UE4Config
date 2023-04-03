@@ -85,7 +85,7 @@ namespace UE4Config.Hierarchy
             return new ConfigFileReference(domain, platform, type);
         }
 
-        private Dictionary<string, IConfigPlatform> m_Platforms = new Dictionary<string, IConfigPlatform>();
+        private readonly Dictionary<string, IConfigPlatform> m_Platforms = new Dictionary<string, IConfigPlatform>();
     }
     
 }

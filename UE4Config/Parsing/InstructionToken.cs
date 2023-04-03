@@ -2,9 +2,9 @@
 {
     public class InstructionToken : LineToken
     {
-        public InstructionType InstructionType;
-        public string Key;
-        public string Value;
+        public InstructionType InstructionType {get;set;}
+        public string Key {get;set;}
+        public string Value {get;set;}
 
         public InstructionToken() { }
 

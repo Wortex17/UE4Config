@@ -25,7 +25,9 @@ namespace UE4Config.Hierarchy
         public void CollectDataDrivenPlatforms()
         {
             if (FileProvider == null)
+            {
                 throw new NullReferenceException("FileProvider was null");
+            }
             
             //Fetch all DataDrivenPlatformInfo.ini's, read them, construct platforms etc.
             var platforms = FileProvider.FindAllPlatforms();
@@ -44,7 +46,9 @@ namespace UE4Config.Hierarchy
         protected void ParseDataDrivenPlatformInfos(ConfigIni dataDrivenPlatformConfig, Action<DataDrivenPlatformInfo> onDataDrivenPlatformInfo)
         {
             if (dataDrivenPlatformConfig == null)
+            {
                 return;
+            }
             foreach (var iniSection in dataDrivenPlatformConfig.Sections)
             {
                 const string platformInfoHeaderPrefix = "PlatformInfo ";
@@ -82,14 +86,18 @@ namespace UE4Config.Hierarchy
             foreach (var dataDrivenPlatformInfo in dataDrivenPlatformInfos.Values)
             {
                 //To add in correct order for valid tree structure, add roots&parents first
-                if(visitedPlatformIdentifiers.Contains(dataDrivenPlatformInfo.PlatformIdentifier))
+                if (visitedPlatformIdentifiers.Contains(dataDrivenPlatformInfo.PlatformIdentifier))
+                {
                     continue;
+                }
                 hierarchyTemp.Clear();
                 FindDataDrivenPlatformInfoHierarchy(dataDrivenPlatformInfo, dataDrivenPlatformInfos, ref hierarchyTemp);
                 foreach (var dataDrivenPlatformInfoInHierarchy in hierarchyTemp)
                 {
-                    if(visitedPlatformIdentifiers.Contains(dataDrivenPlatformInfoInHierarchy.PlatformIdentifier))
+                    if (visitedPlatformIdentifiers.Contains(dataDrivenPlatformInfoInHierarchy.PlatformIdentifier))
+                    {
                         continue;
+                    }
                     
                     visitedPlatformIdentifiers.Add(dataDrivenPlatformInfoInHierarchy.PlatformIdentifier);
                     
@@ -111,8 +119,10 @@ namespace UE4Config.Hierarchy
             do
             {
                 if (hierarchy.Contains(pivotPlatformInfo))
+                {
                     break; // Loop detected
-                
+                }
+
                 hierarchy.Add(pivotPlatformInfo);
             } while (FindParentDataDrivenPlatformInfo(pivotPlatformInfo, platformInfos, out pivotPlatformInfo));
             
